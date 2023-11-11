@@ -1,6 +1,8 @@
 ;; Call treesit-install-language-grammar for each language
 ;; Or use the following after install: (mapc #'treesit-install-language-grammar (mapcar #'car treesit-language-source-alist))
 
+;; Testing change detection
+
 ;;----------------------------------------------------------------------------
 ;;                                                                           |
 ;; basic settings                                                            |
