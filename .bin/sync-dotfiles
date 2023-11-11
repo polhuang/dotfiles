@@ -1,4 +1,5 @@
 #!/bin/sh
+
 # Sync dotfiles repo and ensure that dotfiles are tangled correctly afterward
 
 GREEN='\033[1;32m'
@@ -9,10 +10,6 @@ NC='\033[0m'
 # Navigate to the directory of this script (generally ~/.dotfiles/.bin)
 cd $(dirname $(readlink -f $0))
 cd ..
-
-echo
-echo -e "${BLUE}Saving Org buffers if Emacs is running...${NC}"
-emacsclient -u -e "(org-save-all-org-buffers)" -a "echo 'Emacs is not currently running'"
 
 echo -e "${BLUE}Stashing existing changes...${NC}"
 stash_result=$(git stash push -m "sync-dotfiles: Before syncing dotfiles")
@@ -38,7 +35,6 @@ if [[ ! -z $unmerged_files ]]; then
    echo
    printf %"s\n" $unmerged_files  # Ensure newlines are printed
 else
-    update-dotfiles
+   # Run stow to ensure all new dotfiles are linked
+   stow .
 fi
-
-
