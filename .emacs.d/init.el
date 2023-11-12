@@ -1,8 +1,6 @@
 ;; Call treesit-install-language-grammar for each language
 ;; Or use the following after install: (mapc #'treesit-install-language-grammar (mapcar #'car treesit-language-source-alist))
 
-;; Testing change detection
-
 ;;----------------------------------------------------------------------------
 ;;                                                                           |
 ;; basic settings                                                            |
@@ -155,6 +153,17 @@
 
 ;; highlight current line
 (global-hl-line-mode t)
+
+;; helpful
+(use-package helpful
+  :ensure t
+  :bind
+  ([remap describe-function] . helpful-callable)
+  ([remap describe-variable] . helpful-variable)
+  ([remap describe-key] . helpful-key)
+  ([remap describe-symbol] . helpful-symbol)
+  ([remap describe-command] . helpful-command)
+  ([remap describe-mode] . helpful-mode))
 
 ;; misc ui settings
 (scroll-bar-mode -1)        ; Disable visible scrollbar
@@ -410,8 +419,13 @@
 
 (use-package puni
   :ensure t
+  :hook (prog-mode . puni-mode)
   :config
+  (with-eval-after-load "org"
+    (define-key org-mode-map (kbd "C-c \\") #'puni-mark-sexp-around-point))
   (puni-global-mode))
+
+
 
 ;; -------------------
 ;; completion system |
@@ -742,10 +756,6 @@
 (global-set-key (kbd "C-c D") 'crux-duplicate-current-line-or-region)
 (global-set-key (kbd "C-c K") 'crux-kill-other-buffers)
 (global-set-key (kbd "C-c K") 'crux-kill-other-buffers)
-
-(unless (package-installed-p 'crux)
-  (package-refresh-contents)
-  (package-install 'crux))
 
 ;; -----------
 ;; utilities |
