@@ -40,9 +40,9 @@
       (bootstrap-version 6))
   (unless (file-exists-p bootstrap-file)
     (with-current-buffer
-        (url-retrieve-synchronously
-         "https://raw.githubusercontent.com/radian-software/straight.el/develop/install.el"
-         'silent 'inhibit-cookies)
+	(url-retrieve-synchronously
+	 "https://raw.githubusercontent.com/radian-software/straight.el/develop/install.el"
+	 'silent 'inhibit-cookies)
       (goto-char (point-max))
       (eval-print-last-sexp)))
   (load bootstrap-file nil 'nomessage))
@@ -340,7 +340,7 @@
 (global-set-key (kbd "M-o") 'ace-window)
 
 ;; transpose windows
-(global-set-key (kbd "C-x w w") 'crux-transpose-windows)
+(global-set-key (kbd "C-x w t") 'crux-transpose-windows)
 
 ;; toggle vertical/horizontal split
 (defun toggle-window-split ()
@@ -368,7 +368,7 @@
 	  (select-window first-win)
 	  (if this-win-2nd (other-window 1))))))
 
-(global-set-key (kbd "C-x w d") 'toggle-window-split)
+(global-set-key (kbd "C-x w s") 'toggle-window-split)
 
 ;; ----------------
 ;; authentication |
@@ -419,13 +419,11 @@
 
 (use-package puni
   :ensure t
-  :hook (prog-mode . puni-mode)
-  :config
-  (with-eval-after-load "org"
-    (define-key org-mode-map (kbd "C-c \\") #'puni-mark-sexp-around-point))
-  (puni-global-mode))
+  :hook (prog-mode . puni-mode))
 
-
+(with-eval-after-load "org"
+  (global-set-key (kbd "C-c \\") #'puni-mark-sexp-around-point)
+  (define-key org-mode-map (kbd "C-c \\") #'puni-mark-sexp-around-point))
 
 ;; -------------------
 ;; completion system |
@@ -745,17 +743,17 @@
 (global-set-key (kbd "C-f") 'consult-line)
 
 ;; crux keybinds (move to topic sections later)
-(unless (package-installed-p 'crux)
-  (package-refresh-contents)
-  (package-install 'crux))
-;; (global-set-key (kbd "C-k") 'crux-smart-kill-line)
-(global-set-key (kbd "C-S-k") 'crux-kill-whole-line)
-(global-set-key (kbd "C-S-<return>") 'crux-smart-open-line-above)
-(global-set-key (kbd "C-<return>") 'crux-smart-open-line)
-(global-set-key (kbd "C-c r") 'crux-recentf-find-file)
-(global-set-key (kbd "C-c D") 'crux-duplicate-current-line-or-region)
-(global-set-key (kbd "C-c K") 'crux-kill-other-buffers)
-(global-set-key (kbd "C-c K") 'crux-kill-other-buffers)
+(use-package crux
+  :ensure t
+  :bind (("C-a" . crux-move-beginning-of-line)
+	 ("C-c r" . crux-recentf-find-file)
+	 ("C-c D" . crux-duplicate-current-line-or-region)
+	 ("C-c K" . crux-kill-other-buffers)
+	 ("C-k" . crux-smart-kill-line)
+	 ("C-S-k" . crux-kill-line-backwards)
+	 ("C-<delete>" . crux-kill-whole-line)
+	 ("C-S-<return>" . crux-smart-open-line-above)
+	 ("C-<return>" . crux-smart-open-line)))
 
 ;; -----------
 ;; utilities |
@@ -906,14 +904,12 @@
 
 ;; org-mode
 (use-package org
-  ;;:hook (org-mode . efs/org-mode-setup)
   :bind
   (("C-c C-c" . org-id-get-create)
    ("C-c c" . org-capture)
    ("C-c C-<return>" . org-insert-heading-respect-content)
    ("C-c a" . org-agenda))
   :config
-  (add-hook 'org-mode-hook 'org-indent-mode)
   (setq org-ellipsis " ▾")
   (custom-set-faces
    '(org-ellipsis ((t (:underline nil)))))
@@ -960,16 +956,9 @@
 			      " line missing at position %s")
 			    (1+ start))))
 		(if (re-search-forward "^[ \t]*:END:" limit t)
-		    
+
 		  (outline-flag-region start (point-at-eol) t)
 		  (user-error msg)))))))))))
-
-;; org-capture templates
-(defun transform-square-brackets-to-round-ones(string-to-transform)
-  "Transforms [ into ( and ] into ), other chars left unchanged."
-  (concat
-  (mapcar #'(lambda (c) (if (equal c ?[) ?\( (if (equal c ?]) ?\) c))) string-to-transform))
-  )
 
 ;; org-capture
 (setq org-capture-templates `(
