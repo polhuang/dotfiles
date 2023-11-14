@@ -121,8 +121,7 @@
 (use-package fontify-face
   :ensure t
   :hook (prog-mode . fontify-face-mode)
-  :hook (org-mode . fontify-face-mode)
-  :hook (text-mode . fontify-face-mode))
+  :hook (org-mode . fontify-face-mode))
 
 ;; font
 (set-face-attribute 'default nil :family "Iosevka Comfy Fixed" :height 120 :width 'normal)
@@ -1016,8 +1015,8 @@
 (defun my/org-roam-capture-periodically ()
   "Capture an org-roam note."
   (interactive)
-  (select-frame-set-input-focus (selected-frame)
-  (org-roam-dailies-capture-today)))
+  (when (yes-or-no-p "Add a entry to today's daily?")
+      (org-roam-dailies-capture-today)))
 
 (setq my/org-roam-timer
 	(run-at-time t 3600 'my/org-roam-capture-periodically))
