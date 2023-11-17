@@ -32,6 +32,36 @@ local hotkeys_popup = require("awful.hotkeys_popup")
                       require("awful.hotkeys_popup.keys")
 local mytable       = awful.util.table or gears.table -- 4.{0,1} compatibility
 
+--- Test
+
+local image_widget = wibox.widget {
+   image  = "/home/polhuang/Downloads/asdf.png",
+    forced_height = 100,
+    forced_width = 100,
+    resize = true,
+    visible = true,
+    widget = wibox.widget.imagebox
+}
+
+-- Create a floating wibox for the image widget
+local image_popup = awful.popup {
+    widget = {
+        image_widget,
+        margins = 10,
+        widget  = wibox.container.margin
+    },
+    border_color = beautiful.border_color,
+    border_width = 2,
+    ontop        = true,
+    placement    = awful.placement.centered,
+    visible      = false,
+}
+
+-- Function to toggle the visibility of the image popup
+local function toggle_image()
+    image_popup.visible = not image_popup.visible
+end
+
 -- }}}
 
 -- {{{ Error handling
@@ -612,6 +642,8 @@ for i = 1, 9 do
                         end
                   end,
                   {description = "view tag #"..i, group = "tag"}),
+  awful.key({ modkey }, "y", function () toggle_image() end,
+              {description = "toggle image widget", group = "custom"}),
         -- Toggle tag display.
         awful.key({ modkey, "Control" }, "#" .. i + 9,
                   function ()
@@ -848,3 +880,4 @@ awful.spawn("keymapp")
 awful.spawn("spotify")
 awful.util.spawn("1password")
 awful.util.spawn("discord")
+

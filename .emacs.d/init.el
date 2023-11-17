@@ -1,3 +1,7 @@
+;; External dependencies:
+;; pdf-tools (https://github.com/vedang/pdf-tools)
+
+;; Post-install:
 ;; Call treesit-install-language-grammar for each language
 ;; Or use the following after install: (mapc #'treesit-install-language-grammar (mapcar #'car treesit-language-source-alist))
 
@@ -75,6 +79,7 @@
   :init
   (load-theme 'seoul256 t)
   :config
+  (set-face-attribute 'default nil :foreground "#FFF0F5")
   (set-face-attribute 'font-lock-keyword-face nil :foreground "#c66d86" :weight 'bold)
   (set-face-attribute 'font-lock-constant-face nil :weight 'bold)
   (set-face-attribute 'font-lock-builtin-face nil :weight 'bold)
@@ -84,9 +89,10 @@
 
 (with-eval-after-load 'org
   (set-face-attribute 'org-level-1 nil :foreground "#ffd7af")
-  (set-face-attribute 'org-block-begin-line nil :foreground "#333233" :background "#FFBFBD")
+  (set-face-attribute 'org-block-begin-line nil :foreground "#333233" :distant-foreground "#FFF0F5" :background "#FFBFBD")
   (set-face-attribute 'org-block nil :background "#171717")
-  (set-face-attribute 'org-todo nil :foreground "#c66d86" :weight 'bold))
+  (set-face-attribute 'org-todo nil :foreground "#c66d86" :weight 'bold)
+  (set-face-attribute 'org-verbatim nil :foreground "#BC8F8F"))
 
 (use-package nerd-icons
   :ensure t)
@@ -790,6 +796,9 @@
 ;;                                                                             |
 ;;------------------------------------------------------------------------------
 
+;; spaces over tabs
+(setq-default indent-tabs-mode nil)
+
 ;; lsp
 (use-package lsp-mode
   :custom
@@ -830,19 +839,25 @@
 (use-package tree-sitter-langs
   :ensure t)
 
+;; treesit-auto
+(use-package treesit-auto
+  :config(global-treesit-auto-mode))
+
 (setq treesit-language-source-alist
-   '((bash "https://github.com/tree-sitter/tree-sitter-bash")
-     (css "https://github.com/tree-sitter/tree-sitter-css")
-     (elisp "https://github.com/Wilfred/tree-sitter-elisp")
-     (html "https://github.com/tree-sitter/tree-sitter-html")
-     (javascript "https://github.com/tree-sitter/tree-sitter-javascript" "master" "src")
-     (json "https://github.com/tree-sitter/tree-sitter-json")
-     (markdown "https://github.com/ikatyang/tree-sitter-markdown")
-     (python "https://github.com/tree-sitter/tree-sitter-python")
-     (toml "https://github.com/tree-sitter/tree-sitter-toml")
-     (tsx "https://github.com/tree-sitter/tree-sitter-typescript" "master" "tsx/src")
-     (typescript "https://github.com/tree-sitter/tree-sitter-typescript" "master" "typescript/src")
-     (yaml "https://github.com/ikatyang/tree-sitter-yaml")))
+      '((bash "https://github.com/tree-sitter/tree-sitter-bash")
+	(c "https://github.com/tree-sitter/tree-sitter-c")
+	(css "https://github.com/tree-sitter/tree-sitter-css")
+	(elisp "https://github.com/Wilfred/tree-sitter-elisp")
+	(html "https://github.com/tree-sitter/tree-sitter-html")
+	(javascript "https://github.com/tree-sitter/tree-sitter-javascript" "master" "src")
+	(json "https://gtihub.com/tree-sitter/tree-sitter-json")
+	(lua "https://github.com/MunifTanjim/tree-sitter-lua")
+	(markdown "https://github.com/ikatyang/tree-sitter-markdown")
+	(python "https://github.com/tree-sitter/tree-sitter-python")
+	(toml "https://github.com/tree-sitter/tree-sitter-toml")
+	(tsx "https://github.com/tree-sitter/tree-sitter-typescript" "master" "tsx/src")
+	(typescript "https://github.com/tree-sitter/tree-sitter-typescript" "master" "typescript/src")
+	(yaml "https://github.com/ikatyang/tree-sitter-yaml")))
 
 (use-package tree-sitter
   :ensure t
@@ -864,9 +879,17 @@
 (use-package rjsx-mode
   :ensure t
   :mode "\\.js\\', \\.jsx\\'"
+  :hook (rjsx-mode . lsp-deferred)
   :config
   (setq js-indent-level 2)
   (setq js2-strict-missing-semi-warning nil))
+
+;; python
+(use-package python-mode
+  :ensure t
+  :hook (python-mode . lsp-deferred)
+  :custom
+  (python-shell-interpreter "python3"))
 
 ;; typescript-mode
 (use-package typescript-mode
@@ -891,6 +914,9 @@
 ;; slime (the superior lisp interaction mode for emacs)
 (load (expand-file-name "~/.quicklisp/slime-helper.el"))
 (setq inferior-lisp-program "sbcl")
+
+;; pdf-tools
+(pdf-tools-install)
 
 ;; ----------
 ;; org mode |
@@ -970,7 +996,10 @@
 ;; org-babel
 (org-babel-do-load-languages
  'org-babel-load-languages
- '((lisp . t)))
+ '((lisp . t)
+   (python . t)))
+
+(setq org-babel-python-command "python3")
 
 ;; org-roam
 (use-package org-roam
@@ -1168,7 +1197,8 @@
   :hook
   (prog-mode . copilot-mode)
   :config
-  (define-key copilot-completion-map (kbd "C-c TAB") 'copilot-accept-completion))
+  (define-key copilot-completion-map (kbd "C-c TAB") 'copilot-accept-completion)
+  (set-face-attribute 'copilot-overlay-face nil :foreground "grey30"))
 
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
