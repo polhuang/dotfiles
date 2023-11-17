@@ -938,7 +938,7 @@
   (setq org-ellipsis " ▾")
   (custom-set-faces
    '(org-ellipsis ((t (:underline nil)))))
-
+  (setq org-hide-leading-stars t)
   (setq org-directory "~/org/")
   (setq org-clock-persist 'history)
   (org-clock-persistence-insinuate)
@@ -946,7 +946,6 @@
   (setq org-log-done 'time)
   (setq org-log-into-drawer t)
   (setq org-id-link-to-org-use-id 'create-if-interactive)
-
   (setq org-startup-folded 'content)
   (defun org-cycle-hide-drawers (state)
     "Re-hide all drawers after a visibility state change."
@@ -1030,7 +1029,7 @@
 	    #'org-roam-reflinks-section
 	    ;; #'org-roam-unlinked-references-section
 	    ))
-  (setq org-roam-dailies-capture-templatesz
+  (setq org-roam-dailies-capture-templates
       '(("d" "default" entry "* %<%I:%M %p> \n%?"
 	 :if-new (file+head "%<%Y-%m-%d>.org" "#+title: %<%Y-%m-%d>\n"))))
 
@@ -1045,7 +1044,8 @@
   "Capture an org-roam note."
   (interactive)
   (when (yes-or-no-p "Add a entry to today's daily?")
-      (org-roam-dailies-capture-today)))
+    (select-frame-set-input-focus (selected-frame)
+                                  (org-roam-dailies-capture-today))))
 
 (setq my/org-roam-timer
 	(run-at-time t 3600 'my/org-roam-capture-periodically))
