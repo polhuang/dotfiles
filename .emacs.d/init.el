@@ -2,8 +2,7 @@
 ;; pdf-tools (https://github.com/vedang/pdf-tools)
 
 ;; Post-install:
-;; Call treesit-install-language-grammar for each language
-;; Or use the following after install: (mapc #'treesit-install-language-grammar (mapcar #'car treesit-language-source-alist))
+;; Run treesit-auto-install-all
 
 ;;----------------------------------------------------------------------------
 ;;                                                                           |
@@ -413,14 +412,15 @@
 (move-text-default-bindings)
 
 ;; electric pair
- (electric-pair-mode 1)
+;; (electric-pair-mode 1)
 
 ;; smartparens (currently trying out puni + electric pair)
-;; (use-package smartparens
-;;   :ensure t
-;;   :config
-;;   (require 'smartparens-config)
-;;   (smartparens-global-mode t))
+(use-package smartparens
+  :ensure t
+  :config
+  (require 'smartparens-config)
+  (smartparens-global-mode t))
+
 
 (use-package puni
   :ensure t
@@ -841,23 +841,24 @@
 
 ;; treesit-auto
 (use-package treesit-auto
-  :config(global-treesit-auto-mode))
+  :config
+  (global-treesit-auto-mode))
 
-(setq treesit-language-source-alist
-      '((bash "https://github.com/tree-sitter/tree-sitter-bash")
-	(c "https://github.com/tree-sitter/tree-sitter-c")
-	(css "https://github.com/tree-sitter/tree-sitter-css")
-	(elisp "https://github.com/Wilfred/tree-sitter-elisp")
-	(html "https://github.com/tree-sitter/tree-sitter-html")
-	(javascript "https://github.com/tree-sitter/tree-sitter-javascript" "master" "src")
-	(json "https://gtihub.com/tree-sitter/tree-sitter-json")
-	(lua "https://github.com/MunifTanjim/tree-sitter-lua")
-	(markdown "https://github.com/ikatyang/tree-sitter-markdown")
-	(python "https://github.com/tree-sitter/tree-sitter-python")
-	(toml "https://github.com/tree-sitter/tree-sitter-toml")
-	(tsx "https://github.com/tree-sitter/tree-sitter-typescript" "master" "tsx/src")
-	(typescript "https://github.com/tree-sitter/tree-sitter-typescript" "master" "typescript/src")
-	(yaml "https://github.com/ikatyang/tree-sitter-yaml")))
+      ;; treesit-auto makes the following redundant but keeping here for now just in case
+      ;; '((bash "https://github.com/tree-sitter/tree-sitter-bash")
+      ;;   (c "https://github.com/tree-sitter/tree-sitter-c")
+      ;;   (css "https://github.com/tree-sitter/tree-sitter-css")
+      ;;   (elisp "https://github.com/Wilfred/tree-sitter-elisp")
+      ;;   (html "https://github.com/tree-sitter/tree-sitter-html")
+      ;;   (javascript "https://github.com/tree-sitter/tree-sitter-javascript" "master" "src")
+      ;;   (json "https://gtihub.com/tree-sitter/tree-sitter-json")
+      ;;   (lua "https://github.com/MunifTanjim/tree-sitter-lua")
+      ;;   (markdown "https://github.com/ikatyang/tree-sitter-markdown")
+      ;;   (python "https://github.com/tree-sitter/tree-sitter-python")
+      ;;   (toml "https://github.com/tree-sitter/tree-sitter-toml")
+      ;;   (tsx "https://github.com/tree-sitter/tree-sitter-typescript" "master" "tsx/src")
+      ;;   (typescript "https://github.com/tree-sitter/tree-sitter-typescript" "master" "typescript/src")
+      ;;   (yaml "https://github.com/ikatyang/tree-sitter-yaml")))
 
 (use-package tree-sitter
   :ensure t
