@@ -432,7 +432,6 @@ T - tag prefix
   :bind
   ("C-M-<return>" . major-mode-hydra))
 
-
 ;; ------------------------------
 ;; logs, debugging, and history |
 ;; ------------------------------
