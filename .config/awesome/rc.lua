@@ -1,7 +1,7 @@
 --[[
    Dependencies:
    - rofi: Install using apt
-   - rofi theme: Install repo at https://github.com/adi1090x/rofi. Bug in files/config.rasi config file due to apt version. Replace "run,drun" with "run-drun." See here: https://github.com/adi1090x/rofi/issues/149
+   - rofi theme: Install repo at https://github.com/adi1090x/rofi. Bug in files/config.rasi config file due to apt version. Replace "run,drun" with "run-drun in /.config/rofi/" See here: https://github.com/adi1090x/rofi/issues/149
    - pactl-widget: Install repo at https://github.com/streetturtle/awesome-wm-widgets/tree/master/pactl-widget. Compatible with pipewire.
    - install sp:
       - git clone https://gist.github.com/fa6258f3ff7b17747ee3.git

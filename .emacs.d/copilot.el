@@ -1,1 +1,1 @@
-/home/polhuang/.dotfiles/.emacs.d/private/copilot.el
+private/copilot.el

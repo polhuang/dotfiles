@@ -1073,9 +1073,6 @@ T - tag prefix
 (load (expand-file-name "~/.quicklisp/slime-helper.el"))
 (setq inferior-lisp-program "sbcl")
 
-;; pdf-tools
-(pdf-tools-install)
-
 ;; ----------
 ;; org mode |
 ;; ----------
