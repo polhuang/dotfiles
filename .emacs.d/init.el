@@ -1160,8 +1160,8 @@ T - tag prefix
   :ensure t
   :init
   (setq org-roam-v2-ack t)
-  :custom
   (setq org-roam-directory (file-truename "~/org/roam/"))
+  :custom
   (org-roam-completion-everywhere t)
   :bind (("C-c n l" . org-roam-buffer-toggle)
 	 ("C-c n f" . org-roam-node-find)
