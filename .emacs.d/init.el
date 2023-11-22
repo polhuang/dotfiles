@@ -989,6 +989,13 @@ T - tag prefix
 (add-hook 'after-init-hook #'global-flycheck-mode)
 
 ;; tree-sitter
+(use-package tree-sitter
+  :ensure t
+  :config
+  :init
+  (global-tree-sitter-mode)
+  (add-hook 'tree-sitter-after-on-hook #'tree-sitter-hl-mode))
+
 (use-package tree-sitter-langs
   :ensure t)
 
@@ -1013,12 +1020,7 @@ T - tag prefix
       ;;   (typescript "https://github.com/tree-sitter/tree-sitter-typescript" "master" "typescript/src")
       ;;   (yaml "https://github.com/ikatyang/tree-sitter-yaml")))
 
-(use-package tree-sitter
-  :ensure t
-  :config
-  :init
-  (global-tree-sitter-mode)
-  (add-hook 'tree-sitter-after-on-hook #'tree-sitter-hl-mode))
+
 
 
 ;; ------------------
