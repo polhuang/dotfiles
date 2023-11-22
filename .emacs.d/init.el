@@ -129,7 +129,7 @@
   :hook (org-mode . fontify-face-mode))
 
 ;; font
-(set-face-attribute 'default nil :family "Iosevka Comfy Fixed" :height 120 :width 'normal)
+(set-face-attribute 'default nil :family "Iosevka Comfy Fixed" :height 100 :width 'normal)
 
 ;; word wrap
 (global-visual-line-mode 1)
@@ -1161,7 +1161,7 @@ T - tag prefix
   :init
   (setq org-roam-v2-ack t)
   :custom
-  (setq org-roam-directory "~/org/roam")
+  (setq org-roam-directory (file-truename "~/org/roam/"))
   (org-roam-completion-everywhere t)
   :bind (("C-c n l" . org-roam-buffer-toggle)
 	 ("C-c n f" . org-roam-node-find)
@@ -1383,7 +1383,6 @@ T - tag prefix
      (tags . " %i %-12:c")
      (search . " %i %-12:c")))
  '(org-agenda-start-with-log-mode t)
- '(org-roam-directory "/home/polhuang/org/roam")
  '(package-selected-packages
    '(quelpa workgroups2 which-key vertico undo-tree typescript-mode tree-sitter-langs smartparens seoul256-theme rjsx-mode restart-emacs rainbow-mode rainbow-delimiters quelpa-use-package quelpa-leaf puni projectile ppp pfuture perspective persistent-scratch parrot page-break-lines org-sidebar org-roam org-gcal orderless nyan-mode nerd-icons-ibuffer nerd-icons-dired nerd-icons-corfu move-text marginalia magit lua-mode lsp-ui khoj kanagawa-theme kana hydra gruvbox-theme google-this fontify-face flycheck embark-consult elcord eat doom-modeline dockerfile-mode dashboard crux corfu cfrs cape calfw-gcal atomic-chrome async-await async all-the-icons adaptive-wrap ace-window))
  '(register-preview-delay 0.0)
