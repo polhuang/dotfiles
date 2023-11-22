@@ -432,7 +432,7 @@ globalkeys = mytable.join(
 
     -- Standard program
     awful.key({ modkey,           }, "Return", function () awful.spawn(terminal) end,
-              {description = "open a terminal", group = "launcher"}),
+       {description = "open a terminal", group = "launcher"}),
     awful.key({ modkey, "Control" }, "r", awesome.restart,
               {description = "reload awesome", group = "awesome"}),
     awful.key({ modkey, "Shift"   }, "q", awesome.quit,
@@ -524,7 +524,9 @@ globalkeys = mytable.join(
 
     -- User programs
     awful.key({ modkey }, "q", function () awful.spawn(browser) end,
-              {description = "run browser", group = "launcher"}),
+       {description = "run browser", group = "launcher"}),
+    awful.key({ modkey }, "e", function () awful.spawn(editor) end,
+       {description = "run emacs", group = "launcher"}),
 
     -- Default
     --[[ Menubar
