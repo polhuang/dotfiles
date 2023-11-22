@@ -140,6 +140,9 @@
 ;; disable ui dialog promptsq
 (setq use-dialog-box nil)
 
+;; prettify-symbols
+(global-prettify-symbols-mode 1)
+
 ;; hide backup files in dired
 (add-hook 'dired-mode-hook (lambda () (dired-omit-mode)))
 (defcustom dired-omit-verbose t
@@ -903,9 +906,13 @@ T - tag prefix
 ;;yasnippet-capf
 (use-package yasnippet-capf
   :ensure t
-  :config
+  :init
   (add-to-list 'completion-at-point-functions #'yasnippet-capf))
-ggg
+
+(add-to-list 'completion-at-point-functions #'yasnippet-capf)
+
+
+
 ;; -----------
 ;; utilities |
 ;; -----------
@@ -1020,7 +1027,11 @@ ggg
 
 ;; lua-mode
 (use-package lua-mode
-  :ensure t)
+  :ensure t
+  :mode "\\.lua\\'"
+  :hook ((lua-mode . lsp-deferred)
+         (lua-mode . (lambda () (tree-sitter-hl-mode -1))))
+  )
 
 ;; rjsx
 (use-package rjsx-mode
