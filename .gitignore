@@ -21,6 +21,7 @@
 /.emacs.d/straight/
 /.emacs.d/transient/
 /.emacs.d/undo/
+/.emacs.d/tree-sitter/
 
 .emacs.d/khoj.el
 .emacs.d/gcal.el
