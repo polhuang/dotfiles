@@ -207,8 +207,7 @@ awful.util.tasklist_buttons = mytable.join(
      end),
      awful.button({ }, 4, function() awful.client.focus.byidx(1) end),
      awful.button({ }, 5, function() awful.client.focus.byidx(-1) end)
-)
-
+)==
 beautiful.init(string.format("%s/.config/awesome/themes/%s/theme.lua", os.getenv("HOME"), chosen_theme))
 
 -- }}}
@@ -554,7 +553,7 @@ globalkeys = mytable.join(
        {description = "rofi run", group = "launcher"}),
 
     awful.key({ modkey }, "w", function ()
-	  os.execute(string.format("/home/polhuang/.config/rofi/scripts/launcher_t1"))
+          os.execute(string.format("%s/.config/rofi/scripts/launcher_t1", os.getenv("HOME")))
     end,
        {description = "rofi launch", group = "launcher"}), 
     

@@ -998,29 +998,34 @@ T - tag prefix
   (global-tree-sitter-mode)
   (add-hook 'tree-sitter-after-on-hook #'tree-sitter-hl-mode))
 
+(treesit-available-p)
 (use-package tree-sitter-langs
   :ensure t)
 
 ;; treesit-auto
 (use-package treesit-auto
+  :ensure t
   :config
   (global-treesit-auto-mode))
 
-      ;; treesit-auto makes the following redundant but keeping here for now just in case
-      ;; '((bash "https://github.com/tree-sitter/tree-sitter-bash")
-      ;;   (c "https://github.com/tree-sitter/tree-sitter-c")
-      ;;   (css "https://github.com/tree-sitter/tree-sitter-css")
-      ;;   (elisp "https://github.com/Wilfred/tree-sitter-elisp")
-      ;;   (html "https://github.com/tree-sitter/tree-sitter-html")
-      ;;   (javascript "https://github.com/tree-sitter/tree-sitter-javascript" "master" "src")
-      ;;   (json "https://gtihub.com/tree-sitter/tree-sitter-json")
-      ;;   (lua "https://github.com/MunifTanjim/tree-sitter-lua")
-      ;;   (markdown "https://github.com/ikatyang/tree-sitter-markdown")
-      ;;   (python "https://github.com/tree-sitter/tree-sitter-python")
-      ;;   (toml "https://github.com/tree-sitter/tree-sitter-toml")
-      ;;   (tsx "https://github.com/tree-sitter/tree-sitter-typescript" "master" "tsx/src")
-      ;;   (typescript "https://github.com/tree-sitter/tree-sitter-typescript" "master" "typescript/src")
-      ;;   (yaml "https://github.com/ikatyang/tree-sitter-yaml")))
+
+
+;;treesit-auto makes the following redundant but keeping here for now just in case
+(setq treesit-language-source-alist
+'((bash "https://github.com/tree-sitter/tree-sitter-bash")
+  (c "https://github.com/tree-sitter/tree-sitter-c")
+  (css "https://github.com/tree-sitter/tree-sitter-css")
+  (elisp "https://github.com/Wilfred/tree-sitter-elisp")
+  (html "https://github.com/tree-sitter/tree-sitter-html")
+  (javascript "https://github.com/tree-sitter/tree-sitter-javascript" "master" "src")
+  (json "https://gtihub.com/tree-sitter/tree-sitter-json")
+  (lua "https://github.com/MunifTanjim/tree-sitter-lua")
+  (markdown "https://github.com/ikatyang/tree-sitter-markdown")
+  (python "https://github.com/tree-sitter/tree-sitter-python")
+  (toml "https://github.com/tree-sitter/tree-sitter-toml")
+  (tsx "https://github.com/tree-sitter/tree-sitter-typescript" "master" "tsx/src")
+  (typescript "https://github.com/tree-sitter/tree-sitter-typescript" "master" "typescript/src")
+  (yaml "https://github.com/ikatyang/tree-sitter-yaml")))
 
 ;; ------------------
 ;; language support |
@@ -1031,8 +1036,16 @@ T - tag prefix
   :ensure t
   :mode "\\.lua\\'"
   :hook ((lua-mode . lsp-deferred)
-         (lua-mode . (lambda () (tree-sitter-hl-mode -1))))
-  )
+         (lua-mode . (lambda ()
+                       (run-with-idle-timer 0.1 nil (lambda ()
+                                                      (when (eq major-mode 'lua-mode)
+                                                        (tree-sitter-hl-mode -1))))))))
+;; (use-package lua-mode
+;;   :ensure t
+;;   :mode "\\.lua\\'"
+;;   :hook ((lua-mode . lsp-deferred)
+;;          (lua-mode . (lambda () (tree-sitter-hl-mode -1))))
+;;   )
 
 ;; rjsx
 (use-package rjsx-mode
@@ -1180,6 +1193,7 @@ T - tag prefix
   :config
   (require 'org-roam-dailies)
   (org-roam-db-autosync-mode)
+  
   (setq org-roam-mode-sections
       (list #'org-roam-backlinks-section
 	    #'org-roam-reflinks-section
@@ -1188,7 +1202,6 @@ T - tag prefix
   (setq org-roam-dailies-capture-templates
       '(("d" "default" entry "* %<%I:%M %p> \n%?"
 	 :if-new (file+head "%<%Y-%m-%d>.org" "#+title: %<%Y-%m-%d>\n"))))
-
   (defun org-roam-node-insert-immediate (arg &rest args)
   (interactive "P")
   (let ((args (cons arg args))
