@@ -36,6 +36,8 @@
 (use-package quelpa-use-package
   :ensure t)
 
+(treesit-language-available-p 'python)
+
 ;; straight
 (defvar bootstrap-version)
 (let ((bootstrap-file
@@ -1019,9 +1021,6 @@ T - tag prefix
       ;;   (tsx "https://github.com/tree-sitter/tree-sitter-typescript" "master" "tsx/src")
       ;;   (typescript "https://github.com/tree-sitter/tree-sitter-typescript" "master" "typescript/src")
       ;;   (yaml "https://github.com/ikatyang/tree-sitter-yaml")))
-
-
-
 
 ;; ------------------
 ;; language support |

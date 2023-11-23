@@ -3,4 +3,5 @@ misc
 LICENSE
 ^/.*\.org
 .zshrc-public
+/emacs.d/straight/
 
