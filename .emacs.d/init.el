@@ -36,8 +36,6 @@
 (use-package quelpa-use-package
   :ensure t)
 
-(treesit-language-available-p 'python)
-
 ;; straight
 (defvar bootstrap-version)
 (let ((bootstrap-file
@@ -550,11 +548,10 @@ T - tag prefix
 
 (use-package puni
   :ensure t
-  :hook (prog-mode . puni-mode))
-
-(with-eval-after-load "org"
+  :config
+  (with-eval-after-load "org"
   (global-set-key (kbd "C-c \\") #'puni-mark-sexp-around-point)
-  (define-key org-mode-map (kbd "C-c \\") #'puni-mark-sexp-around-point))
+  (define-key org-mode-map (kbd "C-c \\") #'puni-mark-sexp-around-point)))
 
 ;; ----------
 ;; ripgrep  |
