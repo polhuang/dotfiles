@@ -133,9 +133,6 @@
 
 ;; word wrap
 (global-visual-line-mode 1)
-(use-package adaptive-wrap ;; preserves indentation when wrapping
-  :ensure t)
-
 
 ;; disable ui dialog promptsq
 (setq use-dialog-box nil)
@@ -1103,13 +1100,12 @@ T - tag prefix
    ("C-c a" . org-agenda))
   :hook
   (org-mode . org-indent-mode)
-  (org-mode . adaptive-wrap-prefix-mode)
   :config
-  (setq adaptive-wrap-extra-indent 2)
+  (setq org-indent-mode-turns-off-org-adapt-indentation nil)
   (setq org-ellipsis " ▾")
   (custom-set-faces
    '(org-ellipsis ((t (:underline nil)))))
-  (setq org-hide-leading-stars t)
+  ;;(setq org-hide-leading-stars t)
   (setq org-directory "~/org/")
   (setq org-clock-persist 'history)
   (org-clock-persistence-insinuate)
