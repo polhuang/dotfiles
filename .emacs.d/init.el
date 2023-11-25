@@ -134,13 +134,8 @@
 ;; word wrap
 (global-visual-line-mode 1)
 (use-package adaptive-wrap ;; preserves indentation when wrapping
-  :ensure t
-  :init
-  (setq adaptive-wrap-extra-indent 2)
-  :hook (visual-line-mode . adaptive-wrap-prefix-mode))
+  :ensure t)
 
-
-(add-hook 'visual-line-mode-hook #'adaptive-wrap-prefix-mode)
 
 ;; disable ui dialog promptsq
 (setq use-dialog-box nil)
@@ -1108,7 +1103,9 @@ T - tag prefix
    ("C-c a" . org-agenda))
   :hook
   (org-mode . org-indent-mode)
+  (org-mode . adaptive-wrap-prefix-mode)
   :config
+  (setq adaptive-wrap-extra-indent 2)
   (setq org-ellipsis " ▾")
   (custom-set-faces
    '(org-ellipsis ((t (:underline nil)))))
@@ -1394,7 +1391,7 @@ T - tag prefix
  '(menu-bar-mode nil)
  '(mu4e-search-results-limit 5000)
  '(org-agenda-files
-   '("~/org/tasks.org" "~/schedule.org" "~/org/backmatter-tasks.org"))
+   '("~/org/tasks.org" "~/org/schedule.org" "~/org/backmatter-tasks.org"))
  '(org-agenda-loop-over-headlines-in-active-region nil)
  '(org-agenda-prefix-format
    '((dashboard-agenda . " %-10:c %-12s ")
