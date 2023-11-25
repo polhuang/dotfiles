@@ -134,7 +134,12 @@
 ;; word wrap
 (global-visual-line-mode 1)
 (use-package adaptive-wrap ;; preserves indentation when wrapping
-  :ensure t)
+  :ensure t
+  :init
+  (setq adaptive-wrap-extra-indent 2)
+  :hook (visual-line-mode . adaptive-wrap-prefix-mode))
+
+
 (add-hook 'visual-line-mode-hook #'adaptive-wrap-prefix-mode)
 
 ;; disable ui dialog promptsq
@@ -762,6 +767,7 @@ T - tag prefix
   :custom
   (corfu-cycle t)                ;; Enable cycling for `corfu-next/previous'
   (corfu-auto t)                 ;; Enable auto completion
+  (corfu-auto-delay 0.5)
   (corfu-preselect 'prompt)      ;; Don't select first candidate
   ;; (corfu-separator ?\s)          ;; Orderless field separator
   ;; (corfu-quit-at-boundary nil)   ;; Never quit at completion boundary
@@ -1100,6 +1106,8 @@ T - tag prefix
    ("C-c c" . org-capture)
    ("C-c C-<return>" . org-insert-heading-respect-content)
    ("C-c a" . org-agenda))
+  :hook
+  (org-mode . org-indent-mode)
   :config
   (setq org-ellipsis " ▾")
   (custom-set-faces
@@ -1165,6 +1173,7 @@ T - tag prefix
    (python . t)))
 
 (setq org-babel-python-command "python3")
+(setq org-babel-default-header-args:python '((:results . "output")))
 
 ;; org-roam
 (use-package org-roam
