@@ -88,6 +88,7 @@
 
 (with-eval-after-load 'org
   (set-face-attribute 'org-level-1 nil :foreground "#ffd7af")
+  (set-face-attribute 'org-level-4 nil :foreground "#FFBD98" :weight 'bold)
   (set-face-attribute 'org-block-begin-line nil :foreground "#333233" :distant-foreground "#FFF0F5" :background "#FFBFBD")
   (set-face-attribute 'org-block nil :background "#171717")
   (set-face-attribute 'org-todo nil :foreground "#c66d86" :weight 'bold)
@@ -129,7 +130,7 @@
   :hook (org-mode . fontify-face-mode))
 
 ;; font
-(set-face-attribute 'default nil :family "Iosevka Comfy Fixed" :height 100 :width 'normal)
+(set-face-attribute 'default nil :family "Iosevka Comfy Fixed")
 
 ;; word wrap
 (global-visual-line-mode 1)
@@ -513,9 +514,10 @@ T - tag prefix
 ;; editing |
 ;; ---------
 
-;; cua mode
-;; (setq cua-keep-region-after-copy t) ; standard Windows behavior
-;; (define-key cua-global-keymap [C-return] 'crux-smart-open-line) ;; remap cua-rectangle to smart-open-line
+;; IntelliJ-style backspace
+(use-package smart-backspace
+  :ensure t
+  :bind ("M-<backspace>" . smart-backspace))
 
 ;; undo tree
 (use-package undo-tree
@@ -628,8 +630,7 @@ T - tag prefix
 ;; marginalia
 (use-package marginalia
   :ensure t
-  :bind (("M-A" . marginalia-cycle)
-	 :map minibuffer-local-map
+  :bind (:map minibuffer-local-map
 	 ("M-A" . marginalia-cycle))
   :init
   (marginalia-mode))
@@ -1086,11 +1087,6 @@ T - tag prefix
 ;; org mode |
 ;; ----------
 
-;; org-protocol
-(server-start)
-(add-to-list 'load-path "~/path/to/org/protocol/")
-(require 'org-protocol)
-
 ;; org-mode
 (use-package org
   :bind
@@ -1101,13 +1097,18 @@ T - tag prefix
   :hook
   (org-mode . org-indent-mode)
   :config
+  (custom-set-variables
+   '(org-directory "~/org/")
+   '(org-agenda-files (list org-directory)))
   (setq org-indent-mode-turns-off-org-adapt-indentation nil)
   (setq org-ellipsis " ▾")
   (custom-set-faces
    '(org-ellipsis ((t (:underline nil)))))
   ;;(setq org-hide-leading-stars t)
-  (setq org-directory "~/org/")
   (setq org-clock-persist 'history)
+  (setq org-format-latex-options (plist-put org-format-latex-options :scale 3.0))
+  (setq org-startup-with-latex-preview t)
+  (setq org-preview-latex-default-process 'dvipng)
   (org-clock-persistence-insinuate)
   (setq org-agenda-start-with-log-mode t)
   (setq org-log-done 'time)
@@ -1149,24 +1150,23 @@ T - tag prefix
 		(if (re-search-forward "^[ \t]*:END:" limit t)
 
 		  (outline-flag-region start (point-at-eol) t)
-		  (user-error msg)))))))))))
-
-;; org-capture
-(setq org-capture-templates `(
+		  (user-error msg))))))))))
+  ;; org-capture
+ (setq org-capture-templates `(
 	("p" "Protocol Text" entry (file+headline ,(concat org-directory "/roam/captures.org") "Captures")
 	"* %^{Title}\nSource: %u, %c\n #+BEGIN_QUOTE\n%i\n#+END_QUOTE\n\n\n")
 	("L" "Protocol Link" entry (file+headline ,(concat org-directory "roam/captures.org") "Captures")
 	"* %? [[%:link][%:description]] \nCaptured On: %U")
-	))
-
-;; org-babel
-(org-babel-do-load-languages
- 'org-babel-load-languages
- '((lisp . t)
-   (python . t)))
-
-(setq org-babel-python-command "python3")
-(setq org-babel-default-header-args:python '((:results . "output")))
+        ))
+ 
+ ;; org-babel
+ (org-babel-do-load-languages
+  'org-babel-load-languages
+  '((lisp . t)
+    (python . t)))
+ 
+ (setq org-babel-python-command "python3")
+ (setq org-babel-default-header-args:python '((:results . "output"))))
 
 ;; org-roam
 (use-package org-roam
