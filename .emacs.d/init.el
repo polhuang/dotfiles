@@ -495,8 +495,6 @@ T - tag prefix
 (customize-set-variable 'global-auto-revert-ignore-modes
 			'(Buffer-menu-mode)) ;; buffer menu loses state (cursor, marks) when reverting
 
-
-
 ;; winner mode (allows you to undo and redo window actions)
 (winner-mode 1) ;; C-c left to undo; C-c right to redo
 
@@ -1121,6 +1119,10 @@ T - tag prefix
 ;; slime (the superior lisp interaction mode for emacs)
 (load (expand-file-name "~/.quicklisp/slime-helper.el"))
 (setq inferior-lisp-program "sbcl")
+
+;; auctex
+(use-package tex
+  :ensure auctex)
 
 ;; ----------
 ;; org mode |
