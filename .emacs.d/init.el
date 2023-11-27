@@ -132,6 +132,45 @@
 ;; font
 (set-face-attribute 'default nil :family "Iosevka Comfy Fixed")
 
+;; fontaine
+(use-package fontaine
+  :ensure t
+  :config
+  (setq fontaine-presets
+      '((tiny
+         :default-family "Iosevka Comfy Wide Fixed"
+         :default-height 70)
+        (small
+         :default-family "Iosevka Comfy Fixed"
+         :default-height 90)
+        (regular
+         :default-height 100)
+        (medium
+         :default-height 110)
+        (large
+         :default-weight semilight
+         :default-height 140
+         :bold-weight extrabold)
+        (presentation
+         :default-weight semilight
+         :default-height 170
+         :bold-weight extrabold)
+        (t
+         :default-family "Iosevka Comfy"
+         :default-weight regular
+         :default-height 100
+         :fixed-pitch-family nil ; falls back to :default-family
+         :fixed-pitch-weight nil ; falls back to :default-weight
+         :fixed-pitch-height 1.0
+         :variable-pitch-family "Iosevka Comfy Duo"
+         :variable-pitch-weight nil
+         :variable-pitch-height 1.0
+         :bold-family nil ; use whatever the underlying face has
+         :bold-weight bold
+         :italic-family nil
+         :italic-slant italic
+         :line-spacing nil))))
+
 ;; word wrap
 (global-visual-line-mode 1)
 
@@ -962,10 +1001,9 @@ T - tag prefix
 	  '(orderless))) ;; Configure orderless
   :hook (;; replace XXX-mode with concrete major-mode(e. g. python-mode)
 	 (lsp-completion-mode . my/lsp-mode-setup-completion)
-	 (typescript-mode . lsp)
-	 (python-mode . lsp)
-	 (lua-mode . lsp)
-	 (rjsx-mode . lsp)
+	 (typescript-mode . lsp-deferred)
+	 (python-ts-mode . lsp-deferred)
+	 (lua-mode . lsp-deferred)
 	 ;; if you want which-key integration
 	 (lsp-mode . lsp-enable-which-key-integration))
   :config
@@ -1002,26 +1040,25 @@ T - tag prefix
 (use-package treesit-auto
   :ensure t
   :config
+  (treesit-auto-add-to-auto-mode-alist)
   (global-treesit-auto-mode))
 
-
-
 ;;treesit-auto makes the following redundant but keeping here for now just in case
-(setq treesit-language-source-alist
-'((bash "https://github.com/tree-sitter/tree-sitter-bash")
-  (c "https://github.com/tree-sitter/tree-sitter-c")
-  (css "https://github.com/tree-sitter/tree-sitter-css")
-  (elisp "https://github.com/Wilfred/tree-sitter-elisp")
-  (html "https://github.com/tree-sitter/tree-sitter-html")
-  (javascript "https://github.com/tree-sitter/tree-sitter-javascript" "master" "src")
-  (json "https://gtihub.com/tree-sitter/tree-sitter-json")
-  (lua "https://github.com/MunifTanjim/tree-sitter-lua")
-  (markdown "https://github.com/ikatyang/tree-sitter-markdown")
-  (python "https://github.com/tree-sitter/tree-sitter-python")
-  (toml "https://github.com/tree-sitter/tree-sitter-toml")
-  (tsx "https://github.com/tree-sitter/tree-sitter-typescript" "master" "tsx/src")
-  (typescript "https://github.com/tree-sitter/tree-sitter-typescript" "master" "typescript/src")
-  (yaml "https://github.com/ikatyang/tree-sitter-yaml")))
+;; (setq treesit-language-source-alist
+;; '((bash "https://github.com/tree-sitter/tree-sitter-bash")
+;;   (c "https://github.com/tree-sitter/tree-sitter-c")
+;;   (css "https://github.com/tree-sitter/tree-sitter-css")
+;;   (elisp "https://github.com/Wilfred/tree-sitter-elisp")
+;;   (html "https://github.com/tree-sitter/tree-sitter-html")
+;;   (javascript "https://github.com/tree-sitter/tree-sitter-javascript" "master" "src")
+;;   (json "https://gtihub.com/tree-sitter/tree-sitter-json")
+;;   (lua "https://github.com/MunifTanjim/tree-sitter-lua")
+;;   (markdown "https://github.com/ikatyang/tree-sitter-markdown")
+;;   (python "https://github.com/tree-sitter/tree-sitter-python")
+;;   (toml "https://github.com/tree-sitter/tree-sitter-toml")
+;;   (tsx "https://github.com/tree-sitter/tree-sitter-typescript" "master" "tsx/src")
+;;   (typescript "https://github.com/tree-sitter/tree-sitter-typescript" "master" "typescript/src")
+;;   (yaml "https://github.com/ikatyang/tree-sitter-yaml")))
 
 ;; ------------------
 ;; language support |
@@ -1044,20 +1081,22 @@ T - tag prefix
 ;;   )
 
 ;; rjsx
-(use-package rjsx-mode
-  :ensure t
-  :mode "\\.js\\', \\.jsx\\'"
-  :hook (rjsx-mode . lsp-deferred)
-  :config
-  (setq js-indent-level 2)
-  (setq js2-strict-missing-semi-warning nil))
+;; (use-package rjsx-mode
+;;   :ensure t
+;;   :mode "\\.js\\', \\.jsx\\'"
+;;   :hook (rjsx-mode . lsp-deferred)
+;;   :config
+;;   (setq js-indent-level 2)
+;;   (setq js2-strict-missing-semi-warning nil))
 
 ;; python
 (use-package python-mode
   :ensure t
-  :hook (python-mode . lsp-deferred)
+  :init
+  (setq python-indent-guess-indent-offset t)
+  (setq python-indent-guess-indent-offset-verbose nil)
   :custom
-  (python-shell-interpreter "python3"))
+  (customize-set-variable python-shell-interpreter "python3"))
 
 ;; typescript-mode
 (use-package typescript-mode
@@ -1106,7 +1145,7 @@ T - tag prefix
    '(org-ellipsis ((t (:underline nil)))))
   ;;(setq org-hide-leading-stars t)
   (setq org-clock-persist 'history)
-  (setq org-format-latex-options (plist-put org-format-latex-options :scale 3.0))
+  (setq org-format-latex-options (plist-put org-format-latex-options :scale 3))
   (setq org-startup-with-latex-preview t)
   (setq org-preview-latex-default-process 'dvipng)
   (org-clock-persistence-insinuate)
@@ -1202,11 +1241,11 @@ T - tag prefix
       '(("d" "default" entry "* %<%I:%M %p> \n%?"
 	 :if-new (file+head "%<%Y-%m-%d>.org" "#+title: %<%Y-%m-%d>\n"))))
   (defun org-roam-node-insert-immediate (arg &rest args)
-  (interactive "P")
-  (let ((args (cons arg args))
-	(org-roam-capture-templates (list (append (car org-roam-capture-templates)
+    (interactive "P")
+    (let ((args (cons arg args))
+	  (org-roam-capture-templates (list (append (car org-roam-capture-templates)
 						  '(:immediate-finish t)))))
-    (apply #'org-roam-node-insert args))))
+      (apply #'org-roam-node-insert args))))
 
 (defun my/org-roam-capture-periodically ()
   "Capture an org-roam note."
@@ -1266,10 +1305,12 @@ T - tag prefix
 
 ;; parrot
 (use-package parrot
-  :ensure t)
-(parrot-mode)
-(parrot-set-parrot-type 'emacs)
-(setq parrot-num-rotations nil)
+  :ensure t
+  :config
+  (parrot-set-parrot-type 'emacs)
+  (setq parrot-num-rotations nil)
+  :init
+  (parrot-mode))
 
 ;; elcord
 (use-package elcord
@@ -1278,7 +1319,6 @@ T - tag prefix
   (setq elcord-idle-message "call me maybe?")
   :config
   (elcord-mode))
-
 
 ;; gcal
 (load "~/.emacs.d/gcal.el")
@@ -1294,7 +1334,6 @@ T - tag prefix
 
   ;; run org-gcal-sync after the specified delay
   (run-with-timer my-org-gcal-sync-delay nil 'my-org-gcal-sync))
-
 
 ;; khoj
 ;;(load "~/.emacs.d/khoj.el")
@@ -1368,6 +1407,7 @@ T - tag prefix
   (define-key copilot-completion-map (kbd "C-c TAB") 'copilot-accept-completion)
   (set-face-attribute 'copilot-overlay-face nil :foreground "grey30"))
 
+
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
@@ -1396,6 +1436,7 @@ T - tag prefix
      (tags . " %i %-12:c")
      (search . " %i %-12:c")))
  '(org-agenda-start-with-log-mode t)
+ '(org-directory "~/org/")
  '(package-selected-packages
    '(quelpa workgroups2 which-key vertico undo-tree typescript-mode tree-sitter-langs smartparens seoul256-theme rjsx-mode restart-emacs rainbow-mode rainbow-delimiters quelpa-use-package quelpa-leaf puni projectile ppp pfuture perspective persistent-scratch parrot page-break-lines org-sidebar org-roam org-gcal orderless nyan-mode nerd-icons-ibuffer nerd-icons-dired nerd-icons-corfu move-text marginalia magit lua-mode lsp-ui khoj kanagawa-theme kana hydra gruvbox-theme google-this fontify-face flycheck embark-consult elcord eat doom-modeline dockerfile-mode dashboard crux corfu cfrs cape calfw-gcal atomic-chrome async-await async all-the-icons adaptive-wrap ace-window))
  '(register-preview-delay 0.0)
@@ -1415,4 +1456,5 @@ T - tag prefix
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
+ '(italic ((t (:slant italic))))
  '(org-ellipsis ((t (:underline nil)))))
