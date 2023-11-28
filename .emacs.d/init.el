@@ -1120,9 +1120,13 @@ T - tag prefix
 (load (expand-file-name "~/.quicklisp/slime-helper.el"))
 (setq inferior-lisp-program "sbcl")
 
-;; auctex
+;; LaTeX tools
 (use-package tex
   :ensure auctex)
+
+
+(use-package cdlatex
+  :ensure t)
 
 ;; ----------
 ;; org mode |
@@ -1137,6 +1141,7 @@ T - tag prefix
    ("C-c a" . org-agenda))
   :hook
   (org-mode . org-indent-mode)
+  (org-mode . turn-on-org-cdlatex)
   :config
   (custom-set-variables
    '(org-directory "~/org/")
