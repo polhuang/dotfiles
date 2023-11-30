@@ -1,6 +1,3 @@
-;; External dependencies:
-;; pdf-tools (https://github.com/vedang/pdf-tools)
-
 ;; Post-install:
 ;; Run treesit-auto-install-all
 
@@ -893,7 +890,7 @@ T - tag prefix
 
   ;; Show the Embark target at point via Eldoc.  You may adjust the Eldoc
   ;; strategy, if you want to see the documentation from multiple providers.
-  (add-hook 'eldoc-documentation-functions #'embark-eldoc-first-target)
+  ;; (add-hook 'eldoc-documentation-functions #'embark-eldoc-first-target)
   ;; (setq eldoc-documentation-strategy #'eldoc-documentation-compose-eagerly)
 
   :config
@@ -1066,11 +1063,8 @@ T - tag prefix
 (use-package lua-mode
   :ensure t
   :mode "\\.lua\\'"
-  :hook ((lua-mode . lsp-deferred)
-         (lua-mode . (lambda ()
-                       (run-with-idle-timer 0.1 nil (lambda ()
-                                                      (when (eq major-mode 'lua-mode)
-                                                        (tree-sitter-hl-mode -1))))))))
+  :hook ((lua-mode . lsp-deferred)))
+                                                        
 ;; (use-package lua-mode
 ;;   :ensure t
 ;;   :mode "\\.lua\\'"
@@ -1090,11 +1084,24 @@ T - tag prefix
 ;; python
 (use-package python-mode
   :ensure t
+  :mode "\\.py\\'"
   :init
   (setq python-indent-guess-indent-offset t)
   (setq python-indent-guess-indent-offset-verbose nil)
   :custom
-  (customize-set-variable python-shell-interpreter "python3"))
+  (customize-set-variable python-shell-interpreter "python3")
+  (customize-set-variable python-shell-virtualenv-root "~/.venv/org-babel"))
+
+(use-package virtualenvwrapper
+  :ensure t
+  :config
+  (venv-initialize-interactive-shells)
+  (venv-initialize-eshell)
+  (setq venv-location "~/.venv/"))
+
+;; jupyter
+(use-package jupyter
+  :ensure t)
 
 ;; typescript-mode
 (use-package typescript-mode
@@ -1124,9 +1131,12 @@ T - tag prefix
 (use-package tex
   :ensure auctex)
 
-
 (use-package cdlatex
   :ensure t)
+
+(use-package org-fragtog
+  :ensure t
+  :hook (org-mode . org-fragtog-mode))
 
 ;; ----------
 ;; org mode |
@@ -1142,6 +1152,13 @@ T - tag prefix
   :hook
   (org-mode . org-indent-mode)
   (org-mode . turn-on-org-cdlatex)
+  :init
+  (add-to-list 'display-buffer-alist
+             '("\\*org-roam\\*"
+               (display-buffer-in-direction)
+               (direction . right)
+               (window-width . 0.33)
+               (window-height . fit-window-to-buffer)))
   :config
   (custom-set-variables
    '(org-directory "~/org/")
@@ -1150,9 +1167,8 @@ T - tag prefix
   (setq org-ellipsis " ▾")
   (custom-set-faces
    '(org-ellipsis ((t (:underline nil)))))
-  ;;(setq org-hide-leading-stars t)
   (setq org-clock-persist 'history)
-  (setq org-format-latex-options (plist-put org-format-latex-options :scale 3))
+  (setq org-format-latex-options (plist-put org-format-latex-options :scale 1.5))
   (setq org-startup-with-latex-preview t)
   (setq org-preview-latex-default-process 'dvipng)
   (org-clock-persistence-insinuate)
@@ -1161,42 +1177,7 @@ T - tag prefix
   (setq org-log-into-drawer t)
   (setq org-id-link-to-org-use-id 'create-if-interactive)
   (setq org-startup-folded 'content)
-  (defun org-cycle-hide-drawers (state)
-    "Re-hide all drawers after a visibility state change."
-    (when (and (derived-mode-p 'org-mode)
-	       (not (memq state '(overview folded contents))))
-      (save-excursion
-	(let* ((globalp (memq state '(contents all)))
-	     (beg (if globalp
-		    (point-min)
-		    (point)))
-	     (end (if globalp
-		    (point-max)
-		    (if (eq state 'children)
-		      (save-excursion
-			(outline-next-heading)
-			(point))
-		      (org-end-of-subtree t)))))
-	(goto-char beg)
-	(while (re-search-forward org-drawer-regexp end t)
-	  (save-excursion
-	    (beginning-of-line 1)
-	    (when (looking-at org-drawer-regexp)
-	      (let* ((start (1- (match-beginning 0)))
-		     (limit
-		       (save-excursion
-			 (outline-next-heading)
-			   (point)))
-		     (msg (format
-			    (concat
-			      "org-cycle-hide-drawers:  "
-			      "`:END:`"
-			      " line missing at position %s")
-			    (1+ start))))
-		(if (re-search-forward "^[ \t]*:END:" limit t)
 
-		  (outline-flag-region start (point-at-eol) t)
-		  (user-error msg))))))))))
   ;; org-capture
  (setq org-capture-templates `(
 	("p" "Protocol Text" entry (file+headline ,(concat org-directory "/roam/captures.org") "Captures")
@@ -1209,10 +1190,15 @@ T - tag prefix
  (org-babel-do-load-languages
   'org-babel-load-languages
   '((lisp . t)
-    (python . t)))
- 
+    (python . t)
+    (jupyter . t)))
+ (setq org-confirm-babel-evaluate nil)
+ (setq org-src-tab-acts-natively t)
+ (require 'org-tempo)
  (setq org-babel-python-command "python3")
- (setq org-babel-default-header-args:python '((:results . "output"))))
+ (add-to-list 'org-structure-template-alist '("el" . "src emacs-lisp"))
+ (add-to-list 'org-structure-template-alist '("py" . "src python"))
+ (add-to-list 'org-structure-template-alist '("jp" . "src jupyter-python :session py")))
 
 ;; org-roam
 (use-package org-roam
@@ -1238,7 +1224,9 @@ T - tag prefix
   :config
   (require 'org-roam-dailies)
   (org-roam-db-autosync-mode)
-  
+  (setq org-roam-node-display-template
+      (concat "${title:*} "
+              (propertize "${tags:20}" 'face 'org-tag)))
   (setq org-roam-mode-sections
       (list #'org-roam-backlinks-section
 	    #'org-roam-reflinks-section
