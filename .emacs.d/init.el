@@ -1,16 +1,8 @@
-;; Post-install:
-;; Run treesit-auto-install-all
+;;;;;;;;;;;;;;;;;;;;;;
+;; package settings ;;
+;;;;;;;;;;;;;;;;;;;;;;
 
-;;----------------------------------------------------------------------------
-;;                                                                           |
-;; basic settings                                                            |
-;;                                                                           |
-;;----------------------------------------------------------------------------
-
-;; ---------------------
-;; package settings    |
-;; ---------------------
-
+;; might be redundant on 29.1
 (require 'package) ;; required for use-package
 (setq package-archives '(("melpa" . "https://melpa.org/packages/")
 			 ("org" . "https://orgmode.org/elpa/")
@@ -19,7 +11,8 @@
 (unless package-archive-contents
   (package-refresh-contents))
 
-;; use-package - install if not installed (when on non-linux systems)
+;; use-package - install if not installed (when not on linux)
+;; might be redundant on 29.1
 (unless (package-installed-p 'use-package)
   (package-install 'use-package))
 
@@ -47,9 +40,9 @@
       (eval-print-last-sexp)))
   (load bootstrap-file nil 'nomessage))
 
-;; ---------------------
-;; file settings       |
-;; ---------------------
+;;;;;;;;;;;;;;;;;;;
+;; file settings ;;
+;;;;;;;;;;;;;;;;;;;
 
 ;; store auto-save files in separate directory
 (let ((my-auto-save-dir (locate-user-emacs-file "auto-save")))
@@ -63,9 +56,9 @@
       `(("." . ,(expand-file-name
 		 (concat user-emacs-directory "backups")))))
 
-;; ------------
-;; ui settings |
-;; ------------
+;;;;;;;;;;;;;;;;;
+;; ui settings ;;
+;;;;;;;;;;;;;;;;;
 
 ;; theme
 (setq seoul256-background 235) ;; variables needs to be set prior to loading package
@@ -91,9 +84,6 @@
   (set-face-attribute 'org-todo nil :foreground "#c66d86" :weight 'bold)
   (set-face-attribute 'org-verbatim nil :foreground "#BC8F8F"))
 
-(use-package nerd-icons
-  :ensure t)
-
 (use-package nerd-icons-corfu
   :ensure t
   :after corfu
@@ -107,6 +97,7 @@
 
 (use-package nerd-icons-completion
   :ensure t
+  :hook (marginalia-mode . nerd-icons-completion-mode)
   :config
   (nerd-icons-completion-mode))
 
@@ -214,9 +205,9 @@
 (menu-bar-mode -1)          ; Disable the menu bar
 (setq visible-bell t)       ; Set up the visible bell
 
-;; ---------------------
-;; navigation settings |
-;; ---------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;
+;; navigation settings ;;
+;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;; registers
 (set-register ?e (cons 'file "~/.emacs.d/init.el"))
@@ -252,9 +243,9 @@
 (global-set-key (kbd "C-s") 'avy-goto-char)
 (global-set-key (kbd "M-g M-g") 'avy-goto-line)
 
-
-
-;; hydra -----------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; hydra ----------------------------------------------------------------------- ;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (use-package hydra
   :ensure t)
@@ -481,9 +472,11 @@ T - tag prefix
 ;; minibuffer prompt history
 (setq history-length 25)
 
-;; ----------------------------
-;; buffers / windows / frames |
-;; ----------------------------
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; buffers / windows / frames  ;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 
 ;; revert buffers after external file changes
 (global-auto-revert-mode t)
@@ -531,9 +524,10 @@ T - tag prefix
 
 (global-set-key (kbd "C-x w s") 'toggle-window-split)
 
-;; ----------------
-;; authentication |
-;; ----------------
+;;;;;;;;;;;;;;;;;;;;
+;; authentication ;;
+;;;;;;;;;;;;;;;;;;;;
+
 
 ;; plist store
 (setq plstore-cache-passphrase-for-symmetric-encryption t)
@@ -544,9 +538,9 @@ T - tag prefix
   :config
   (setq tramp-default-method "ssh"))
 
-;; ---------
-;; editing |
-;; ---------
+;;;;;;;;;;;;;
+;; editing ;;
+;;;;;;;;;;;;;
 
 ;; IntelliJ-style backspace
 (use-package smart-backspace
@@ -582,13 +576,14 @@ T - tag prefix
 (use-package puni
   :ensure t
   :config
+  (puni-global-mode t)
   (with-eval-after-load "org"
-  (global-set-key (kbd "C-c \\") #'puni-mark-sexp-around-point)
-  (define-key org-mode-map (kbd "C-c \\") #'puni-mark-sexp-around-point)))
+    (global-set-key (kbd "C-c \\") #'puni-mark-sexp-around-point)
+    (define-key org-mode-map (kbd "C-c \\") #'puni-mark-sexp-around-point)))
 
-;; ----------
-;; ripgrep  |
-;; ----------
+;;;;;;;;;;;;;
+;; ripgrep ;;
+;;;;;;;;;;;;;
 
 ;; deadgrep - I seem to prefer consult-ripgrep but leaving here for now in case I've missed something
 (use-package deadgrep
@@ -596,10 +591,9 @@ T - tag prefix
   :bind
   ("C-c g" . deadgrep))
 
-
-;; -------------------
-;; completion system |
-;; -------------------
+;;;;;;;;;;;;;;;;;;;;;;;
+;; completion system ;;
+;;;;;;;;;;;;;;;;;;;;;;;
 
 ;; orderless
 (use-package orderless
@@ -608,7 +602,10 @@ T - tag prefix
 	completion-category-defaults nil
 	completion-category-overrides '((file (styles partial-completion)))))
 
-;; vertico ---------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; vertico --------------------------------------------------------------------- ;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 (use-package vertico
   :init
   ;; different scroll margin
@@ -659,8 +656,6 @@ T - tag prefix
   :config
   (vertico-mode))
 
-;; end-vertico -----------------------------------------------------------------
-
 ;; marginalia
 (use-package marginalia
   :ensure t
@@ -669,7 +664,10 @@ T - tag prefix
   :init
   (marginalia-mode))
 
-;; consult ---------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; consult --------------------------------------------------------------------- ;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 (use-package consult
   :bind (;; C-c bindings in `mode-specific-map'
 	 ("C-c M-x" . consult-mode-command)
@@ -786,9 +784,10 @@ T - tag prefix
   ;; (setq consult-project-function nil)
   )
 
-;; end-consult -----------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; corfu ----------------------------------------------------------------------- ;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;; corfu -----------------------------------------------------------------------
 (use-package corfu
   ;; Optional customizations
   :custom
@@ -830,9 +829,10 @@ T - tag prefix
   ;; (setq tab-always-indent 'complete))
   )
 
-;; end-corfu -------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; cape------------------------------------------------------------------------- ;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;; cape-------------------------------------------------------------------------
 (use-package cape
   ;; Bind dedicated completion commands
   ;; Alternative prefix keys: C-c p, M-p, M-+, ...
@@ -872,9 +872,9 @@ T - tag prefix
   ;;(add-to-list 'completion-at-point-functions #'cape-line)
   )
 
-;; end-cape --------------------------------------------------------------------
-
-;; embark-----------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; embark----------------------------------------------------------------------- ;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (use-package embark
   :ensure t
@@ -906,10 +906,10 @@ T - tag prefix
   :hook
   (embark-collect-mode . consult-preview-at-point-mode))
 
+;;;;;;;;;;;;;;;;;;
+;; key bindings ;;
+;;;;;;;;;;;;;;;;;;
 
-;; -------------
-;; keybindings |
-;; -------------
 
 ;; remap search to C-f
 (global-set-key (kbd "C-f") 'consult-line)
@@ -935,19 +935,15 @@ T - tag prefix
   :bind
   ("C-c y" . yas-expand))
 
-;;yasnippet-capf
+;; yasnippet-capf
 (use-package yasnippet-capf
   :ensure t
   :init
   (add-to-list 'completion-at-point-functions #'yasnippet-capf))
 
-(add-to-list 'completion-at-point-functions #'yasnippet-capf)
-
-
-
-;; -----------
-;; utilities |
-;; -----------
+;;;;;;;;;;;;;;;
+;; utilities ;;
+;;;;;;;;;;;;;;;
 
 ;; persistent scratch
 (use-package persistent-scratch
@@ -967,19 +963,17 @@ T - tag prefix
 (use-package restart-emacs
   :ensure t)
 
-;; -----------
-;; terminal  |
-;; -----------
+;;;;;;;;;;;;;;
+;; terminal ;;
+;;;;;;;;;;;;;;
 
 ;; eat
 (use-package eat
-  :ensure )
+  :ensure t)
 
-;;------------------------------------------------------------------------------
-;;                                                                             |
-;; coding                                                                      |
-;;                                                                             |
-;;------------------------------------------------------------------------------
+;;;;;;;;;;;;
+;; coding ;;
+;;;;;;;;;;;;
 
 ;; spaces over tabs
 (setq-default indent-tabs-mode nil)
@@ -996,7 +990,9 @@ T - tag prefix
 	  '(orderless))) ;; Configure orderless
   :hook (;; replace XXX-mode with concrete major-mode(e. g. python-mode)
 	 (lsp-completion-mode . my/lsp-mode-setup-completion)
-	 (typescript-mode . lsp-deferred)
+	 (typescript-ts-mode . lsp-deferred)
+         (js-ts-mode . lsp-deferred)
+         (tsx-ts-mode . lsp-deferred)
 	 (python-ts-mode . lsp-deferred)
 	 (lua-mode . lsp-deferred)
 	 ;; if you want which-key integration
@@ -1038,7 +1034,7 @@ T - tag prefix
   (treesit-auto-add-to-auto-mode-alist)
   (global-treesit-auto-mode))
 
-;;treesit-auto makes the following redundant but keeping here for now just in case
+;; treesit-auto makes the following redundant but keeping here for now just in case
 ;; (setq treesit-language-source-alist
 ;; '((bash "https://github.com/tree-sitter/tree-sitter-bash")
 ;;   (c "https://github.com/tree-sitter/tree-sitter-c")
@@ -1055,42 +1051,9 @@ T - tag prefix
 ;;   (typescript "https://github.com/tree-sitter/tree-sitter-typescript" "master" "typescript/src")
 ;;   (yaml "https://github.com/ikatyang/tree-sitter-yaml")))
 
-;; ------------------
-;; language support |
-;; ------------------
-
-;; lua-mode
-(use-package lua-mode
-  :ensure t
-  :mode "\\.lua\\'"
-  :hook ((lua-mode . lsp-deferred)))
-                                                        
-;; (use-package lua-mode
-;;   :ensure t
-;;   :mode "\\.lua\\'"
-;;   :hook ((lua-mode . lsp-deferred)
-;;          (lua-mode . (lambda () (tree-sitter-hl-mode -1))))
-;;   )
-
-;; rjsx
-;; (use-package rjsx-mode
-;;   :ensure t
-;;   :mode "\\.js\\', \\.jsx\\'"
-;;   :hook (rjsx-mode . lsp-deferred)
-;;   :config
-;;   (setq js-indent-level 2)
-;;   (setq js2-strict-missing-semi-warning nil))
-
-;; python
-(use-package python-mode
-  :ensure t
-  :mode "\\.py\\'"
-  :init
-  (setq python-indent-guess-indent-offset t)
-  (setq python-indent-guess-indent-offset-verbose nil)
-  :custom
-  (customize-set-variable python-shell-interpreter "python3")
-  (customize-set-variable python-shell-virtualenv-root "~/.venv/org-babel"))
+;;;;;;;;;;;;;;;;;;;;;;
+;; language support ;;
+;;;;;;;;;;;;;;;;;;;;;;
 
 (use-package virtualenvwrapper
   :ensure t
@@ -1103,21 +1066,50 @@ T - tag prefix
 (use-package jupyter
   :ensure t)
 
+;; commented out after treesit installation, keeping here just in case
+
+;; lua-mode
+;; (use-package lua-mode
+;;   :ensure t
+;;   :mode "\\.lua\\'"
+;;   :hook ((lua-mode . lsp-deferred)))
+
+;; rjsx
+;; (use-package rjsx-mode
+;;   :ensure t
+;;   :mode "\\.js\\', \\.jsx\\'"
+;;   :hook (rjsx-mode . lsp-deferred)
+;;   :config
+;;   (setq js-indent-level 2)
+;;   (setq js2-strict-missing-semi-warning nil))
+
+;; python
+;; (use-package python-mode
+;;   :ensure t
+;;   :mode "\\.py\\'"
+;;   :init
+;;   (setq python-indent-guess-indent-offset t)
+;;   (setq python-indent-guess-indent-offset-verbose nil)
+;;   :custom
+;;   (customize-set-variable python-shell-interpreter "python3")
+;;   (customize-set-variable python-shell-virtualenv-root "~/.venv/org-babel"))
+
 ;; typescript-mode
-(use-package typescript-mode
-  :mode "\\.ts\\', \\.tsx\\'"
-  :hook (typescript-mode . lsp-deferred)
-  :config
-  (setq typescript-indent-level 2))
+;; (use-package typescript-mode
+;;   :mode "\\.ts\\', \\.tsx\\'"
+;;   :hook (typescript-mode . lsp-deferred)
+;;   :config
+;;   (setq typescript-indent-level 2))
 
-;; dockerfile-mode
-(use-package dockerfile-mode
-  :ensure t
-  :mode "Dockerfile\\'")
+;; ;; dockerfile-mode
+;; (use-package dockerfile-mode
+;;   :ensure t
+;;   :mode "Dockerfile\\'")
 
-;; -------
-;; tools |
-;; -------
+;;;;;;;;;;;
+;; tools ;;
+;;;;;;;;;;;
+
 
 ;; magit
 (use-package magit
@@ -1138,11 +1130,11 @@ T - tag prefix
   :ensure t
   :hook (org-mode . org-fragtog-mode))
 
-;; ----------
-;; org mode |
-;; ----------
+;;;;;;;;;;;;;;
+;; org mode ;;
+;;;;;;;;;;;;;;
 
-;; org-mode
+;; org mode
 (use-package org
   :bind
   (("C-c C-c" . org-id-get-create)
@@ -1164,6 +1156,7 @@ T - tag prefix
    '(org-directory "~/org/")
    '(org-agenda-files (list org-directory)))
   (setq org-indent-mode-turns-off-org-adapt-indentation nil)
+  (setq org-startup-with-inline-images t)
   (setq org-ellipsis " ▾")
   (custom-set-faces
    '(org-ellipsis ((t (:underline nil)))))
@@ -1197,7 +1190,7 @@ T - tag prefix
  (require 'org-tempo)
  (setq org-babel-python-command "python3")
  (add-to-list 'org-structure-template-alist '("el" . "src emacs-lisp"))
- (add-to-list 'org-structure-template-alist '("py" . "src python"))
+ (add-to-list 'org-structure-template-alist '("py" . "src python :results output"))
  (add-to-list 'org-structure-template-alist '("jp" . "src jupyter-python :session py")))
 
 ;; org-roam
@@ -1269,13 +1262,18 @@ T - tag prefix
 ;; google-this
 (google-this-mode 1)
 
+;;;;;;;;;;;;;;;;;;;
+;; miscellaneous ;;
+;;;;;;;;;;;;;;;;;;;
+
 ;; dashboard
 (use-package dashboard
   :ensure t
   :config
   (dashboard-setup-startup-hook)
-  (setq dashboard-banner-logo-title "sup?")
-  (setq dashboard-startup-banner 1)
+  (setq dashboard-banner-logo-title "HI POL")
+  (setq dashboard-startup-banner "~/.dotfiles/.emacs.d/dashboard-banner.txt")
+  (setq dashboard-footer-messages '("Time saved by emacs: 5 hours \nTime editing emacs config: 3 years 5 months 20 days 11 hours and 38 minutes editing your emacs"))
   (setq dashboard-items '((recents  . 5)
 			(bookmarks . 5)
 			(projects . 5)
@@ -1373,7 +1371,7 @@ T - tag prefix
   (setq mu4e-sent-folder   "/[Gmail]/Sent Mail")
   (setq mu4e-refile-folder "/[Gmail]/All Mail")
   (setq mu4e-trash-folder  "/[Gmail]/Trash")
-  (setq mu4e-headers-results-limit 2000)
+A  (setq mu4e-headers-results-limit 2000)
 
   (setq mu4e-maildir-shortcuts
       '((:maildir "/Inbox"    :key ?i)
@@ -1396,12 +1394,9 @@ T - tag prefix
 (use-package copilot
   :straight (:host github :repo "zerolfx/copilot.el" :files ("dist" "*.el"))
   :ensure t
-  :hook
-  (prog-mode . copilot-mode)
   :config
   (define-key copilot-completion-map (kbd "C-c TAB") 'copilot-accept-completion)
   (set-face-attribute 'copilot-overlay-face nil :foreground "grey30"))
-
 
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
