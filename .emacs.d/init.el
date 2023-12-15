@@ -1319,10 +1319,11 @@ T - tag prefix
   (setq gptel-default-mode 'org-mode)
   (setq gptel-directives
         '(
-          (default. "You rae a large language model living in Emacs. You are a helpful assistant. Provide concise answers.")
+          (default . "You rae a large language model living in Emacs. You are a helpful assistant. Provide concise answers.")
           (detailed . "You are a large language model living in Emacs. You are a helpful assistant but also a thorough researcher. Provide thorough answers in outline form and section headers.")
           (programming . "You are a large language model and a careful programmer. Provide code and only code as output without any additional text, prompt or note.")
           (debugging . "You are a large language model and a careful programmer. Analyze this code and concisely explain any bugs you find.")
+          (teaching . "You are a large language model and a patient teacher. Walk me through your answers slowly step-by-step.")
           (writing . "You are a large language model and a writing assistant. Respond concisely.")
           (chat . "You are a large language model and a conversation partner. Respond concisely.")
           (maniac . "You are an intelligent but crazed lunatic that lives to give extravagant but confounding responses.")
