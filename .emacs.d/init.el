@@ -51,6 +51,9 @@
   (unless (file-exists-p my-auto-save-dir)
     (make-directory my-auto-save-dir)))
 
+;; backup-by-copying. prevents lsp from auto-importing backup files
+(setq backup-by-copying t)
+
 ;;;;;;;;;;;;;;;;;
 ;; ui settings ;;
 ;;;;;;;;;;;;;;;;;
@@ -455,9 +458,11 @@ T - tag prefix
   :bind
   ("C-M-<return>" . major-mode-hydra))
 
-;; ------------------------------
-;; logs, debugging, and history |
-;; ------------------------------
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; logs, debugging, and history ;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 
 ;; Persist history over Emacs restarts. Vertico sorts by history position.
 (use-package savehist
@@ -996,6 +1001,7 @@ T - tag prefix
 	 (typescript-ts-mode . lsp-deferred)
          (js-ts-mode . lsp-deferred)
          (tsx-ts-mode . lsp-deferred)
+         (css-ts-mode . lsp-deferred)
 	 (python-ts-mode . lsp-deferred)
 	 (lua-mode . lsp-deferred)
 	 ;; if you want which-key integration
@@ -1018,41 +1024,6 @@ T - tag prefix
 ;; flycheck
 (add-hook 'after-init-hook #'global-flycheck-mode)
 
-;; ;; tree-sitter
-;; (use-package tree-sitter
-;;   :ensure t
-;;   :config
-;;   :hook
-;;   (tree-sitter-mode . tree-sitter-hl-mode)
-;;   :init
-;;   (global-tree-sitter-mode))
-
-;; (treesit-available-p)
-;; (use-package tree-sitter-langs
-;;   :ensure t)
-
-
-
-(setq major-mode-remap-alist
- '((yaml-mode . yaml-ts-mode)
-   (bash-mode . bash-ts-mode)
-   (js2-mode . js-ts-mode)
-   (javascript-mode . js-ts-mode)
-   (typescript-mode . typescript-ts-mode)
-   (json-mode . json-ts-mode)
-   (css-mode . css-ts-mode)
-   (python-mode . python-ts-mode)))
-
-;; treesit-auto
-(use-package treesit-auto
-  :ensure t
-  :custom
-  (treesit-auto-install 'prompt)
-  :config
-  (treesit-auto-add-to-auto-mode-alist 'all)
-  (global-treesit-auto-mode))
-
-;;  treesit-auto makes the following redundant but keeping here for now just in case
 (setq treesit-language-source-alist
       '((bash "https://github.com/tree-sitter/tree-sitter-bash")
         (c "https://github.com/tree-sitter/tree-sitter-c")
@@ -1069,10 +1040,60 @@ T - tag prefix
         (typescript "https://github.com/tree-sitter/tree-sitter-typescript" "master" "typescript/src")
         (yaml "https://github.com/ikatyang/tree-sitter-yaml")))
 
-;;;;;;;;;;;;;;;;;;;;;;
-;; language support ;;
-;;;;;;;;;;;;;;;;;;;;;;
+;; use (treesit-language-available-p 'language) to test if language treesit is installed
 
+(setq major-mode-remap-alist
+ '((yaml-mode . yaml-ts-mode)
+   (bash-mode . bash-ts-mode)
+   (javascript-mode . js-ts-mode)
+   (js2-mode . js-ts-mode)
+   (js-jsx-mode . js-ts-mode)
+   (typescript-mode . typescript-ts-mode)
+   (json-mode . json-ts-mode)
+   (css-mode . css-ts-mode)
+   (python-mode . python-ts-mode)))
+
+;; treesit-auto
+(use-package treesit-auto
+  :ensure t
+  :custom
+  (treesit-auto-install 'prompt)
+  :config
+  (treesit-auto-add-to-auto-mode-alist 'all)
+  (global-treesit-auto-mode))
+
+;; emmet
+(use-package emmet-mode
+  :ensure t
+  :hook
+  (css-ts-mode . emmet-mode)
+  (html-mode . emmet-mode)
+  (js-ts-mode . emmet-mode)
+  (typescript-ts-mode . emmet-mode))
+
+;;;;;;;;;;;
+;; latex ;;
+;;;;;;;;;;;
+
+(use-package tex
+  :ensure auctex)
+
+(use-package cdlatex
+  :ensure t)
+
+(use-package org-fragtog
+  :ensure t
+  :hook (org-mode . org-fragtog-mode))
+
+;;;;;;;;;;;
+;; tools ;;
+;;;;;;;;;;;
+
+;; magit
+(use-package magit
+  :ensure t)
+
+;; venv support
 (use-package virtualenvwrapper
   :ensure t
   :config
@@ -1084,69 +1105,10 @@ T - tag prefix
 (use-package jupyter
   :ensure t)
 
-;; commented out after treesit installation, keeping here just in case
-
-;; lua-mode
-;; (use-package lua-mode
-;;   :ensure t
-;;   :mode "\\.lua\\'"
-;;   :hook ((lua-mode . lsp-deferred)))
-
-;; rjsx
-;; (use-package rjsx-mode
-;;   :ensure t
-;;   :mode "\\.js\\', \\.jsx\\'"
-;;   :hook (rjsx-mode . lsp-deferred)
-;;   :config
-;;   (setq js-indent-level 2)
-;;   (setq js2-strict-missing-semi-warning nil))
-
-;; python
-;; (use-package python-mode
-;;   :ensure t
-;;   :mode "\\.py\\'"
-;;   :init
-;;   (setq python-indent-guess-indent-offset t)
-;;   (setq python-indent-guess-indent-offset-verbose nil)
-;;   :custom
-;;   (customize-set-variable python-shell-interpreter "python3")
-;;   (customize-set-variable python-shell-virtualenv-root "~/.venv/org-babel"))
-
-;; typescript-mode
-;; (use-package typescript-mode
-;;   :mode "\\.ts\\', \\.tsx\\'"
-;;   :hook (typescript-mode . lsp-deferred)
-;;   :config
-;;   (setq typescript-indent-level 2))
-
-;; ;; dockerfile-mode
-;; (use-package dockerfile-mode
-;;   :ensure t
-;;   :mode "Dockerfile\\'")
-
-;;;;;;;;;;;
-;; tools ;;
-;;;;;;;;;;;
-
-
-;; magit
-(use-package magit
-  :ensure t)
-
 ;; slime (the superior lisp interaction mode for emacs)
 (load (expand-file-name "~/.quicklisp/slime-helper.el"))
+
 (setq inferior-lisp-program "sbcl")
-
-;; LaTeX tools
-(use-package tex
-  :ensure auctex)
-
-(use-package cdlatex
-  :ensure t)
-
-(use-package org-fragtog
-  :ensure t
-  :hook (org-mode . org-fragtog-mode))
 
 ;;;;;;;;;;;;;;
 ;; org mode ;;
