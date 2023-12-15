@@ -1123,6 +1123,7 @@ T - tag prefix
   :hook
   (org-mode . org-indent-mode)
   (org-mode . turn-on-org-cdlatex)
+  (org-mode .  my/org-syntax-table-modify)
   :init
   (add-to-list 'display-buffer-alist
              '("\\*org-roam\\*"
@@ -1171,6 +1172,11 @@ T - tag prefix
   (add-to-list 'org-structure-template-alist '("el" . "src emacs-lisp"))
   (add-to-list 'org-structure-template-alist '("py" . "src python :results output"))
   (add-to-list 'org-structure-template-alist '("jp" . "src jupyter-python :session py")))
+
+(defun my/org-syntax-table-modify ()
+  "Modify `org-mode-syntax-table' for the current org buffer."
+  (modify-syntax-entry ?< "." org-mode-syntax-table)
+  (modify-syntax-entry ?> "." org-mode-syntax-table))
 
 ;; org-roam
 (use-package org-roam
