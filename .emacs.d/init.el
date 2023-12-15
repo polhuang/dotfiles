@@ -51,11 +51,6 @@
   (unless (file-exists-p my-auto-save-dir)
     (make-directory my-auto-save-dir)))
 
-;; store backup files in separate directory
-(setq backup-directory-alist
-      `(("." . ,(expand-file-name
-		 (concat user-emacs-directory "backups")))))
-
 ;;;;;;;;;;;;;;;;;
 ;; ui settings ;;
 ;;;;;;;;;;;;;;;;;
@@ -118,7 +113,7 @@
   :hook (org-mode . fontify-face-mode))
 
 ;; font
-(set-face-attribute 'default nil :family "Iosevka Comfy Fixed")
+(set-face-attribute 'default nil :family "Iosevka Comfy Fixed" :background nil)
 
 ;; fontaine
 (use-package fontaine
@@ -565,6 +560,12 @@ T - tag prefix
 
 ;; electric pair
 (electric-pair-mode 1)
+(defvar org-electric-pairs '((?$ . ?$)) "Electric pairs for org mode.")
+(defun org-add-electric-pairs ()
+  (setq-local electric-pair-pairs (append electric-pair-pairs org-electric-pairs))
+  (setq-local electric-pair-text-pairs electric-pair-pairs))
+
+(add-hook 'org-mode-hook 'org-add-electric-pairs)
 
 ;; smartparens (currently trying out puni + electric pair)
 ;; (use-package smartparens
@@ -957,7 +958,9 @@ T - tag prefix
 
 ;; which-key
 (use-package which-key
-  :init (which-key-mode))
+  :config
+  (which-key-mode)
+  (setq which-key-max-description-length 40))
 
 ;; restart-emacs
 (use-package restart-emacs
@@ -996,11 +999,11 @@ T - tag prefix
 	 (python-ts-mode . lsp-deferred)
 	 (lua-mode . lsp-deferred)
 	 ;; if you want which-key integration
-	 (lsp-mode . lsp-enable-which-key-integration))
+	 (lsp-mode . lsp-enable-which-key-integration)
+         (lsp-mode . lsp-semantic-tokens-mode))
   :config
   (setq lsp-enable-snippet nil)
   (setq lsp-enable-symbol-highlighting 1)
-
   :commands lsp lsp-deferred)
 
 (use-package lsp-ui
@@ -1015,41 +1018,56 @@ T - tag prefix
 ;; flycheck
 (add-hook 'after-init-hook #'global-flycheck-mode)
 
-;; tree-sitter
-(use-package tree-sitter
-  :ensure t
-  :config
-  :init
-  (global-tree-sitter-mode)
-  (add-hook 'tree-sitter-after-on-hook #'tree-sitter-hl-mode))
+;; ;; tree-sitter
+;; (use-package tree-sitter
+;;   :ensure t
+;;   :config
+;;   :hook
+;;   (tree-sitter-mode . tree-sitter-hl-mode)
+;;   :init
+;;   (global-tree-sitter-mode))
 
-(treesit-available-p)
-(use-package tree-sitter-langs
-  :ensure t)
+;; (treesit-available-p)
+;; (use-package tree-sitter-langs
+;;   :ensure t)
+
+
+
+(setq major-mode-remap-alist
+ '((yaml-mode . yaml-ts-mode)
+   (bash-mode . bash-ts-mode)
+   (js2-mode . js-ts-mode)
+   (javascript-mode . js-ts-mode)
+   (typescript-mode . typescript-ts-mode)
+   (json-mode . json-ts-mode)
+   (css-mode . css-ts-mode)
+   (python-mode . python-ts-mode)))
 
 ;; treesit-auto
 (use-package treesit-auto
   :ensure t
+  :custom
+  (treesit-auto-install 'prompt)
   :config
-  (treesit-auto-add-to-auto-mode-alist)
+  (treesit-auto-add-to-auto-mode-alist 'all)
   (global-treesit-auto-mode))
 
-;; treesit-auto makes the following redundant but keeping here for now just in case
-;; (setq treesit-language-source-alist
-;; '((bash "https://github.com/tree-sitter/tree-sitter-bash")
-;;   (c "https://github.com/tree-sitter/tree-sitter-c")
-;;   (css "https://github.com/tree-sitter/tree-sitter-css")
-;;   (elisp "https://github.com/Wilfred/tree-sitter-elisp")
-;;   (html "https://github.com/tree-sitter/tree-sitter-html")
-;;   (javascript "https://github.com/tree-sitter/tree-sitter-javascript" "master" "src")
-;;   (json "https://gtihub.com/tree-sitter/tree-sitter-json")
-;;   (lua "https://github.com/MunifTanjim/tree-sitter-lua")
-;;   (markdown "https://github.com/ikatyang/tree-sitter-markdown")
-;;   (python "https://github.com/tree-sitter/tree-sitter-python")
-;;   (toml "https://github.com/tree-sitter/tree-sitter-toml")
-;;   (tsx "https://github.com/tree-sitter/tree-sitter-typescript" "master" "tsx/src")
-;;   (typescript "https://github.com/tree-sitter/tree-sitter-typescript" "master" "typescript/src")
-;;   (yaml "https://github.com/ikatyang/tree-sitter-yaml")))
+;;  treesit-auto makes the following redundant but keeping here for now just in case
+(setq treesit-language-source-alist
+      '((bash "https://github.com/tree-sitter/tree-sitter-bash")
+        (c "https://github.com/tree-sitter/tree-sitter-c")
+        (css "https://github.com/tree-sitter/tree-sitter-css")
+        (elisp "https://github.com/Wilfred/tree-sitter-elisp")
+        (html "https://github.com/tree-sitter/tree-sitter-html")
+        (javascript "https://github.com/tree-sitter/tree-sitter-javascript" "master" "src")
+        (json "https://gtihub.com/tree-sitter/tree-sitter-json")
+        (lua "https://github.com/MunifTanjim/tree-sitter-lua")
+        (markdown "https://github.com/ikatyang/tree-sitter-markdown")
+        (python "https://github.com/tree-sitter/tree-sitter-python")
+        (toml "https://github.com/tree-sitter/tree-sitter-toml")
+        (tsx "https://github.com/tree-sitter/tree-sitter-typescript" "master" "tsx/src")
+        (typescript "https://github.com/tree-sitter/tree-sitter-typescript" "master" "typescript/src")
+        (yaml "https://github.com/ikatyang/tree-sitter-yaml")))
 
 ;;;;;;;;;;;;;;;;;;;;;;
 ;; language support ;;
@@ -1137,10 +1155,9 @@ T - tag prefix
 ;; org mode
 (use-package org
   :bind
-  (("C-c C-c" . org-id-get-create)
-   ("C-c c" . org-capture)
-   ("C-c C-<return>" . org-insert-heading-respect-content)
-   ("C-c a" . org-agenda))
+  (("C-c o i" . org-id-get-create)
+   ("C-c a" . org-agenda)
+   ("C-c o s" . org-save-all-org-buffers))
   :hook
   (org-mode . org-indent-mode)
   (org-mode . turn-on-org-cdlatex)
@@ -1172,26 +1189,26 @@ T - tag prefix
   (setq org-startup-folded 'content)
 
   ;; org-capture
- (setq org-capture-templates `(
-	("p" "Protocol Text" entry (file+headline ,(concat org-directory "/roam/captures.org") "Captures")
-	"* %^{Title}\nSource: %u, %c\n #+BEGIN_QUOTE\n%i\n#+END_QUOTE\n\n\n")
-	("L" "Protocol Link" entry (file+headline ,(concat org-directory "roam/captures.org") "Captures")
-	"* %? [[%:link][%:description]] \nCaptured On: %U")
-        ))
- 
- ;; org-babel
- (org-babel-do-load-languages
-  'org-babel-load-languages
-  '((lisp . t)
-    (python . t)
-    (jupyter . t)))
- (setq org-confirm-babel-evaluate nil)
- (setq org-src-tab-acts-natively t)
- (require 'org-tempo)
- (setq org-babel-python-command "python3")
- (add-to-list 'org-structure-template-alist '("el" . "src emacs-lisp"))
- (add-to-list 'org-structure-template-alist '("py" . "src python :results output"))
- (add-to-list 'org-structure-template-alist '("jp" . "src jupyter-python :session py")))
+  (setq org-capture-templates `(
+	                        ("p" "Protocol Text" entry (file+headline ,(concat org-directory "/roam/captures.org") "Captures")
+	                         "* %^{Title}\nSource: %u, %c\n #+BEGIN_QUOTE\n%i\n#+END_QUOTE\n\n\n")
+	                        ("L" "Protocol Link" entry (file+headline ,(concat org-directory "roam/captures.org") "Captures")
+	                         "* %? [[%:link][%:description]] \nCaptured On: %U")
+                                ))
+  
+;; org-babel
+  (org-babel-do-load-languages
+   'org-babel-load-languages
+   '((lisp . t)
+     (python . t)
+     (jupyter . t)))
+  (setq org-confirm-babel-evaluate nil)
+  (setq org-src-tab-acts-natively t)
+  (require 'org-tempo)
+  (setq org-babel-python-command "python3")
+  (add-to-list 'org-structure-template-alist '("el" . "src emacs-lisp"))
+  (add-to-list 'org-structure-template-alist '("py" . "src python :results output"))
+  (add-to-list 'org-structure-template-alist '("jp" . "src jupyter-python :session py")))
 
 ;; org-roam
 (use-package org-roam
@@ -1206,9 +1223,7 @@ T - tag prefix
 	 ("C-c n i" . org-roam-node-insert)
 	 ("C-c n c" . org-roam-capture)
 	 ("C-c n g" . org-roam-graph)
-	 ("C-c n t" . org-roam-dailies-capture-today)
-	 ("C-c n y" . org-roam-dailies-capture-yesterday)
-	 ("C-c n r" . org-roam-dailies-capture-tomorrow)
+         ("C-c n t" . org-roam-tag-add)
 	 ("C-c n I" . org-roam-node-insert-immediate)
 	 :map org-mode-map
 	 (("C-M-i" . completion-at-point)))
@@ -1267,13 +1282,16 @@ T - tag prefix
 ;;;;;;;;;;;;;;;;;;;
 
 ;; dashboard
+(setq initial-buffer-choice (lambda () (get-buffer-create "*dashboard*")))
 (use-package dashboard
   :ensure t
+  :init
+  (setq dashboard-startup-banner "~/.dotfiles/.emacs.d/dashboard-banner.txt")
   :config
   (dashboard-setup-startup-hook)
-  (setq dashboard-banner-logo-title "HI POL")
+  (setq dashboard-banner-logo-title "~~ HI POL ~~")
   (setq dashboard-startup-banner "~/.dotfiles/.emacs.d/dashboard-banner.txt")
-  (setq dashboard-footer-messages '("Time saved by emacs: 5 hours \nTime editing emacs config: 3 years 5 months 20 days 11 hours and 38 minutes editing your emacs"))
+  (setq dashboard-footer-messages '("Time saved by emacs: 5 days 11 hours 47 minutes \nTime spent editing emacs config: 615 days 11 hours 38 minutes"))
   (setq dashboard-items '((recents  . 5)
 			(bookmarks . 5)
 			(projects . 5)
@@ -1283,15 +1301,35 @@ T - tag prefix
 		      :inherit 'font-lock-variable-name-face
 		      :weight 'bold))
 
-
-
 ;; projectile
 (use-package projectile
   :ensure t)
 (projectile-mode +1)
 (define-key projectile-mode-map (kbd "C-x p") 'projectile-command-map)
 
-;; zone
+;; gptel
+(use-package gptel
+  :ensure t
+  :bind
+  (("C-c c" . gptel-send))
+  :init
+  (setq gptel-model "gpt-4")
+  :config
+  (setq gptel-max-tokens 4096)
+  (setq gptel-default-mode 'org-mode)
+  (setq gptel-directives
+        '(
+          (default. "You rae a large language model living in Emacs. You are a helpful assistant. Provide concise answers.")
+          (detailed . "You are a large language model living in Emacs. You are a helpful assistant but also a thorough researcher. Provide thorough answers in outline form and section headers.")
+          (programming . "You are a large language model and a careful programmer. Provide code and only code as output without any additional text, prompt or note.")
+          (debugging . "You are a large language model and a careful programmer. Analyze this code and concisely explain any bugs you find.")
+          (writing . "You are a large language model and a writing assistant. Respond concisely.")
+          (chat . "You are a large language model and a conversation partner. Respond concisely.")
+          (maniac . "You are an intelligent but crazed lunatic that lives to give extravagant but confounding responses.")
+          (emacs-addict . "You are extremely obsessed with emacs. You cannot bear to talk about anything but emacs, so you find any kind of opportunity to give answers in a way that has to do with emacs.")
+          (sassy . "You are extremely sassy and like to give witty, sardonic answers and insult me."))))
+  
+ ;; zone
 (use-package zone
   :ensure t)
 (zone-when-idle 300)
@@ -1371,7 +1409,7 @@ T - tag prefix
   (setq mu4e-sent-folder   "/[Gmail]/Sent Mail")
   (setq mu4e-refile-folder "/[Gmail]/All Mail")
   (setq mu4e-trash-folder  "/[Gmail]/Trash")
-A  (setq mu4e-headers-results-limit 2000)
+  (setq mu4e-headers-results-limit 2000)
 
   (setq mu4e-maildir-shortcuts
       '((:maildir "/Inbox"    :key ?i)
@@ -1409,8 +1447,6 @@ A  (setq mu4e-headers-results-limit 2000)
  '(dashboard-agenda-prefix-format " %-10:c %-12s ")
  '(dashboard-agenda-sort-strategy '(time-up))
  '(dashboard-agenda-time-string-format "%m-%d %H:%M")
- '(dashboard-footer "The one true editor, Emacs!")
- '(dashboard-startup-banner 1)
  '(global-display-line-numbers-mode t)
  '(js-indent-level 2)
  '(lsp-enable-links nil)
@@ -1434,6 +1470,7 @@ A  (setq mu4e-headers-results-limit 2000)
  '(smtpmail-smtp-server "imap.gmail.com")
  '(smtpmail-smtp-service 25)
  '(tool-bar-mode nil)
+ '(treesit-font-lock-level 4)
  '(typescript-auto-indent-flag t)
  '(typescript-indent-level 2)
  '(warning-suppress-types '((comp)))
