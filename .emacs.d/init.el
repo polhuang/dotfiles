@@ -250,6 +250,28 @@
 (use-package hydra
   :ensure t)
 
+;; hydra-colossa
+(defhydra hydra-colossa (:color pink :hint nil)
+  "
+  _c_: cheat
+  _r_: restart emacs
+  _s_: scratch
+"
+  ("r" restart-emacs :color blue)
+  ("c" hydra-cheat/body :color blue)
+  ("s" scratch-buffer :color blue)
+  )
+
+(defhydra hydra-cheat (:color pink :hint nil)
+  "
+  but cheating is bad lol
+"
+  ("." nil "go away" :color blue)
+  )
+
+(global-set-key (kbd "C-b") 'hydra-colossa/body)
+
+
 ;; hydra for ibuffer
 (defhydra hydra-ibuffer-main (:color pink :hint nil)
   "
@@ -479,6 +501,8 @@ T - tag prefix
 ;; buffers / windows / frames  ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+;; kill-this-buffer
+(global-set-key (kbd "C-n") 'kill-this-buffer)
 
 ;; revert buffers after external file changes
 (global-auto-revert-mode t)
@@ -844,23 +868,23 @@ T - tag prefix
 (use-package cape
   ;; Bind dedicated completion commands
   ;; Alternative prefix keys: C-c p, M-p, M-+, ...
-  :bind (("C-c p p" . completion-at-point) ;; capf
-	 ("C-c p t" . complete-tag)        ;; etags
-	 ("C-c p d" . cape-dabbrev)        ;; or dabbrev-completion
-	 ("C-c p h" . cape-history)
-	 ("C-c p f" . cape-file)
-	 ("C-c p k" . cape-keyword)
-	 ("C-c p s" . cape-elisp-symbol)
-	 ("C-c p e" . cape-elisp-block)
-	 ("C-c p a" . cape-abbrev)
-	 ("C-c p l" . cape-line)
-	 ("C-c p w" . cape-dict)
-	 ("C-c p :" . cape-emoji)
-	 ("C-c p \\" . cape-tex)
-	 ("C-c p _" . cape-tex)
-	 ("C-c p ^" . cape-tex)
-	 ("C-c p &" . cape-sgml)
-	 ("C-c p r" . cape-rfc1345))
+  :bind (("C-c P p" . completion-at-point) ;; capf
+	 ("C-c P t" . complete-tag)        ;; etags
+	 ("C-c P d" . cape-dabbrev)        ;; or dabbrev-completion
+	 ("C-c P h" . cape-history)
+	 ("C-c P f" . cape-file)
+	 ("C-c P k" . cape-keyword)
+	 ("C-c P s" . cape-elisp-symbol)
+	 ("C-c P e" . cape-elisp-block)
+	 ("C-c P a" . cape-abbrev)
+	 ("C-c P l" . cape-line)
+	 ("C-c P w" . cape-dict)
+	 ("C-c P :" . cape-emoji)
+	 ("C-c P \\" . cape-tex)
+	 ("C-c P _" . cape-tex)
+	 ("C-c P ^" . cape-tex)
+	 ("C-c P &" . cape-sgml)
+	 ("C-c P r" . cape-rfc1345))
   :init
   ;; Add to the global default value of `completion-at-point-functions' which is
   ;; used by `completion-at-point'.  The order of the functions matters, the
@@ -1280,16 +1304,22 @@ T - tag prefix
 		      :weight 'bold))
 
 ;; projectile
-(use-package projectile
-  :ensure t)
-(projectile-mode +1)
-(define-key projectile-mode-map (kbd "C-x p") 'projectile-command-map)
 
-;; gptel
+(global-set-key (kbd "C-x p") 'projectile-command-map)
+
+(use-package projectile
+  :ensure t
+  :bind
+  (("C-c p" . projectile-command-map)))
+
+(with-eval-after-load 'projectile
+    (define-key projectile-command-map (kbd "B") 'projectile-ibuffer))
+
+;; gptqel
 (use-package gptel
   :ensure t
   :bind
-  (("C-c c" . gptel-send))
+  (("C-c c" . gptel-menu))
   :init
   (setq gptel-model "gpt-4")
   :config
@@ -1297,8 +1327,8 @@ T - tag prefix
   (setq gptel-default-mode 'org-mode)
   (setq gptel-directives
         '(
-          (default . "You rae a large language model living in Emacs. You are a helpful assistant. Provide concise answers.")
-          (detailed . "You are a large language model living in Emacs. You are a helpful assistant but also a thorough researcher. Provide thorough answers in outline form and section headers.")
+          (default . "You are a large language model living in Emacs. You are a helpful assistant. Provide concise answers.")
+          (detailed . "You are a large language model living in Emacs. You are a helpful assistant but also a thorough researcher. Provide thorough answers of the most important aspects of the topic in outline form and section headers.")
           (programming . "You are a large language model and a careful programmer. Provide code and only code as output without any additional text, prompt or note.")
           (debugging . "You are a large language model and a careful programmer. Analyze this code and concisely explain any bugs you find.")
           (teaching . "You are a large language model and a patient teacher. Walk me through your answers slowly step-by-step.")
