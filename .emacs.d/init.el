@@ -72,7 +72,9 @@
   (set-face-attribute 'font-lock-builtin-face nil :weight 'bold)
   (set-face-attribute 'font-lock-function-name-face nil :weight 'bold)
   (set-face-attribute 'font-lock-variable-name-face nil :weight 'bold)
-  (set-face-attribute 'link nil :underline t))
+  (set-face-attribute 'link nil :underline t)
+  (set-face-attribute 'mode-line nil :background "#565656")
+  (set-face-attribute 'highlight nil :background "#FFBFBD"))
 
 (with-eval-after-load 'org
   (set-face-attribute 'org-level-1 nil :foreground "#ffd7af")
@@ -977,7 +979,12 @@ T - tag prefix
 
 ;; eat
 (use-package eat
-  :ensure t)
+  :ensure t
+  :bind (("C-c e e" . eat)
+         ("C-c e o" . eat-other-window)
+         ("C-c e p" . eat-project-other-window))
+  :init
+  (setq eat-kill-buffer-on-exit t))
 
 ;;;;;;;;;;;;
 ;; coding ;;
@@ -1015,10 +1022,10 @@ T - tag prefix
 (use-package lsp-ui
   :hook
   (lsp-mode . lsp-ui-mode)
+  :bind (("C-c l d" . lsp-ui-doc-show))
   :custom
   (lsp-ui-sidebar-enable nil)
-  (lsp-ui-doc-position 'bottom)
-  (lsp-ui-doc-show)
+  (lsp-ui-doc-position 'at-point)
   :commands lsp-ui-mode)
 
 ;; flycheck
@@ -1065,11 +1072,14 @@ T - tag prefix
 ;; emmet
 (use-package emmet-mode
   :ensure t
+  :bind (("C-j" . emmet-expand-lineg))
   :hook
   (css-ts-mode . emmet-mode)
   (html-mode . emmet-mode)
   (js-ts-mode . emmet-mode)
-  (typescript-ts-mode . emmet-mode))
+  (typescript-ts-mode . emmet-mode)
+  :config
+  (define-key emmet-mode-keymap (kbd "<C-return>") nil))
 
 ;;;;;;;;;;;
 ;; latex ;;
