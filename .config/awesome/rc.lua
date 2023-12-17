@@ -482,7 +482,7 @@ globalkeys = mytable.join(
     awful.key({}, "XF86AudioMute", function () volume_widget:toggle() end),
 
     -- Spotify cli
-    awful.key({ modkey,        }, "d", function () spotify_shell.launch() end, {description = "spotify shell", group = "music"}),
+    awful.key({ "Control", altkey, "Shift" }, "s", function () spotify_shell.launch() end, {description = "spotify shell", group = "music"}),
 
 
     -- MPD control

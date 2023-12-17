@@ -8,6 +8,7 @@
 			 ("org" . "https://orgmode.org/elpa/")
 			 ("elpa" . "https://elpa.gnu.org/packages/")
 			 ("nongnu" . "https://elpa.nongnu.org/nongnu/")))
+
 (unless package-archive-contents
   (package-refresh-contents))
 
@@ -218,7 +219,7 @@
 (set-register ?k (cons 'file "~/org/roam/20231026150011-emacs.org"))
 
 ;; use ibuffer
-(global-set-key (kbd "C-x C-b") 'ibuffer-other-window)
+(global-set-key (kbd "C-x b") 'ibuffer-other-window)
 
 ;; switch to mini-buffer
 (global-set-key (kbd "C-x m") 'switch-to-minibuffer)
@@ -251,22 +252,27 @@
   :ensure t)
 
 ;; hydra-colossa
-(defhydra hydra-colossa (:color pink :hint nil)
+(defhydra hydra-colossa (:color amaranth :hint nil)
   "
   _c_: cheat
+  _e_: eat
   _r_: restart emacs
-  _s_: scratch
+  _s_: scratch-buffer
+  _q_: go away
 "
-  ("r" restart-emacs :color blue)
   ("c" hydra-cheat/body :color blue)
+  ("e" eat :color blue)
+  ("q" nil :color blue)
+  ("r" restart-emacs :color blue)
   ("s" scratch-buffer :color blue)
+  ("." nil :color blue)
   )
 
 (defhydra hydra-cheat (:color pink :hint nil)
   "
   but cheating is bad lol
 "
-  ("." nil "go away" :color blue)
+  ("?" nil "go away" :color blue)
   )
 
 (global-set-key (kbd "C-b") 'hydra-colossa/body)
@@ -502,7 +508,7 @@ T - tag prefix
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;; kill-this-buffer
-(global-set-key (kbd "C-n") 'kill-this-buffer)
+(global-set-key (kbd "C-c M-q k") 'kill-this-buffer) ;; C-c M-q is bound to keyboard macro
 
 ;; revert buffers after external file changes
 (global-auto-revert-mode t)
@@ -977,10 +983,31 @@ T - tag prefix
 ;; utilities ;;
 ;;;;;;;;;;;;;;;
 
+;; scratch buffer functions
+
+(defun scratch-buffer-other-window ()
+  "Open the *scratch* buffer in a new window."
+  (interactive)
+  (switch-to-buffer-other-window (get-buffer-create "*scratch*"))
+  (lisp-interaction-mode))
+
+(defun toggle-scratch-buffer-other-window ()
+  "Toggle between *scratch* buffer and the current buffer."
+  (interactive)
+  (if (string= (buffer-name) "*scratch*")
+      (delete-window)
+    (scratch-buffer-other-window)))
+
+(global-set-key (kbd "C-c M-q s") 'toggle-scratch-buffer-other-window)
+
 ;; persistent scratch
+(setq initial-scratch-message nil)
+(setq initial-major-mode 'org-mode)
+
 (use-package persistent-scratch
-  :ensure t)
-(persistent-scratch-setup-default)
+  :ensure t
+  :config
+  (setq persistent-scratch-backup-directory '"~/org/scratch/"))
 
 ;; workgroups2
 (use-package workgroups2
@@ -996,6 +1023,12 @@ T - tag prefix
 ;; restart-emacs
 (use-package restart-emacs
   :ensure t)
+
+;; keyfreq
+(use-package keyfreq
+  :ensure t
+  :config
+  (keyfreq-mode 1))
 
 ;;;;;;;;;;;;;;
 ;; terminal ;;
@@ -1315,13 +1348,13 @@ T - tag prefix
 (with-eval-after-load 'projectile
     (define-key projectile-command-map (kbd "B") 'projectile-ibuffer))
 
-;; gptqel
+;; gptel
 (use-package gptel
   :ensure t
   :bind
   (("C-c c" . gptel-menu))
   :init
-  (setq gptel-model "gpt-4")
+  (setq gptel-model "gpt-3.5-turbo")
   :config
   (setq gptel-max-tokens 4096)
   (setq gptel-default-mode 'org-mode)
@@ -1341,6 +1374,7 @@ T - tag prefix
  ;; zone
 (use-package zone
   :ensure t)
+
 (zone-when-idle 300)
 
 ;; parrot
@@ -1357,7 +1391,7 @@ T - tag prefix
   :ensure t
   :custom
   (setq elcord-idle-message "call me maybe?")
-  :config
+  :init
   (elcord-mode))
 
 ;; gcal
