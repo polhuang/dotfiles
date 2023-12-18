@@ -145,7 +145,7 @@ local editor       = "emacs"
 local browser      = "brave-browser"
 
 awful.util.terminal = terminal
-awful.util.tagnames = { "一  sh ", " 二  emacs ", " 三  www ", " 四  gpt ", " 五  key ", " 六  msg ", " 七  email ", " 八  music ", " 九  util " }
+awful.util.tagnames = { " 一  sh ", " 二  key ", " 三  msg ", " 四  www ", " 五 emacs ", " 六  www2", " 七  email ", " 八  music ", " 九  util " }
 awful.layout.layouts = {
     --awful.layout.suit.floating,
     awful.layout.suit.tile,
@@ -288,7 +288,7 @@ end)
 -- For the emacs tab, default to centerwork layout
 awful.screen.connect_for_each_screen(function(s)
       beautiful.at_screen_connect(s)
-      awful.layout.set(awful.layout.layouts[5], s.tags[2])
+      awful.layout.set(awful.layout.layouts[4], s.tags[5])
 end)
 
 
@@ -749,7 +749,7 @@ awful.rules.rules = {
 
     -- Set apps to always map on the specific tags and screens
     { rule = { class = "discord" },
-      properties = { screen = 1, tag = " 六  msg " } },
+      properties = { screen = 1, tag = " 三  msg " } },
         { rule = { class = "Spotify" },
       properties = { screen = 1, tag = " 八  music " } },
 }

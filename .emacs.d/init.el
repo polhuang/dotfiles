@@ -219,7 +219,7 @@
 (set-register ?k (cons 'file "~/org/roam/20231026150011-emacs.org"))
 
 ;; use ibuffer
-(global-set-key (kbd "C-x b") 'ibuffer-other-window)
+(global-set-key (kbd "C-x B") 'ibuffer-other-window)
 
 ;; switch to mini-buffer
 (global-set-key (kbd "C-x m") 'switch-to-minibuffer)
@@ -984,21 +984,26 @@ T - tag prefix
 ;;;;;;;;;;;;;;;
 
 ;; scratch buffer functions
-
-(defun scratch-buffer-other-window ()
+(defun my/scratch-buffer-other-window ()
   "Open the *scratch* buffer in a new window."
   (interactive)
   (switch-to-buffer-other-window (get-buffer-create "*scratch*"))
   (lisp-interaction-mode))
 
-(defun toggle-scratch-buffer-other-window ()
+(defun my/toggle-scratch-buffer-other-window ()
   "Toggle between *scratch* buffer and the current buffer."
   (interactive)
   (if (string= (buffer-name) "*scratch*")
       (delete-window)
-    (scratch-buffer-other-window)))
+    (let ((selected-text (when (region-active-p)
+                           (buffer-substring-no-properties (region-beginning) (region-end)))))
+      (when selected-text
+        (with-current-buffer (get-buffer-create "*scratch*")
+          (goto-char (point-max))
+          (insert selected-text "\n"))))
+    (my/scratch-buffer-other-window)))
 
-(global-set-key (kbd "C-c M-q s") 'toggle-scratch-buffer-other-window)
+(global-set-key (kbd "C-c M-q s") 'my/toggle-scratch-buffer-other-window)
 
 ;; persistent scratch
 (setq initial-scratch-message nil)
@@ -1042,6 +1047,22 @@ T - tag prefix
          ("C-c e p" . eat-project-other-window))
   :init
   (setq eat-kill-buffer-on-exit t))
+
+(defun my/toggle-eat ()
+  "Toggle between eat and current buffer."
+  (interactive)
+  (if (string= (buffer-name) "*eat*")
+      (delete-window)
+    (eat-other-window)))
+
+(global-set-key (kbd "C-c C-q e"))
+
+(defun my/toggle-eatt ()
+  "Toggles between current buffer and eat"
+  (interactive)
+  (if (string= (current-buffer) "*eat*")
+      (delete-window)
+    (eat-other-window)))
 
 ;;;;;;;;;;;;
 ;; coding ;;
@@ -1135,6 +1156,7 @@ T - tag prefix
   (html-mode . emmet-mode)
   (js-ts-mode . emmet-mode)
   (typescript-ts-mode . emmet-mode)
+  (tsx-ts-mode . emmet-mode)
   :config
   (define-key emmet-mode-keymap (kbd "<C-return>") nil))
 
@@ -1361,7 +1383,7 @@ T - tag prefix
   (setq gptel-directives
         '(
           (default . "You are a large language model living in Emacs. You are a helpful assistant. Provide concise answers.")
-          (detailed . "You are a large language model living in Emacs. You are a helpful assistant but also a thorough researcher. Provide thorough answers of the most important aspects of the topic in outline form and section headers.")
+          (detailed . "You are a large language model living in Emacs. You are a helpful assistant but also a thorough researcher. Provide thorough answers in outline form and section headers.")
           (programming . "You are a large language model and a careful programmer. Provide code and only code as output without any additional text, prompt or note.")
           (debugging . "You are a large language model and a careful programmer. Analyze this code and concisely explain any bugs you find.")
           (teaching . "You are a large language model and a patient teacher. Walk me through your answers slowly step-by-step.")
