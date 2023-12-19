@@ -219,6 +219,7 @@
 (set-register ?k (cons 'file "~/org/roam/20231026150011-emacs.org"))
 
 ;; use ibuffer
+(global-set-key (kbd "C-x C-b") 'ibuffer)
 (global-set-key (kbd "C-x B") 'ibuffer-other-window)
 
 ;; switch to mini-buffer
@@ -241,8 +242,10 @@
 ;; avy
 (use-package avy
   :ensure t)
+
 (global-set-key (kbd "C-s") 'avy-goto-char)
-(global-set-key (kbd "M-g M-g") 'avy-goto-line)
+(global-set-key (kbd "C-c C-s") 'avy-goto-line)
+(define-key org-mode-map (kbd "C-c C-s") 'avy-goto-line)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; hydra ----------------------------------------------------------------------- ;;
@@ -1033,7 +1036,8 @@ T - tag prefix
 (use-package keyfreq
   :ensure t
   :config
-  (keyfreq-mode 1))
+  (keyfreq-mode 1)
+  (keyfreq-autosave-mode))
 
 ;;;;;;;;;;;;;;
 ;; terminal ;;
@@ -1055,14 +1059,7 @@ T - tag prefix
       (delete-window)
     (eat-other-window)))
 
-(global-set-key (kbd "C-c C-q e"))
-
-(defun my/toggle-eatt ()
-  "Toggles between current buffer and eat"
-  (interactive)
-  (if (string= (current-buffer) "*eat*")
-      (delete-window)
-    (eat-other-window)))
+(global-set-key (kbd "C-c C-q e") 'my/toggle-eat)
 
 ;;;;;;;;;;;;
 ;; coding ;;
@@ -1089,7 +1086,7 @@ T - tag prefix
          (css-ts-mode . lsp-deferred)
 	 (python-ts-mode . lsp-deferred)
 	 (lua-mode . lsp-deferred)
-	 ;; if you want which-key integration
+         ;; if you want which-key integration
 	 (lsp-mode . lsp-enable-which-key-integration)
          (lsp-mode . lsp-semantic-tokens-mode))
   :config
@@ -1105,6 +1102,11 @@ T - tag prefix
   (lsp-ui-sidebar-enable nil)
   (lsp-ui-doc-position 'at-point)
   :commands lsp-ui-mode)
+
+(use-package lsp-tailwindcss
+  :init
+  (setq lsp-tailwindcss-add-on-mode t)
+  (setq lsp-tailwindcss-major-modes '(typescript-ts-mode js-ts-mode tsx-ts-mode typescript-ts-mode web-mode)))
 
 ;; flycheck
 (add-hook 'after-init-hook #'global-flycheck-mode)
@@ -1378,7 +1380,6 @@ T - tag prefix
   :init
   (setq gptel-model "gpt-3.5-turbo")
   :config
-  (setq gptel-max-tokens 4096)
   (setq gptel-default-mode 'org-mode)
   (setq gptel-directives
         '(
@@ -1392,12 +1393,6 @@ T - tag prefix
           (maniac . "You are an intelligent but crazed lunatic that lives to give extravagant but confounding responses.")
           (emacs-addict . "You are extremely obsessed with emacs. You cannot bear to talk about anything but emacs, so you find any kind of opportunity to give answers in a way that has to do with emacs.")
           (sassy . "You are extremely sassy and like to give witty, sardonic answers and insult me."))))
-  
- ;; zone
-(use-package zone
-  :ensure t)
-
-(zone-when-idle 300)
 
 ;; parrot
 (use-package parrot
@@ -1528,7 +1523,7 @@ T - tag prefix
      (search . " %i %-12:c")))
  '(org-agenda-start-with-log-mode t)
  '(org-directory "~/org/")
- '(package-selected-packages
+ '(package-selected-packages`(add-hook 'web-mode-hook #'lsp-deferred)`
    '(quelpa workgroups2 which-key vertico undo-tree typescript-mode tree-sitter-langs smartparens seoul256-theme rjsx-mode restart-emacs rainbow-mode rainbow-delimiters quelpa-use-package quelpa-leaf puni projectile ppp pfuture perspective persistent-scratch parrot page-break-lines org-sidebar org-roam org-gcal orderless nyan-mode nerd-icons-ibuffer nerd-icons-dired nerd-icons-corfu move-text marginalia magit lua-mode lsp-ui khoj kanagawa-theme kana hydra gruvbox-theme google-this fontify-face flycheck embark-consult elcord eat doom-modeline dockerfile-mode dashboard crux corfu cfrs cape calfw-gcal atomic-chrome async-await async all-the-icons adaptive-wrap ace-window))
  '(register-preview-delay 0.0)
  '(send-mail-function 'smtpmail-send-it)
