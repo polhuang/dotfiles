@@ -280,7 +280,6 @@
 
 (global-set-key (kbd "C-b") 'hydra-colossa/body)
 
-
 ;; hydra for ibuffer
 (defhydra hydra-ibuffer-main (:color pink :hint nil)
   "
@@ -1545,3 +1544,6 @@ T - tag prefix
  ;; If there is more than one, they won't work right.
  '(italic ((t (:slant italic))))
  '(org-ellipsis ((t (:underline nil)))))
+
+
+;;test
