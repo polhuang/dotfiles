@@ -3,22 +3,23 @@
 ;;;;;;;;;;;;;;;;;;;;;;
 
 ;; might be redundant on 29.1
-(require 'package) ;; required for use-package
-(setq package-archives '(("melpa" . "https://melpa.org/packages/")
-			 ("org" . "https://orgmode.org/elpa/")
-			 ("elpa" . "https://elpa.gnu.org/packages/")
-			 ("nongnu" . "https://elpa.nongnu.org/nongnu/")))
+;; (require 'package) ;; required for use-package
+;; (setq package-archives '(("melpa" . "https://melpa.org/packages/")
+;; 			 ("org" . "https://orgmode.org/elpa/")
+;; 			 ("elpa" . "https://elpa.gnu.org/packages/")
+;; 			 ("nongnu" . "https://elpa.nongnu.org/nongnu/")))
 
 (unless package-archive-contents
   (package-refresh-contents))
 
 ;; use-package - install if not installed (when not on linux)
 ;; might be redundant on 29.1
-(unless (package-installed-p 'use-package)
-  (package-install 'use-package))
+;; (unless (package-installed-p 'use-package)
+;;   (package-install 'use-package))
 
-(require 'use-package)
-(setq use-package-always-ensure t) ;; always install packages if not installed
+;; (require 'use-package)
+;; (setq use-package-always-ensure t) ;; always install packages if not installed
+;; (setq use-package-always-defer t)
 
 ;; quelpa
 (use-package quelpa
@@ -85,6 +86,32 @@
   (set-face-attribute 'org-todo nil :foreground "#c66d86" :weight 'bold)
   (set-face-attribute 'org-verbatim nil :foreground "#BC8F8F"))
 
+;; font
+(set-face-attribute 'default nil :family "Iosevka Comfy Fixed" :background nil)
+
+(use-package fontify-face
+  :ensure t)
+
+;; word wrap
+(global-visual-line-mode 1)
+
+;; display line numbers
+(column-number-mode)
+(global-display-line-numbers-mode t)
+
+;; disable ui dialog prompts
+(setq use-dialog-box nil)
+
+;; disable dired omit messsages
+(setq dired-omit-verbose nil)
+
+;; hide backup files in dired
+(add-hook 'dired-mode-hook (lambda () (dired-omit-mode)))
+
+;; prettify-symbols
+(global-prettify-symbols-mode 1)
+
+;; icons
 (use-package nerd-icons-corfu
   :ensure t
   :after corfu
@@ -107,82 +134,6 @@
   :hook
   (ibuffer-mode . nerd-icons-ibuffer-mode))
 
-(use-package rainbow-mode
-  :ensure t
-  :hook (prog-mode . rainbow-mode)
-  :hook (org-mode . rainbow-mode)
-  :hook (text-mode . rainbow-mode))
-
-(use-package fontify-face
-  :ensure t
-  :hook (prog-mode . fontify-face-mode)
-  :hook (org-mode . fontify-face-mode))
-
-;; font
-(set-face-attribute 'default nil :family "Iosevka Comfy Fixed" :background nil)
-
-;; fontaine
-(use-package fontaine
-  :ensure t
-  :config
-  (setq fontaine-presets
-      '((tiny
-         :default-family "Iosevka Comfy Wide Fixed"
-         :default-height 70)
-        (small
-         :default-family "Iosevka Comfy Fixed"
-         :default-height 90)
-        (regular
-         :default-height 100)
-        (medium
-         :default-height 110)
-        (large
-         :default-weight semilight
-         :default-height 140
-         :bold-weight extrabold)
-        (presentation
-         :default-weight semilight
-         :default-height 170
-         :bold-weight extrabold)
-        (t
-         :default-family "Iosevka Comfy"
-         :default-weight regular
-         :default-height 100
-         :fixed-pitch-family nil ; falls back to :default-family
-         :fixed-pitch-weight nil ; falls back to :default-weight
-         :fixed-pitch-height 1.0
-         :variable-pitch-family "Iosevka Comfy Duo"
-         :variable-pitch-weight nil
-         :variable-pitch-height 1.0
-         :bold-family nil ; use whatever the underlying face has
-         :bold-weight bold
-         :italic-family nil
-         :italic-slant italic
-         :line-spacing nil))))
-
-;; word wrap
-(global-visual-line-mode 1)
-
-;; disable ui dialog promptsq
-(setq use-dialog-box nil)
-
-;; prettify-symbols
-(global-prettify-symbols-mode 1)
-
-;; hide backup files in dired
-(add-hook 'dired-mode-hook (lambda () (dired-omit-mode)))
-(defcustom dired-omit-verbose t
-  "When non-nil, show messages when omitting files. When nil, don't show messages."
-  :type 'boolean
-  :group 'dired-x)
-
-;; rainbow delimiters
-(use-package rainbow-delimiters
-  :hook (prog-mode . rainbow-delimiters-mode))
-
-;; display line numbers
-(column-number-mode)
-(global-display-line-numbers-mode t)
 
 ;; highlight current line
 (global-hl-line-mode t)
@@ -579,7 +530,7 @@ T - tag prefix
 ;; editing ;;
 ;;;;;;;;;;;;;
 
-;; IntelliJ-style backspace
+;; intellij-style backspace
 (use-package smart-backspace
   :ensure t
   :bind ("M-<backspace>" . smart-backspace))
@@ -1348,13 +1299,12 @@ T - tag prefix
 (use-package dashboard
   :ensure t
   :init
-  (setq dashboard-startup-banner "~/.dotfiles/.emacs.d/dashboard-banner.txt")
-  :config
   (dashboard-setup-startup-hook)
+  (setq dashboard-startup-banner "~/.dotfiles/.emacs.d/dashboard-banner.txt")
   (setq dashboard-banner-logo-title "~~ HI POL ~~")
   (setq dashboard-startup-banner "~/.dotfiles/.emacs.d/dashboard-banner.txt")
   (setq dashboard-footer-messages '("Time saved by emacs: 5 days 11 hours 47 minutes \nTime spent editing emacs config: 615 days 11 hours 38 minutes"))
-  (setq dashboard-items '((recents  . 5)
+(setq dashboard-items '((recents  . 5)
 			(bookmarks . 5)
 			(projects . 5)
 			(agenda . 20)
@@ -1362,7 +1312,7 @@ T - tag prefix
   (set-face-attribute 'dashboard-text-banner nil
 		      :inherit 'font-lock-variable-name-face
 		      :weight 'bold))
-
+  
 ;; projectile
 
 (global-set-key (kbd "C-x p") 'projectile-command-map)
