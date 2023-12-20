@@ -245,7 +245,8 @@
 
 (global-set-key (kbd "C-s") 'avy-goto-char)
 (global-set-key (kbd "C-c C-s") 'avy-goto-line)
-(define-key org-mode-map (kbd "C-c C-s") 'avy-goto-line)
+
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; hydra ----------------------------------------------------------------------- ;;
@@ -258,12 +259,14 @@
 (defhydra hydra-colossa (:color amaranth :hint nil)
   "
   _c_: cheat
+  _C_: copilot
   _e_: eat
   _r_: restart emacs
   _s_: scratch-buffer
   _q_: go away
 "
   ("c" hydra-cheat/body :color blue)
+  ("C" copilot-mode :color blue)
   ("e" eat :color blue)
   ("q" nil :color blue)
   ("r" restart-emacs :color blue)
@@ -615,11 +618,9 @@ T - tag prefix
 
 (use-package puni
   :ensure t
+  :bind (("C-c \\" . 'puni-mark-sexp-around-point))
   :config
-  (puni-global-mode t)
-  (with-eval-after-load "org"
-    (global-set-key (kbd "C-c \\") #'puni-mark-sexp-around-point)
-    (define-key org-mode-map (kbd "C-c \\") #'puni-mark-sexp-around-point)))
+  (puni-global-mode t))
 
 ;;;;;;;;;;;;;
 ;; ripgrep ;;
@@ -1209,7 +1210,10 @@ T - tag prefix
   :bind
   (("C-c o i" . org-id-get-create)
    ("C-c a" . org-agenda)
-   ("C-c o s" . org-save-all-org-buffers))
+   ("C-c o s" . org-save-all-org-buffers)
+   :map org-mode-map
+   ("C-c \\" . puni-mark-sexp-around-point)
+   ("C-c C-s" . avy-goto-line))
   :hook
   (org-mode . org-indent-mode)
   (org-mode . turn-on-org-cdlatex)
@@ -1366,10 +1370,9 @@ T - tag prefix
 (use-package projectile
   :ensure t
   :bind
-  (("C-c p" . projectile-command-map)))
-
-(with-eval-after-load 'projectile
-    (define-key projectile-command-map (kbd "B") 'projectile-ibuffer))
+  (("C-c p" . projectile-command-map)
+   :map projectile-command-map
+   ("B" . projectile-ibuffer)))
 
 ;; gptel
 (use-package gptel
@@ -1491,8 +1494,10 @@ T - tag prefix
 (use-package copilot
   :straight (:host github :repo "zerolfx/copilot.el" :files ("dist" "*.el"))
   :ensure t
+  :bind (
+         :map copilot-completion-map
+              ("C-c TAB" . 'copilot-accept-completion))
   :config
-  (define-key copilot-completion-map (kbd "C-c TAB") 'copilot-accept-completion)
   (set-face-attribute 'copilot-overlay-face nil :foreground "grey30"))
 
 (custom-set-variables
@@ -1546,4 +1551,4 @@ T - tag prefix
  '(org-ellipsis ((t (:underline nil)))))
 
 
-;;test
+
