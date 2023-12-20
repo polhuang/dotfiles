@@ -732,17 +732,17 @@ T - tag prefix
 (use-package corfu
   ;; Optional customizations
   :custom
-  (corfu-cycle t)                ;; Enable cycling for `corfu-next/previous'
-  (corfu-auto t)                 ;; Enable auto completion
+  (corfu-cycle t)                   ;; Enable cycling for `corfu-next/previous'
+  (corfu-auto t)                    ;; Enable auto completion
   (corfu-auto-delay 0.5)
-  (corfu-preselect 'prompt)      ;; Don't select first candidate
+  (corfu-preselect 'prompt)         ;; Don't select first candidate
   ;; (corfu-separator ?\s)          ;; Orderless field separator
   ;; (corfu-quit-at-boundary nil)   ;; Never quit at completion boundary
   ;; (corfu-quit-no-match nil)      ;; Never quit, even if there is no match
   ;; (corfu-preview-current nil)    ;; Disable current candidate preview
   ;; (corfu-on-exact-match nil)     ;; Configure handling of exact matches
   ;; (corfu-scroll-margin 5)        ;; Use scroll margin
-
+  
   ;; enable Corfu only for certain modes.
   ;; :hook ((prog-mode . corfu-mode)
   ;;        (shell-mode . corfu-mode)
@@ -762,11 +762,11 @@ T - tag prefix
 
   ;; Emacs 28: Hide commands in M-x which do not apply to the current mode.
   ;; Corfu commands are hidden, since they are not supposed to be used via M-x.
-  ;; (setq read-extended-command-predicate
-  ;;       #'command-completion-default-include-p)
+  (setq read-extended-command-predicate
+        #'command-completion-default-include-p)
 
-  ;; enable indentation+completion using the TAB key.
   ;; `completion-at-point' is often bound to M-TAB.
+  ;; enable indentation+completion using the TAB key.
   ;; (setq tab-always-indent 'complete))
   )
 
@@ -804,7 +804,7 @@ T - tag prefix
   (add-to-list 'completion-at-point-functions #'cape-elisp-block)
   (add-to-list 'completion-at-point-functions #'cape-history)
   (add-to-list 'completion-at-point-functions #'cape-keyword)
-  ;;(add-to-list 'completion-at-point-functions #'cape-tex)
+  (add-to-list 'completion-at-point-functions #'cape-tex)
   ;;(add-to-list 'completion-at-point-functions #'cape-sgml)
   ;;(add-to-list 'completion-at-point-functions #'cape-rfc1345)
   (add-to-list 'completion-at-point-functions #'cape-abbrev)
@@ -819,7 +819,6 @@ T - tag prefix
 
 (use-package embark
   :ensure t
-
   :bind
   (("C-." . embark-act)         ;; pick some comfortable binding
    ("C-;" . embark-dwim)        ;; good alternative: M-.
@@ -909,24 +908,20 @@ T - tag prefix
 (global-set-key (kbd "C-c M-q s") 'my/toggle-scratch-buffer-other-window)
 
 ;; persistent scratch
-(setq initial-scratch-message nil)
-(setq initial-major-mode 'org-mode)
-
 (use-package persistent-scratch
   :ensure t
   :config
-  (setq persistent-scratch-backup-directory '"~/org/scratch/"))
-
-;; workgroups2
-(use-package workgroups2
-  :ensure t)
-(workgroups-mode 1)
+  (setq persistent-scratch-backup-directory '"~/org/scratch/")
+  :custom
+  (initial-scratch-message nil)
+  (initial-major-mode 'org-mode))
 
 ;; which-key
 (use-package which-key
   :config
   (which-key-mode)
-  (setq which-key-max-description-length 40))
+  :custom
+  (which-key-max-description-length 40))
 
 ;; restart-emacs
 (use-package restart-emacs
@@ -941,9 +936,10 @@ T - tag prefix
   :ensure t
   :bind (("C-c e e" . eat)
          ("C-c e o" . eat-other-window)
-         ("C-c e p" . eat-project-other-window))
-  :init
-  (setq eat-kill-buffer-on-exit t))
+         ("C-c e p" . eat-project-other-window)
+         ("C-c C-q e" . my/toggle-eat))
+  :custom
+  (eat-kill-buffer-on-exit t))
 
 (defun my/toggle-eat ()
   "Toggle between eat and current buffer."
@@ -951,8 +947,6 @@ T - tag prefix
   (if (string= (buffer-name) "*eat*")
       (delete-window)
     (eat-other-window)))
-
-(global-set-key (kbd "C-c C-q e") 'my/toggle-eat)
 
 ;;;;;;;;;;;;
 ;; coding ;;
@@ -965,6 +959,8 @@ T - tag prefix
 (use-package lsp-mode
   :custom
   (lsp-completion-provider :none)
+  (lsp-enable-snippet nil)
+  (lsp-enable-symbol-highlighting 1)
   :init
   ;; set prefix for lsp-command-keymap (few alternatives - "C-l", "C-c l")
   (setq lsp-keymap-prefix "C-c l")
@@ -982,9 +978,6 @@ T - tag prefix
          ;; if you want which-key integration
 	 (lsp-mode . lsp-enable-which-key-integration)
          (lsp-mode . lsp-semantic-tokens-mode))
-  :config
-  (setq lsp-enable-snippet nil)
-  (setq lsp-enable-symbol-highlighting 1)
   :commands lsp lsp-deferred)
 
 (use-package lsp-ui
@@ -997,9 +990,9 @@ T - tag prefix
   :commands lsp-ui-mode)
 
 (use-package lsp-tailwindcss
-  :init
-  (setq lsp-tailwindcss-add-on-mode t)
-  (setq lsp-tailwindcss-major-modes '(typescript-ts-mode js-ts-mode tsx-ts-mode typescript-ts-mode web-mode)))
+  :custom
+  (lsp-tailwindcss-add-on-mode t)
+  (lsp-tailwindcss-major-modes '(typescript-ts-mode js-ts-mode tsx-ts-mode typescript-ts-mode web-mode)))
 
 ;; flycheck
 (add-hook 'after-init-hook #'global-flycheck-mode)
@@ -1027,7 +1020,7 @@ T - tag prefix
    (bash-mode . bash-ts-mode)
    (javascript-mode . js-ts-mode)
    (js2-mode . js-ts-mode)
-   (js-jsx-mode . js-ts-mode)
+   (js-jsx-mode . js-ts-mode)zzzz
    (typescript-mode . typescript-ts-mode)
    (json-mode . json-ts-mode)
    (css-mode . css-ts-mode)
