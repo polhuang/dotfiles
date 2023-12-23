@@ -3,22 +3,23 @@
 ;;;;;;;;;;;;;;;;;;;;;;
 
 ;; might be redundant on 29.1
-(require 'package) ;; required for use-package
-(setq package-archives '(("melpa" . "https://melpa.org/packages/")
-			 ("org" . "https://orgmode.org/elpa/")
-			 ("elpa" . "https://elpa.gnu.org/packages/")
-			 ("nongnu" . "https://elpa.nongnu.org/nongnu/")))
+;; (require 'package) ;; required for use-package
+;; (setq package-archives '(("melpa" . "https://melpa.org/packages/")
+;; 			 ("org" . "https://orgmode.org/elpa/")
+;; 			 ("elpa" . "https://elpa.gnu.org/packages/")
+;; 			 ("nongnu" . "https://elpa.nongnu.org/nongnu/")))
 
 (unless package-archive-contents
   (package-refresh-contents))
 
 ;; use-package - install if not installed (when not on linux)
 ;; might be redundant on 29.1
-(unless (package-installed-p 'use-package)
-  (package-install 'use-package))
+;; (unless (package-installed-p 'use-package)
+;;   (package-install 'use-package))
 
-(require 'use-package)
-(setq use-package-always-ensure t) ;; always install packages if not installed
+;; (require 'use-package)
+;; (setq use-package-always-ensure t) ;; always install packages if not installed
+;; (setq use-package-always-defer t)
 
 ;; quelpa
 (use-package quelpa
@@ -60,13 +61,13 @@
 ;;;;;;;;;;;;;;;;;
 
 ;; theme
-(setq seoul256-background 235) ;; variables needs to be set prior to loading package
-
 (use-package seoul256-theme
   :ensure t
   :init
   (load-theme 'seoul256 t)
-  :config
+  :custom
+  (seoul256-background 235)
+    :config
   (set-face-attribute 'default nil :foreground "#FFF0F5")
   (set-face-attribute 'font-lock-keyword-face nil :foreground "#c66d86" :weight 'bold)
   (set-face-attribute 'font-lock-constant-face nil :weight 'bold)
@@ -85,6 +86,29 @@
   (set-face-attribute 'org-todo nil :foreground "#c66d86" :weight 'bold)
   (set-face-attribute 'org-verbatim nil :foreground "#BC8F8F"))
 
+;; font
+(set-face-attribute 'default nil :family "Iosevka Comfy Fixed" :background nil)
+
+(use-package fontify-face
+  :ensure t)
+
+;; misc ui settings
+(global-hl-line-mode t)                                   ; highlight current line
+(scroll-bar-mode -1)                                      ; disable visible scrollbar
+(tool-bar-mode -1)                                        ; disable the toolbar
+(tooltip-mode -1)                                         ; disable tooltips
+(set-fringe-mode 10)                                      ; give some breathing room
+(menu-bar-mode -1)                                        ; disable the menu bar
+(setq visible-bell t)                                     ; set up the visible bell
+(global-visual-line-mode 1)                               ; visual line mode (word wrap)
+(column-number-mode)                                      ; display column number display in mode line
+(global-display-line-numbers-mode t)                      ; display line numbers
+(setq use-dialog-box nil)                                 ; disable ui dialog prompts
+(setq dired-omit-verbose nil)                             ; disable dired omit messsages
+(add-hook 'dired-mode-hook (lambda () (dired-omit-mode)))      ; hide backup files in dired
+(global-prettify-symbols-mode 1)                          ; prettify-symbols
+
+;; icons
 (use-package nerd-icons-corfu
   :ensure t
   :after corfu
@@ -107,105 +131,6 @@
   :hook
   (ibuffer-mode . nerd-icons-ibuffer-mode))
 
-(use-package rainbow-mode
-  :ensure t
-  :hook (prog-mode . rainbow-mode)
-  :hook (org-mode . rainbow-mode)
-  :hook (text-mode . rainbow-mode))
-
-(use-package fontify-face
-  :ensure t
-  :hook (prog-mode . fontify-face-mode)
-  :hook (org-mode . fontify-face-mode))
-
-;; font
-(set-face-attribute 'default nil :family "Iosevka Comfy Fixed" :background nil)
-
-;; fontaine
-(use-package fontaine
-  :ensure t
-  :config
-  (setq fontaine-presets
-      '((tiny
-         :default-family "Iosevka Comfy Wide Fixed"
-         :default-height 70)
-        (small
-         :default-family "Iosevka Comfy Fixed"
-         :default-height 90)
-        (regular
-         :default-height 100)
-        (medium
-         :default-height 110)
-        (large
-         :default-weight semilight
-         :default-height 140
-         :bold-weight extrabold)
-        (presentation
-         :default-weight semilight
-         :default-height 170
-         :bold-weight extrabold)
-        (t
-         :default-family "Iosevka Comfy"
-         :default-weight regular
-         :default-height 100
-         :fixed-pitch-family nil ; falls back to :default-family
-         :fixed-pitch-weight nil ; falls back to :default-weight
-         :fixed-pitch-height 1.0
-         :variable-pitch-family "Iosevka Comfy Duo"
-         :variable-pitch-weight nil
-         :variable-pitch-height 1.0
-         :bold-family nil ; use whatever the underlying face has
-         :bold-weight bold
-         :italic-family nil
-         :italic-slant italic
-         :line-spacing nil))))
-
-;; word wrap
-(global-visual-line-mode 1)
-
-;; disable ui dialog promptsq
-(setq use-dialog-box nil)
-
-;; prettify-symbols
-(global-prettify-symbols-mode 1)
-
-;; hide backup files in dired
-(add-hook 'dired-mode-hook (lambda () (dired-omit-mode)))
-(defcustom dired-omit-verbose t
-  "When non-nil, show messages when omitting files. When nil, don't show messages."
-  :type 'boolean
-  :group 'dired-x)
-
-;; rainbow delimiters
-(use-package rainbow-delimiters
-  :hook (prog-mode . rainbow-delimiters-mode))
-
-;; display line numbers
-(column-number-mode)
-(global-display-line-numbers-mode t)
-
-;; highlight current line
-(global-hl-line-mode t)
-
-;; helpful
-(use-package helpful
-  :ensure t
-  :bind
-  ([remap describe-function] . helpful-callable)
-  ([remap describe-variable] . helpful-variable)
-  ([remap describe-key] . helpful-key)
-  ([remap describe-symbol] . helpful-symbol)
-  ([remap describe-command] . helpful-command)
-  ([remap describe-mode] . helpful-mode))
-
-;; misc ui settings
-(scroll-bar-mode -1)        ; Disable visible scrollbar
-(tool-bar-mode -1)          ; Disable the toolbar
-(tooltip-mode -1)           ; Disable tooltips
-(set-fringe-mode 10)        ; Give some breathing room
-(menu-bar-mode -1)          ; Disable the menu bar
-(setq visible-bell t)       ; Set up the visible bell
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; navigation settings ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -220,14 +145,9 @@
 
 ;; use ibuffer
 (global-set-key (kbd "C-x C-b") 'ibuffer)
-(global-set-key (kbd "C-x B") 'ibuffer-other-window)
 
 ;; switch to mini-buffer
 (global-set-key (kbd "C-x m") 'switch-to-minibuffer)
-
-;; recent files
-(recentf-mode 1)
-(setq recentf-max-menu-items 25)
 (global-set-key "\C-x\ \C-r" 'recentf-open-files)
 
 ;; save place in files
@@ -236,16 +156,11 @@
 ;; single space after period (for M-a / M-e)
 (setq sentence-end-double-space nil)
 
-;; escape to quit
-(global-set-key (kbd "<escape>") 'keyboard-escape-quit)
-
 ;; avy
 (use-package avy
-  :ensure t)
-
-(global-set-key (kbd "C-s") 'avy-goto-char)
-(global-set-key (kbd "C-c C-s") 'avy-goto-line)
-
+  :ensure t
+  :bind (("C-s" . avy-goto-char)
+         ("C-c C-s" . avy-goto-line)))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -253,7 +168,10 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (use-package hydra
-  :ensure t)
+  :ensure t
+  :bind (("C-b" . hydra-colossa/body))
+  :hook ((ibuffer-mode . hydra-ibuffer-main/body)
+         (dired-mode . hydra-dired/body)))
 
 ;; hydra-colossa
 (defhydra hydra-colossa (:color amaranth :hint nil)
@@ -264,6 +182,7 @@
   _r_: restart emacs
   _s_: scratch-buffer
   _q_: go away
+  _w_: windows
 "
   ("c" hydra-cheat/body :color blue)
   ("C" copilot-mode :color blue)
@@ -271,8 +190,17 @@
   ("q" nil :color blue)
   ("r" restart-emacs :color blue)
   ("s" scratch-buffer :color blue)
+  ("w" hydra-windows/body :color blue)
   ("." nil :color blue)
   )
+
+(defhydra hydra-windows (:color amaranth :hint nil)
+  "
+  _t_: transpose
+  _s_: toggle vertical/horizontal split
+"
+  ("t" crux-transpose-windows :color blue)
+  ("s" my/toggle-window-split :color blue))
 
 (defhydra hydra-cheat (:color pink :hint nil)
   "
@@ -280,8 +208,6 @@
 "
   ("?" nil "go away" :color blue)
   )
-
-(global-set-key (kbd "C-b") 'hydra-colossa/body)
 
 ;; hydra for ibuffer
 (defhydra hydra-ibuffer-main (:color pink :hint nil)
@@ -374,8 +300,6 @@
   ("/" ibuffer-filter-disable "disable")
   ("b" hydra-ibuffer-main/body "back" :color blue))
 
-(add-hook 'ibuffer-hook #'hydra-ibuffer-main/body)
-
 ;; hydra for dired
 (defhydra hydra-dired (:hint nil :color pink)
   "
@@ -427,8 +351,6 @@ T - tag prefix
   ("Z" dired-do-compress)
   ("q" nil)
   ("." nil :color blue))
-
-(define-key dired-mode-map "." 'hydra-dired/body)
 
 ;; hydra for org
 
@@ -493,11 +415,9 @@ T - tag prefix
   :bind
   ("C-M-<return>" . major-mode-hydra))
 
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; logs, debugging, and history ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
 
 ;; Persist history over Emacs restarts. Vertico sorts by history position.
 (use-package savehist
@@ -507,6 +427,12 @@ T - tag prefix
 ;; minibuffer prompt history
 (setq history-length 25)
 
+;; keyfreq
+(use-package keyfreq
+  :ensure t
+  :config
+  (keyfreq-mode 1)
+  (keyfreq-autosave-mode))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; buffers / windows / frames  ;;
@@ -527,14 +453,11 @@ T - tag prefix
 
 ;; ace-window
 (use-package ace-window
-  :ensure t)
-(global-set-key (kbd "M-o") 'ace-window)
-
-;; transpose windows
-(global-set-key (kbd "C-x w t") 'crux-transpose-windows)
+  :ensure t
+  :bind (("M-o" . ace-window)))
 
 ;; toggle vertical/horizontal split
-(defun toggle-window-split ()
+(defun my/toggle-window-split ()
   (interactive)
   (if (= (count-windows) 2)
       (let* ((this-win-buffer (window-buffer))
@@ -559,12 +482,9 @@ T - tag prefix
 	  (select-window first-win)
 	  (if this-win-2nd (other-window 1))))))
 
-(global-set-key (kbd "C-x w s") 'toggle-window-split)
-
 ;;;;;;;;;;;;;;;;;;;;
 ;; authentication ;;
 ;;;;;;;;;;;;;;;;;;;;
-
 
 ;; plist store
 (setq plstore-cache-passphrase-for-symmetric-encryption t)
@@ -579,7 +499,7 @@ T - tag prefix
 ;; editing ;;
 ;;;;;;;;;;;;;
 
-;; IntelliJ-style backspace
+;; intellij-style backspace
 (use-package smart-backspace
   :ensure t
   :bind ("M-<backspace>" . smart-backspace))
@@ -587,34 +507,26 @@ T - tag prefix
 ;; undo tree
 (use-package undo-tree
   :ensure t
+  :init
   :custom
-  (undo-tree-visualizer-diff t)
-  (undo-tree-auto-save-history t)
   (undo-tree-history-directory-alist '(("." . "~/.emacs.d/undo")))
-  (undo-tree-visualizer-timestamps t))
-
-(global-undo-tree-mode)
+  (undo-tree-auto-save-history t)
+  (undo-tree-visualizer-timestamps t)
+  (global-undo-tree-mode 1)
+  (undo-tree-visualizer-diff t))
 
 ;; move-text (use M-up / M-down to move lines up and down)
 (use-package move-text
-  :ensure t)
-(move-text-default-bindings)
+  :ensure t
+  :config
+  (move-text-default-bindings))
 
 ;; electric pair
 (electric-pair-mode 1)
 (defvar org-electric-pairs '((?$ . ?$)) "Electric pairs for org mode.")
-(defun org-add-electric-pairs ()
+(defun my/org-add-electric-pairs ()
   (setq-local electric-pair-pairs (append electric-pair-pairs org-electric-pairs))
   (setq-local electric-pair-text-pairs electric-pair-pairs))
-
-(add-hook 'org-mode-hook 'org-add-electric-pairs)
-
-;; smartparens (currently trying out puni + electric pair)
-;; (use-package smartparens
-;;   :ensure t
-;;   :config
-;;   (require 'smartparens-config)
-;;   (smartparens-global-mode t))
 
 (use-package puni
   :ensure t
@@ -638,10 +550,10 @@ T - tag prefix
 
 ;; orderless
 (use-package orderless
-  :init
-  (setq completion-styles '(orderless basic)
-	completion-category-defaults nil
-	completion-category-overrides '((file (styles partial-completion)))))
+  :custom
+  (completion-styles '(orderless basic)
+                     'completion-category-defaults nil
+                     completion-category-overrides '((file (styles partial-completion)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; vertico --------------------------------------------------------------------- ;;
@@ -649,17 +561,7 @@ T - tag prefix
 
 (use-package vertico
   :init
-  ;; different scroll margin
-  ;; (setq vertico-scroll-margin 0)
-
-  ;; show more candidates
-  ;; (setq vertico-count 20)
-
-  ;; grow and shrink the Vertico minibuffer
-  ;; (setq vertico-resize t)
-
-  ;; optionally enable cycling for `vertico-next' and `vertico-previous'.
-  (setq vertico-cycle t)
+  (setq vertico-cycle t))
 
 (use-package emacs
   :init
@@ -681,8 +583,8 @@ T - tag prefix
 
   ;; emacs 28: Hide commands in M-x which do not work in the current mode.
   ;; vertico commands are hidden in normal buffers.
-  ;; (setq read-extended-command-predicate
-  ;;       #'command-completion-default-include-p)
+  (setq read-extended-command-predicate
+        #'command-completion-default-include-p)
 
   ;; enable recursive minibuffers
   (setq enable-recursive-minibuffers t))
@@ -695,14 +597,12 @@ T - tag prefix
 		 #'completion--in-region)
 	       args)))
   :config
-  (vertico-mode))
+  (vertico-mode)
 
 ;; marginalia
 (use-package marginalia
   :ensure t
-  :bind (:map minibuffer-local-map
-	 ("M-A" . marginalia-cycle))
-  :init
+  :config
   (marginalia-mode))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -832,17 +732,17 @@ T - tag prefix
 (use-package corfu
   ;; Optional customizations
   :custom
-  (corfu-cycle t)                ;; Enable cycling for `corfu-next/previous'
-  (corfu-auto t)                 ;; Enable auto completion
+  (corfu-cycle t)                   ;; Enable cycling for `corfu-next/previous'
+  (corfu-auto t)                    ;; Enable auto completion
   (corfu-auto-delay 0.5)
-  (corfu-preselect 'prompt)      ;; Don't select first candidate
+  (corfu-preselect 'prompt)         ;; Don't select first candidate
   ;; (corfu-separator ?\s)          ;; Orderless field separator
   ;; (corfu-quit-at-boundary nil)   ;; Never quit at completion boundary
   ;; (corfu-quit-no-match nil)      ;; Never quit, even if there is no match
   ;; (corfu-preview-current nil)    ;; Disable current candidate preview
   ;; (corfu-on-exact-match nil)     ;; Configure handling of exact matches
   ;; (corfu-scroll-margin 5)        ;; Use scroll margin
-
+  
   ;; enable Corfu only for certain modes.
   ;; :hook ((prog-mode . corfu-mode)
   ;;        (shell-mode . corfu-mode)
@@ -862,11 +762,11 @@ T - tag prefix
 
   ;; Emacs 28: Hide commands in M-x which do not apply to the current mode.
   ;; Corfu commands are hidden, since they are not supposed to be used via M-x.
-  ;; (setq read-extended-command-predicate
-  ;;       #'command-completion-default-include-p)
+  (setq read-extended-command-predicate
+        #'command-completion-default-include-p)
 
-  ;; enable indentation+completion using the TAB key.
   ;; `completion-at-point' is often bound to M-TAB.
+  ;; enable indentation+completion using the TAB key.
   ;; (setq tab-always-indent 'complete))
   )
 
@@ -904,7 +804,7 @@ T - tag prefix
   (add-to-list 'completion-at-point-functions #'cape-elisp-block)
   (add-to-list 'completion-at-point-functions #'cape-history)
   (add-to-list 'completion-at-point-functions #'cape-keyword)
-  ;;(add-to-list 'completion-at-point-functions #'cape-tex)
+  (add-to-list 'completion-at-point-functions #'cape-tex)
   ;;(add-to-list 'completion-at-point-functions #'cape-sgml)
   ;;(add-to-list 'completion-at-point-functions #'cape-rfc1345)
   (add-to-list 'completion-at-point-functions #'cape-abbrev)
@@ -919,7 +819,6 @@ T - tag prefix
 
 (use-package embark
   :ensure t
-
   :bind
   (("C-." . embark-act)         ;; pick some comfortable binding
    ("C-;" . embark-dwim)        ;; good alternative: M-.
@@ -1009,35 +908,24 @@ T - tag prefix
 (global-set-key (kbd "C-c M-q s") 'my/toggle-scratch-buffer-other-window)
 
 ;; persistent scratch
-(setq initial-scratch-message nil)
-(setq initial-major-mode 'org-mode)
-
 (use-package persistent-scratch
   :ensure t
   :config
-  (setq persistent-scratch-backup-directory '"~/org/scratch/"))
-
-;; workgroups2
-(use-package workgroups2
-  :ensure t)
-(workgroups-mode 1)
+  (setq persistent-scratch-backup-directory '"~/org/scratch/")
+  :custom
+  (initial-scratch-message nil)
+  (initial-major-mode 'org-mode))
 
 ;; which-key
 (use-package which-key
   :config
   (which-key-mode)
-  (setq which-key-max-description-length 40))
+  :custom
+  (which-key-max-description-length 40))
 
 ;; restart-emacs
 (use-package restart-emacs
   :ensure t)
-
-;; keyfreq
-(use-package keyfreq
-  :ensure t
-  :config
-  (keyfreq-mode 1)
-  (keyfreq-autosave-mode))
 
 ;;;;;;;;;;;;;;
 ;; terminal ;;
@@ -1048,9 +936,10 @@ T - tag prefix
   :ensure t
   :bind (("C-c e e" . eat)
          ("C-c e o" . eat-other-window)
-         ("C-c e p" . eat-project-other-window))
-  :init
-  (setq eat-kill-buffer-on-exit t))
+         ("C-c e p" . eat-project-other-window)
+         ("C-c C-q e" . my/toggle-eat))
+  :custom
+  (eat-kill-buffer-on-exit t))
 
 (defun my/toggle-eat ()
   "Toggle between eat and current buffer."
@@ -1058,8 +947,6 @@ T - tag prefix
   (if (string= (buffer-name) "*eat*")
       (delete-window)
     (eat-other-window)))
-
-(global-set-key (kbd "C-c C-q e") 'my/toggle-eat)
 
 ;;;;;;;;;;;;
 ;; coding ;;
@@ -1072,6 +959,8 @@ T - tag prefix
 (use-package lsp-mode
   :custom
   (lsp-completion-provider :none)
+  (lsp-enable-snippet nil)
+  (lsp-enable-symbol-highlighting 1)
   :init
   ;; set prefix for lsp-command-keymap (few alternatives - "C-l", "C-c l")
   (setq lsp-keymap-prefix "C-c l")
@@ -1089,9 +978,6 @@ T - tag prefix
          ;; if you want which-key integration
 	 (lsp-mode . lsp-enable-which-key-integration)
          (lsp-mode . lsp-semantic-tokens-mode))
-  :config
-  (setq lsp-enable-snippet nil)
-  (setq lsp-enable-symbol-highlighting 1)
   :commands lsp lsp-deferred)
 
 (use-package lsp-ui
@@ -1104,9 +990,9 @@ T - tag prefix
   :commands lsp-ui-mode)
 
 (use-package lsp-tailwindcss
-  :init
-  (setq lsp-tailwindcss-add-on-mode t)
-  (setq lsp-tailwindcss-major-modes '(typescript-ts-mode js-ts-mode tsx-ts-mode typescript-ts-mode web-mode)))
+  :custom
+  (lsp-tailwindcss-add-on-mode t)
+  (lsp-tailwindcss-major-modes '(typescript-ts-mode js-ts-mode tsx-ts-mode typescript-ts-mode web-mode)))
 
 ;; flycheck
 (add-hook 'after-init-hook #'global-flycheck-mode)
@@ -1134,7 +1020,7 @@ T - tag prefix
    (bash-mode . bash-ts-mode)
    (javascript-mode . js-ts-mode)
    (js2-mode . js-ts-mode)
-   (js-jsx-mode . js-ts-mode)
+   (js-jsx-mode . js-ts-mode)zzzz
    (typescript-mode . typescript-ts-mode)
    (json-mode . json-ts-mode)
    (css-mode . css-ts-mode)
@@ -1217,7 +1103,8 @@ T - tag prefix
   :hook
   (org-mode . org-indent-mode)
   (org-mode . turn-on-org-cdlatex)
-  (org-mode .  my/org-syntax-table-modify)
+  (org-mode . my/org-syntax-table-modify)
+  (org-mode . my/org-add-electric-pairs)
   :init
   (add-to-list 'display-buffer-alist
              '("\\*org-roam\\*"
@@ -1348,13 +1235,12 @@ T - tag prefix
 (use-package dashboard
   :ensure t
   :init
-  (setq dashboard-startup-banner "~/.dotfiles/.emacs.d/dashboard-banner.txt")
-  :config
   (dashboard-setup-startup-hook)
+  (setq dashboard-startup-banner "~/.dotfiles/.emacs.d/dashboard-banner.txt")
   (setq dashboard-banner-logo-title "~~ HI POL ~~")
   (setq dashboard-startup-banner "~/.dotfiles/.emacs.d/dashboard-banner.txt")
   (setq dashboard-footer-messages '("Time saved by emacs: 5 days 11 hours 47 minutes \nTime spent editing emacs config: 615 days 11 hours 38 minutes"))
-  (setq dashboard-items '((recents  . 5)
+(setq dashboard-items '((recents  . 5)
 			(bookmarks . 5)
 			(projects . 5)
 			(agenda . 20)
@@ -1363,8 +1249,28 @@ T - tag prefix
 		      :inherit 'font-lock-variable-name-face
 		      :weight 'bold))
 
-;; projectile
+(use-package helpful
+  :ensure t
+  :bind
+  ([remap describe-function] . helpful-callable)
+  ([remap describe-variable] . helpful-variable)
+  ([remap describe-key] . helpful-key)
+  ([remap describe-symbol] . helpful-symbol)
+  ([remap describe-command] . helpful-command)
+  ([remap describe-mode] . helpful-mode))
 
+;; helpful
+(use-package helpful
+  :ensure t
+  :bind
+  ([remap describe-function] . helpful-callable)
+  ([remap describe-variable] . helpful-variable)
+  ([remap describe-key] . helpful-key)
+  ([remap describe-symbol] . helpful-symbol)
+  ([remap describe-command] . helpful-command)
+  ([remap describe-mode] . helpful-mode))
+
+;; projectile
 (global-set-key (kbd "C-x p") 'projectile-command-map)
 
 (use-package projectile
