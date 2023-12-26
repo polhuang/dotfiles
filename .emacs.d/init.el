@@ -2,7 +2,7 @@
 ;; package settings ;;
 ;;;;;;;;;;;;;;;;;;;;;;
 
-;; might be redundant on 29.1
+;; enable for new systems
 ;; (require 'package) ;; required for use-package
 ;; (setq package-archives '(("melpa" . "https://melpa.org/packages/")
 ;; 			 ("org" . "https://orgmode.org/elpa/")
@@ -12,11 +12,10 @@
 (unless package-archive-contents
   (package-refresh-contents))
 
+;; enable for new systems
 ;; use-package - install if not installed (when not on linux)
-;; might be redundant on 29.1
 ;; (unless (package-installed-p 'use-package)
 ;;   (package-install 'use-package))
-
 ;; (require 'use-package)
 ;; (setq use-package-always-ensure t) ;; always install packages if not installed
 ;; (setq use-package-always-defer t)
@@ -104,8 +103,8 @@
 (column-number-mode)                                      ; display column number display in mode line
 (global-display-line-numbers-mode t)                      ; display line numbers
 (setq use-dialog-box nil)                                 ; disable ui dialog prompts
-(setq dired-omit-verbose nil)                             ; disable dired omit messsages
-(add-hook 'dired-mode-hook (lambda () (dired-omit-mode)))      ; hide backup files in dired
+;;(setq dired-omit-verbose nil)                             ; disable dired omit messsages
+;;(add-hook 'dired-mode-hook (lambda () (dired-omit-mode)))      ; hide backup files in dired
 (global-prettify-symbols-mode 1)                          ; prettify-symbols
 
 ;; icons
@@ -170,8 +169,7 @@
 (use-package hydra
   :ensure t
   :bind (("C-b" . hydra-colossa/body))
-  :hook ((ibuffer-mode . hydra-ibuffer-main/body)
-         (dired-mode . hydra-dired/body)))
+  :hook ((ibuffer-mode . hydra-ibuffer-main/)))
 
 ;; hydra-colossa
 (defhydra hydra-colossa (:color amaranth :hint nil)
@@ -352,62 +350,7 @@ T - tag prefix
   ("q" nil)
   ("." nil :color blue))
 
-;; hydra for org
-
-;; hydra for org-agenda
-(major-mode-hydra-define org-agenda-mode nil
-  ("Entry"
-   (("hA" org-agenda-archive-default)
-    ("hk" org-agenda-kill)
-    ("hp" org-agenda-priority)
-    ("hr" org-agenda-refile)
-    ("h:" org-agenda-set-tags)
-    ("ht" org-agenda-todo))
-   "Visit entry"
-   (("o"   link-hint-open-link :exit t)
-    ("<tab>" org-agenda-goto :exit t)
-    ("TAB" org-agenda-goto :exit t)
-    ("SPC" org-agenda-show-and-scroll-up)
-    ("RET" org-agenda-switch-to :exit t))
-   "Date"
-   (("dt" org-agenda-date-prompt)
-    ("dd" org-agenda-deadline)
-    ("+" org-agenda-do-date-later)
-    ("-" org-agenda-do-date-earlier)
-    ("ds" org-agenda-schedule))
-   "View"
-   (("vd" org-agenda-day-view)
-    ("vw" org-agenda-week-view)
-    ("vt" org-agenda-fortnight-view)
-    ("vm" org-agenda-month-view)
-    ("vy" org-agenda-year-view)
-    ("vn" org-agenda-later)
-    ("vp" org-agenda-earlier)
-    ("vr" org-agenda-reset-view))
-   "Toggle mode"
-   (("ta" org-agenda-archives-mode)
-    ("tA" (org-agenda-archives-mode 'files))
-    ("tr" org-agenda-clockreport-mode)
-    ("tf" org-agenda-follow-mode)
-    ("tl" org-agenda-log-mode)
-    ("td" org-agenda-toggle-diary))
-   "Filter"
-   (("fc" org-agenda-filter-by-category)
-    ("fx" org-agenda-filter-by-regexp)
-    ("ft" org-agenda-filter-by-tag)
-    ("fr" org-agenda-filter-by-tag-refine)
-    ("fh" org-agenda-filter-by-top-headline)
-    ("fd" org-agenda-filter-remove-all))
-   "Clock"
-   (("cq" org-agenda-clock-cancel)
-    ("cj" org-agenda-clock-goto :exit t)
-    ("ci" org-agenda-clock-in :exit t)
-    ("co" org-agenda-clock-out))
-   "Other"
-   (("q" nil :exit t)
-    ("gd" org-agenda-goto-date)
-    ("." org-agenda-goto-today)
-    ("gr" org-agenda-redo))))
+(define-key dired-mode-map "." 'hydra-dired/body)
 
 ;; major-mode hydra
 (use-package major-mode-hydra
@@ -550,6 +493,7 @@ T - tag prefix
 
 ;; orderless
 (use-package orderless
+  :ensure t
   :custom
   (completion-styles '(orderless basic)
                      'completion-category-defaults nil
@@ -560,6 +504,7 @@ T - tag prefix
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (use-package vertico
+  :ensure t
   :init
   (setq vertico-cycle t))
 
@@ -610,6 +555,7 @@ T - tag prefix
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (use-package consult
+  :ensure t
   :bind (;; C-c bindings in `mode-specific-map'
 	 ("C-c M-x" . consult-mode-command)
 	 ("C-c h" . consult-history)
@@ -730,6 +676,7 @@ T - tag prefix
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (use-package corfu
+  :ensure t
   ;; Optional customizations
   :custom
   (corfu-cycle t)                   ;; Enable cycling for `corfu-next/previous'
@@ -775,6 +722,7 @@ T - tag prefix
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (use-package cape
+  :ensure t
   ;; Bind dedicated completion commands
   ;; Alternative prefix keys: C-c p, M-p, M-+, ...
   :bind (("C-c P p" . completion-at-point) ;; capf
@@ -918,6 +866,7 @@ T - tag prefix
 
 ;; which-key
 (use-package which-key
+  :ensure t
   :config
   (which-key-mode)
   :custom
@@ -957,6 +906,7 @@ T - tag prefix
 
 ;; lsp
 (use-package lsp-mode
+  :ensure t
   :custom
   (lsp-completion-provider :none)
   (lsp-enable-snippet nil)
@@ -981,6 +931,7 @@ T - tag prefix
   :commands lsp lsp-deferred)
 
 (use-package lsp-ui
+  :ensure t
   :hook
   (lsp-mode . lsp-ui-mode)
   :bind (("C-c l d" . lsp-ui-doc-show))
@@ -1223,9 +1174,6 @@ T - tag prefix
   :ensure t)
 (nyan-mode 1)
 
-;; google-this
-(google-this-mode 1)
-
 ;;;;;;;;;;;;;;;;;;;
 ;; miscellaneous ;;
 ;;;;;;;;;;;;;;;;;;;
@@ -1248,16 +1196,6 @@ T - tag prefix
   (set-face-attribute 'dashboard-text-banner nil
 		      :inherit 'font-lock-variable-name-face
 		      :weight 'bold))
-
-(use-package helpful
-  :ensure t
-  :bind
-  ([remap describe-function] . helpful-callable)
-  ([remap describe-variable] . helpful-variable)
-  ([remap describe-key] . helpful-key)
-  ([remap describe-symbol] . helpful-symbol)
-  ([remap describe-command] . helpful-command)
-  ([remap describe-mode] . helpful-mode))
 
 ;; helpful
 (use-package helpful
@@ -1340,7 +1278,7 @@ T - tag prefix
 ;; mu4e
 (use-package mu4e
   :ensure nil
-  ;; :load-path "/usr/share/emacs/site-lisp/mu4e/"
+  :load-path "/usr/share/emacs/site-lisp/elpa-src/mu4e-1.8.14/"
   :defer 20 ; Wait until 20 seconds after startup
   :config
 
@@ -1356,35 +1294,31 @@ T - tag prefix
 	  :match-func (lambda (msg)
 			(when msg
 			  (mu4e-message-contact-field-matches msg
-			    :to "paulleehuang@gmail.com")))
-	  :vars '( ( user-mail-address	    . "paulleehuang@gmail.com"  )
+			    :to "paulleehuang@proton.me")))
+	  :vars '( ( user-mail-address	    . "paulleehuang@proton.me"  )
 		   ( user-full-name	    . "Paul Huang" )))))
-
-  (setq mu4e-maildir-shortcuts
-	'(("/Gmail/Inbox"             . ?i)
-	  ("/Gmail/[Gmail]/Sent Mail" . ?s)
-	  ("/Gmail/[Gmail]/Trash"     . ?t)
-	  ("/Gmail/[Gmail]/Drafts"    . ?d)
-	  ("/Gmail/[Gmail]/All Mail"  . ?a)))
 
   ;; Refresh mail using isync every 10 minutes
   (setq mu4e-update-interval (* 10 60))
   (setq mu4e-get-mail-command "mbsync -a")
-  (setq mu4e-maildir "~/Mail")
+  (setq mu4e-maildir "~/mail")
 
 
-  (setq mu4e-drafts-folder "/[Gmail]/Drafts")
-  (setq mu4e-sent-folder   "/[Gmail]/Sent Mail")
-  (setq mu4e-refile-folder "/[Gmail]/All Mail")
-  (setq mu4e-trash-folder  "/[Gmail]/Trash")
+  (setq mu4e-drafts-folder "/Drafts")
+  (setq mu4e-sent-folder   "/Sent")
+  (setq mu4e-refile-folder "/Archive")
+  (setq mu4e-trash-folder  "/Trash")
   (setq mu4e-headers-results-limit 2000)
 
   (setq mu4e-maildir-shortcuts
       '((:maildir "/Inbox"    :key ?i)
-      (:maildir "/[Gmail]/Sent Mail" :key ?s)
-      (:maildir "/[Gmail]/Trash"     :key ?t)
-      (:maildir "/[Gmail]/Drafts"    :key ?d)
-      (:maildir "/[Gmail]/All Mail"  :key ?a)))
+      (:maildir "/Sent Mail" :key ?s)
+      (:maildir "/Trash"     :key ?t)
+      (:maildir "/Drafts"    :key ?d)
+      (:maildir "/Archive"   :key ?A)
+      (:maildir "/All Mail"  :key ?a)))
+
+  (require 'mu4e)
 
   (add-hook 'mu4e-headers-mode-hook (lambda () (display-line-numbers-mode 0))))
 
