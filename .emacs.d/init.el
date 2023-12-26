@@ -168,8 +168,7 @@
 
 (use-package hydra
   :ensure t
-  :bind (("C-b" . hydra-colossa/body))
-  :hook ((ibuffer-mode . hydra-ibuffer-main/)))
+  :bind (("C-b" . hydra-colossa/body)))
 
 ;; hydra-colossa
 (defhydra hydra-colossa (:color amaranth :hint nil)
@@ -177,6 +176,7 @@
   _c_: cheat
   _C_: copilot
   _e_: eat
+  _m_: mu4e
   _r_: restart emacs
   _s_: scratch-buffer
   _q_: go away
@@ -185,6 +185,7 @@
   ("c" hydra-cheat/body :color blue)
   ("C" copilot-mode :color blue)
   ("e" eat :color blue)
+  ("m" mu4e :color blue)
   ("q" nil :color blue)
   ("r" restart-emacs :color blue)
   ("s" scratch-buffer :color blue)
@@ -297,6 +298,10 @@
   ("<" ibuffer-filter-by-size-lt "size")
   ("/" ibuffer-filter-disable "disable")
   ("b" hydra-ibuffer-main/body "back" :color blue))
+
+
+(with-eval-after-load 'ibuffer
+		     (define-key ibuffer-mode-map "." 'hydra-ibuffer-main/body))
 
 ;; hydra for dired
 (defhydra hydra-dired (:hint nil :color pink)
@@ -681,7 +686,6 @@ T - tag prefix
   :custom
   (corfu-cycle t)                   ;; Enable cycling for `corfu-next/previous'
   (corfu-auto t)                    ;; Enable auto completion
-  (corfu-auto-delay 0.5)
   (corfu-preselect 'prompt)         ;; Don't select first candidate
   ;; (corfu-separator ?\s)          ;; Orderless field separator
   ;; (corfu-quit-at-boundary nil)   ;; Never quit at completion boundary
@@ -971,9 +975,10 @@ T - tag prefix
    (bash-mode . bash-ts-mode)
    (javascript-mode . js-ts-mode)
    (js2-mode . js-ts-mode)
-   (js-jsx-mode . js-ts-mode)zzzz
+   (js-jsx-mode . js-ts-mode)
    (typescript-mode . typescript-ts-mode)
    (json-mode . json-ts-mode)
+   (shell-mode . bash-ts-mode)
    (css-mode . css-ts-mode)
    (python-mode . python-ts-mode)))
 
@@ -1045,7 +1050,7 @@ T - tag prefix
 ;; org mode
 (use-package org
   :bind
-  (("C-c o i" . org-id-get-create)
+  (("C-c n C-i" . org-id-get-create)
    ("C-c a" . org-agenda)
    ("C-c o s" . org-save-all-org-buffers)
    :map org-mode-map
@@ -1096,6 +1101,7 @@ T - tag prefix
    'org-babel-load-languages
    '((lisp . t)
      (python . t)
+     (shell . t)
      (jupyter . t)))
   (setq org-confirm-babel-evaluate nil)
   (setq org-src-tab-acts-natively t)
@@ -1275,52 +1281,36 @@ T - tag prefix
 ;; khoj
 ;;(load "~/.emacs.d/khoj.el")
 
+
 ;; mu4e
-(use-package mu4e
-  :ensure nil
-  :load-path "/usr/share/emacs/site-lisp/elpa-src/mu4e-1.8.14/"
-  :defer 20 ; Wait until 20 seconds after startup
-  :config
+(add-to-list 'load-path "/usr/share/emacs/site-lisp/elpa-src/mu4e-1.8.14/")
+(require 'mu4e)
 
-  ;; This is set to 't' to avoid mail syncing issues when using mbsync
-  (setq mu4e-change-filenames-when-moving t)
-  (setq mu4e-context-policy 'pick-first)
-  (setq mu4e-compose-context-policy 'pick-first)
+;; make mu4e email agent
+(setq mail-user-agent 'mu4e-user-agent)
 
- (setq mu4e-contexts
-    `( ,(make-mu4e-context
-	  :name "Personal"
-	  ;; we match based on the contact-fields of the message
-	  :match-func (lambda (msg)
-			(when msg
-			  (mu4e-message-contact-field-matches msg
-			    :to "paulleehuang@proton.me")))
-	  :vars '( ( user-mail-address	    . "paulleehuang@proton.me"  )
-		   ( user-full-name	    . "Paul Huang" )))))
+;; refresh mail using isync every 10 minutes
+(setq mu4e-update-interval (* 10 60))
+(setq mu4e-get-mail-command "mbsync -a")
+(setq mu4e-maildir "~/mail")
 
-  ;; Refresh mail using isync every 10 minutes
-  (setq mu4e-update-interval (* 10 60))
-  (setq mu4e-get-mail-command "mbsync -a")
-  (setq mu4e-maildir "~/mail")
+(setq mu4e-drafts-folder "/Drafts"
+      mu4e-sent-folder   "/Sent"
+      mu4e-refile-folder "/Archive"
+      mu4e-trash-folder  "/Trash")
 
-
-  (setq mu4e-drafts-folder "/Drafts")
-  (setq mu4e-sent-folder   "/Sent")
-  (setq mu4e-refile-folder "/Archive")
-  (setq mu4e-trash-folder  "/Trash")
-  (setq mu4e-headers-results-limit 2000)
-
-  (setq mu4e-maildir-shortcuts
+(setq mu4e-maildir-shortcuts
       '((:maildir "/Inbox"    :key ?i)
-      (:maildir "/Sent Mail" :key ?s)
-      (:maildir "/Trash"     :key ?t)
-      (:maildir "/Drafts"    :key ?d)
-      (:maildir "/Archive"   :key ?A)
-      (:maildir "/All Mail"  :key ?a)))
+        (:maildir "/Sent Mail" :key ?s)
+        (:maildir "/Trash"     :key ?t)
+        (:maildir "/Drafts"    :key ?d)
+        (:maildir "/Archive"   :key ?A)
+        (:maildir "/All Mail"  :key ?a)))
 
-  (require 'mu4e)
+;; how to show html messages
+(setq mu4e-html2text-command "w3m -o display_link_number=true -T text/html;")
 
-  (add-hook 'mu4e-headers-mode-hook (lambda () (display-line-numbers-mode 0))))
+(setq mu4e-confirm-quit nil)
 
 ;; perspective
 (use-package perspective
@@ -1355,7 +1345,6 @@ T - tag prefix
  '(js-indent-level 2)
  '(lsp-enable-links nil)
  '(menu-bar-mode nil)
- '(mu4e-search-results-limit 5000)
  '(org-agenda-files
    '("~/org/tasks.org" "~/org/schedule.org" "~/org/backmatter-tasks.org"))
  '(org-agenda-loop-over-headlines-in-active-region nil)
