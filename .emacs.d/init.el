@@ -178,7 +178,7 @@
   _e_: eat
   _m_: mu4e
   _r_: restart emacs
-  _s_: scratch-buffer
+  _S_: wipe scratch buffer
   _q_: go away
   _w_: windows
 "
@@ -188,7 +188,7 @@
   ("m" mu4e :color blue)
   ("q" nil :color blue)
   ("r" restart-emacs :color blue)
-  ("s" scratch-buffer :color blue)
+  ("S" my/persistent-scratch-save-and-erase :color blue)
   ("w" hydra-windows/body :color blue)
   ("." nil :color blue)
   )
@@ -389,6 +389,9 @@ T - tag prefix
 ;; kill-this-buffer
 (global-set-key (kbd "C-c M-q k") 'kill-this-buffer) ;; C-c M-q is bound to keyboard macro
 
+;; disable recursive minibuffers
+(setq enable-recursive-minibuffers nil)
+
 ;; revert buffers after external file changes
 (global-auto-revert-mode t)
 (setq global-auto-revert-non-file-buffers t
@@ -456,11 +459,11 @@ T - tag prefix
 (use-package undo-tree
   :ensure t
   :init
+  (global-undo-tree-mode 1)
   :custom
   (undo-tree-history-directory-alist '(("." . "~/.emacs.d/undo")))
   (undo-tree-auto-save-history t)
   (undo-tree-visualizer-timestamps t)
-  (global-undo-tree-mode 1)
   (undo-tree-visualizer-diff t))
 
 ;; move-text (use M-up / M-down to move lines up and down)
@@ -511,7 +514,16 @@ T - tag prefix
 (use-package vertico
   :ensure t
   :init
-  (setq vertico-cycle t))
+  (vertico-mode)
+  (setq vertico-cycle t)
+  :config
+  ;; enable completion-at-point / completion-in-region
+  (setq completion-in-region-function
+        (lambda (&rest args)
+	  (apply (if vertico-mode
+		     #'consult-completion-in-region
+		   #'completion--in-region)
+	         args))))
 
 (use-package emacs
   :init
@@ -539,20 +551,10 @@ T - tag prefix
   ;; enable recursive minibuffers
   (setq enable-recursive-minibuffers t))
 
-  ;; enable completion-at-point / completion-in-region
-  (setq completion-in-region-function
-      (lambda (&rest args)
-	(apply (if vertico-mode
-		   #'consult-completion-in-region
-		 #'completion--in-region)
-	       args)))
-  :config
-  (vertico-mode)
-
 ;; marginalia
 (use-package marginalia
   :ensure t
-  :config
+  :init
   (marginalia-mode))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -802,7 +804,6 @@ T - tag prefix
 ;; key bindings ;;
 ;;;;;;;;;;;;;;;;;;
 
-
 ;; remap search to C-f
 (global-set-key (kbd "C-f") 'consult-line)
 
@@ -822,7 +823,7 @@ T - tag prefix
 ;; yasnippet
 (use-package yasnippet
   :ensure t
-  :config
+  :init
   (yas-global-mode 1)
   :bind
   ("C-c y" . yas-expand))
@@ -862,11 +863,20 @@ T - tag prefix
 ;; persistent scratch
 (use-package persistent-scratch
   :ensure t
+  :hook ((emacs-startup . persistent-scratch-autosave-mode))
   :config
   (setq persistent-scratch-backup-directory '"~/org/scratch/")
   :custom
   (initial-scratch-message nil)
+  (persistent-scratch-backup-file-name-format "Scratch-n-save - %Y-%m-%d %H:%M")
   (initial-major-mode 'org-mode))
+
+(defun my/persistent-scratch-save-and-erase ()
+  (interactive)
+  (persistent-scratch-new-backup)
+  (persistent-scratch-save)
+  (with-current-buffer (get-buffer-create "*scratch*")
+    (erase-buffer)))
 
 ;; which-key
 (use-package which-key
@@ -1040,7 +1050,6 @@ T - tag prefix
 
 ;; slime (the superior lisp interaction mode for emacs)
 (load (expand-file-name "~/.quicklisp/slime-helper.el"))
-
 (setq inferior-lisp-program "sbcl")
 
 ;;;;;;;;;;;;;;
@@ -1246,22 +1255,26 @@ T - tag prefix
           (emacs-addict . "You are extremely obsessed with emacs. You cannot bear to talk about anything but emacs, so you find any kind of opportunity to give answers in a way that has to do with emacs.")
           (sassy . "You are extremely sassy and like to give witty, sardonic answers and insult me."))))
 
+;; spell-checking
+(use-package jinx
+  :hook (emacs-startup. global-jinx-mode)
+  :bind (("M-$" . jinx-correct)
+         ("C-M-$" . jinx-languages)))
+
 ;; parrot
 (use-package parrot
   :ensure t
+  :hook (emacs-startup . parrot-mode)
   :config
   (parrot-set-parrot-type 'emacs)
-  (setq parrot-num-rotations nil)
-  :init
-  (parrot-mode))
+  (setq parrot-num-rotations nil))
 
 ;; elcord
 (use-package elcord
   :ensure t
+  :hook (emacs-startup . elcord-mode)
   :custom
-  (setq elcord-idle-message "call me maybe?")
-  :init
-  (elcord-mode))
+  (setq elcord-idle-message "call me maybe?"))
 
 ;; gcal
 (load "~/.emacs.d/gcal.el")
@@ -1283,17 +1296,22 @@ T - tag prefix
 
 
 ;; mu4e
+
+;; load mu4e
 (add-to-list 'load-path "/usr/share/emacs/site-lisp/elpa-src/mu4e-1.8.14/")
 (require 'mu4e)
 
 ;; make mu4e email agent
 (setq mail-user-agent 'mu4e-user-agent)
 
-;; refresh mail using isync every 10 minutes
-(setq mu4e-update-interval (* 10 60))
-(setq mu4e-get-mail-command "mbsync -a")
-(setq mu4e-maildir "~/mail")
+(setq user-mail-address "paulleehuang@proton.me")
 
+;; refresh mail using isync every 5 minutes
+(setq mu4e-update-interval (* 5 60))
+(setq mu4e-get-mail-command "mbsync -a")
+(setq mu4e-root-maildir "~/mail")
+
+;; setup dynamic folders
 (setq mu4e-drafts-folder "/Drafts"
       mu4e-sent-folder   "/Sent"
       mu4e-refile-folder "/Archive"
@@ -1307,10 +1325,9 @@ T - tag prefix
         (:maildir "/Archive"   :key ?A)
         (:maildir "/All Mail"  :key ?a)))
 
-;; how to show html messages
-(setq mu4e-html2text-command "w3m -o display_link_number=true -T text/html;")
-
 (setq mu4e-confirm-quit nil)
+
+(mu4e t)
 
 ;; perspective
 (use-package perspective
