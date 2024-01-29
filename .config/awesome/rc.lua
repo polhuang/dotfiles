@@ -484,34 +484,6 @@ globalkeys = mytable.join(
     -- Spotify cli
     awful.key({ "Control", altkey, "Shift" }, "s", function () spotify_shell.launch() end, {description = "spotify shell", group = "music"}),
 
-
-    -- MPD control
-    awful.key({ altkey, "Control" }, "Up",
-        function ()
-            os.execute("mpc toggle")
-            beautiful.mpd.update()
-        end,
-        {description = "mpc toggle", group = "widgets"}),
-    awful.key({ altkey, "Control" }, "Down",
-        function ()
-            os.execute("mpc stop")
-            beautiful.mpd.update()
-        end,
-        {description = "mpc stop", group = "widgets"}),
-    awful.key({ altkey, "Control" }, "Left",
-        function ()
-            os.execute("mpc prev")
-            beautiful.mpd.update()
-        end,
-        {description = "mpc prev", group = "widgets"}),
-    awful.key({ altkey, "Control" }, "Right",
-        function ()
-            os.execute("mpc next")
-            beautiful.mpd.update()
-        end,
-        {description = "mpc next", group = "widgets"}),
-       
-
     -- Copy primary to clipboard (terminals to gtk)
     awful.key({ modkey }, "c", function () awful.spawn.with_shell("xsel | xsel -i -b") end,
               {description = "copy terminal to gtk", group = "hotkeys"}),
@@ -750,8 +722,15 @@ awful.rules.rules = {
     -- Set apps to always map on the specific tags and screens
     { rule = { class = "discord" },
       properties = { screen = 1, tag = " 三  msg " } },
-        { rule = { class = "Spotify" },
+    { rule = { class = "Spotify" },
       properties = { screen = 1, tag = " 八  music " } },
+    { rule = { class = "Keymapp" },
+      properties = { screen = 1, tag = " 二  key " } },
+    { rule = { class = "bridge-gui" },
+      properties = { screen = 1, tag = " 九  util " } },
+    { rule = { class = "1password" },
+      properties = { screen = 1, tag = " 九  util " } },
+    
 }
 
 -- }}}
@@ -870,8 +849,9 @@ beautiful.useless_gap = 10
 
 -- Autostart
 awful.spawn("kitty -e btop")
-awful.spawn("keymapp")
+awful.spawn("/opt/keymapp/keymapp")
 awful.spawn("spotify")
 awful.util.spawn("1password")
 awful.util.spawn("discord")
+awful.util.spawn("protonmail-bridge")
 awful.spawn.with_shell("~/display-setup.sh")
