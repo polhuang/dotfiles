@@ -100,6 +100,22 @@
 ;;(add-hook 'dired-mode-hook (lambda () (dired-omit-mode)))      ; hide backup files in dired
 (global-prettify-symbols-mode 1)                          ; prettify-symbols
 
+;; chinese font
+(defface my-chinese-face
+  '((t :family "Noto Sans CJK TC"))
+  "Face for Chinese characters.")
+
+;; Add the new face to the `face-font-family-alternatives` variable
+(setq face-font-family-alternatives
+      '(("Noto Sans CJK TC" "han" "cjk")
+        ("my-chinese-face" "cjk")
+        ("Sans Serif" "latin")))
+
+;; Apply the new face to Chinese characters
+(set-fontset-font "fontset-default"
+                  (cons (decode-char 'ucs #x4E00) (decode-char 'ucs #x9FFF))
+                  "my-chinese-face")
+
 ;; icons
 (use-package nerd-icons-corfu
   :ensure t
@@ -868,12 +884,9 @@ T - tag prefix
 ;; persistent scratch
 (use-package persistent-scratch
   :ensure t
-  :hook ((emacs-startup . persistent-scratch-autosave-mode))
   :config
-  (setq persistent-scratch-backup-directory '"~/org/scratch/")
   :custom
   (initial-scratch-message nil)
-  (persistent-scratch-backup-file-name-format "Scratch-n-save - %Y-%m-%d %H:%M")
   (initial-major-mode 'org-mode))
 
 (defun my/persistent-scratch-save-and-erase ()

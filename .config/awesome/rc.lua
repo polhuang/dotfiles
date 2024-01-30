@@ -726,9 +726,9 @@ awful.rules.rules = {
       properties = { screen = 1, tag = " 八  music " } },
     { rule = { class = "Keymapp" },
       properties = { screen = 1, tag = " 二  key " } },
-    { rule = { class = "bridge-gui" },
+    { rule = { class = "Proton Mail Bridge" },
       properties = { screen = 1, tag = " 九  util " } },
-    { rule = { class = "1password" },
+    { rule = { class = "1Password" },
       properties = { screen = 1, tag = " 九  util " } },
     
 }
