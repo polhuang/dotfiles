@@ -177,7 +177,7 @@
 
 (use-package hydra
   :ensure t
-  :bind (("C-b" . hydra-colossa/body)))
+  :bind (("C-c M-q a" . hydra-colossa/body)))
 
 ;; hydra-colossa
 (defhydra hydra-colossa (:color amaranth :hint nil)
@@ -660,7 +660,7 @@ T - tag prefix
    consult-bookmark consult-recent-file consult-xref
    consult--source-bookmark consult--source-file-register
    consult--source-recent-file consult--source-project-recent-file
-   ;; :preview-key "M-."
+   ;; :preview-key "M-."s
    :preview-key '(:debounce 0.1 any))
 
   ;; optionally configure the narrowing key.
@@ -863,8 +863,7 @@ T - tag prefix
 (defun my/scratch-buffer-other-window ()
   "Open the *scratch* buffer in a new window."
   (interactive)
-  (switch-to-buffer-other-window (get-buffer-create "*scratch*"))
-  (lisp-interaction-mode))
+  (switch-to-buffer-other-window (get-buffer-create "*scratch*")))
 
 (defun my/toggle-scratch-buffer-other-window ()
   "Toggle between *scratch* buffer and the current buffer."
@@ -882,19 +881,13 @@ T - tag prefix
 (global-set-key (kbd "C-c M-q s") 'my/toggle-scratch-buffer-other-window)
 
 ;; persistent scratch
+(setq initial-scratch-message nil)
+(setq initial-major-mode 'org-mode)
+
 (use-package persistent-scratch
   :ensure t
   :config
-  :custom
-  (initial-scratch-message nil)
-  (initial-major-mode 'org-mode))
-
-(defun my/persistent-scratch-save-and-erase ()
-  (interactive)
-  (persistent-scratch-new-backup)
-  (persistent-scratch-save)
-  (with-current-buffer (get-buffer-create "*scratch*")
-    (erase-buffer)))
+  (persistent-scratch-setup-default))
 
 ;; which-key
 (use-package which-key
@@ -914,13 +907,13 @@ T - tag prefix
 
 ;; eat
 (use-package eat
-  :ensure t
-  :bind (("C-c e e" . eat)
-         ("C-c e o" . eat-other-window)
-         ("C-c e p" . eat-project-other-window)
-         ("C-c C-q e" . my/toggle-eat))
-  :custom
-  (eat-kill-buffer-on-exit t))
+:ensure t
+:bind (("C-c e e" . eat)
+       ("C-c e o" . eat-other-window)
+       ("C-c e p" . eat-project-other-window)
+       ("C-c C-q e" . my/toggle-eat))
+:custom
+(eat-kill-buffer-on-exit t))
 
 (defun my/toggle-eat ()
   "Toggle between eat and current buffer."
@@ -1363,11 +1356,6 @@ T - tag prefix
   :custom
   (todoist-backing-buffer "~/org/todoist.org")
   (todoist-show-all t))
-
-;; cheatsheet
-(use-package cheatsheet
-  :ensure t
-  :bind (("C-c C-c" . cheatsheet-show)))
 
 ;; copilot. saving for end, since it seems to break if loaded earlier
 (use-package copilot

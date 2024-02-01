@@ -145,7 +145,7 @@ local editor       = "emacs"
 local browser      = "brave-browser"
 
 awful.util.terminal = terminal
-awful.util.tagnames = { " 一  sh ", " 二  key ", " 三  msg ", " 四  www ", " 五 emacs ", " 六  www2", " 七  email ", " 八  music ", " 九  util " }
+awful.util.tagnames = { " 一  sh ", " 二  key ", " 三  msg ", " 四  www ", " 五  emacs ", " 六  www2", " 七  email ", " 八  music ", " 九  util " }
 awful.layout.layouts = {
     --awful.layout.suit.floating,
     awful.layout.suit.tile,
@@ -730,6 +730,11 @@ awful.rules.rules = {
       properties = { screen = 1, tag = " 九  util " } },
     { rule = { class = "1Password" },
       properties = { screen = 1, tag = " 九  util " } },
+    { rule = { class = "whatsappweb-nativefier-d40211" },
+      properties = { screen = 1, tag = " 三  msg " } },
+    { rule = { class = "Emacs" },
+      properties = { screen = 1, tag = " 五  emacs " } }
+    
     
 }
 
@@ -851,6 +856,8 @@ beautiful.useless_gap = 10
 awful.spawn("kitty -e btop")
 awful.spawn("/opt/keymapp/keymapp")
 awful.spawn("spotify")
+awful.spawn("/opt/WhatsAppWeb-linux-x64/WhatsAppWeb")
+awful.spawn("emacs")
 awful.util.spawn("1password")
 awful.util.spawn("discord")
 awful.util.spawn("protonmail-bridge")
