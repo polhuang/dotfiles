@@ -414,7 +414,9 @@ T - tag prefix
 ;; ace-window
 (use-package ace-window
   :ensure t
-  :bind (("M-o" . ace-window)))
+  :bind (("M-o" . ace-window))
+  :config
+  (setq aw-keys '(?a ?s ?d ?f)))
 
 ;; toggle vertical/horizontal split
 (defun my/toggle-window-split ()
@@ -458,6 +460,8 @@ T - tag prefix
 ;;;;;;;;;;;;;
 ;; editing ;;
 ;;;;;;;;;;;;;
+
+(delete-selection-mode 1)
 
 ;; intellij-style backspace
 (use-package smart-backspace
@@ -687,34 +691,43 @@ T - tag prefix
   ;; (setq consult-project-function nil)
   )
 
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; corfu ----------------------------------------------------------------------- ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
 (use-package corfu
   :ensure t
   ;; Optional customizations
+  :bind
+  (:map corfu-map
+        ("TAB" . corfu-insert)
+        ("<tab>" . corfu-insert)
+        ("RET" . corfu-insert)
+        ("<return>" . corfu-insert)
+        ("SPC" . corfu-insert-separator))
   :custom
-  (corfu-cycle t)                   ;; Enable cycling for `corfu-next/previous'
   (corfu-auto t)                    ;; Enable auto completion
+  (corfu-separator ?\s)
   (corfu-preselect 'prompt)         ;; Don't select first candidate
+  (corfu-history-mode)
   ;; (corfu-separator ?\s)          ;; Orderless field separator
   ;; (corfu-quit-at-boundary nil)   ;; Never quit at completion boundary
-  ;; (corfu-quit-no-match nil)      ;; Never quit, even if there is no match
-  ;; (corfu-preview-current nil)    ;; Disable current candidate preview
+  (corfu-quit-no-match t)      ;; Never quit, even if there is no match
+  (corfu-preview-current t) 
   ;; (corfu-on-exact-match nil)     ;; Configure handling of exact matches
   ;; (corfu-scroll-margin 5)        ;; Use scroll margin
-  
+
   ;; enable Corfu only for certain modes.
   ;; :hook ((prog-mode . corfu-mode)
   ;;        (shell-mode . corfu-mode)
   ;;        (eshell-mode . corfu-mode))
-
+  
   ;; recommended: enable Corfu globally.  recommended since dabbrev can
   ;; be used globally (M-/). see also the customization variable
   ;; `global-corfu-modes' to exclude certain modes
   :init
-  (global-corfu-mode))
+  (global-corfu-mode)
+  (corfu-popupinfo-mode))
 
 ;; emacs configurations
 (use-package emacs
@@ -773,7 +786,7 @@ T - tag prefix
   (add-to-list 'completion-at-point-functions #'cape-abbrev)
   (add-to-list 'completion-at-point-functions #'cape-dict)
   (add-to-list 'completion-at-point-functions #'cape-elisp-symbol)
-  ;;(add-to-list 'completion-at-point-functions #'cape-line)
+  ;;(add-to-list 'completion-at-point-functions #'cape-line)`
   )
 
 ;; prescient
@@ -1001,11 +1014,12 @@ T - tag prefix
 (setq major-mode-remap-alist
       '((yaml-mode . yaml-ts-mode)
         (bash-mode . bash-ts-mode)
-        (javascript-mode . js-ts-mode)
-        (js-mode . js-ts-mode)        
-        (js2-mode . js-ts-mode)
-        (js-jsx-mode . js-ts-mode)
-        (typescript-mode . typescript-ts-mode)
+        (javascript-mode . tsx-ts-mode)
+        (js-mode . tsx-ts-mode)
+        (js2-mode . tsx-ts-mode)
+        (js-jsx-mode . tsx-ts-mode)
+        (rjsx-mode . tsx-ts-mode)
+        (typescript-mode . tsx-ts-mode)
         (json-mode . json-ts-mode)
         (shell-mode . bash-ts-mode)
         (css-mode . css-ts-mode)
@@ -1091,11 +1105,11 @@ T - tag prefix
   (org-mode . my/org-add-electric-pairs)
   :init
   (add-to-list 'display-buffer-alist
-             '("\\*org-roam\\*"
-               (display-buffer-in-direction)
-               (direction . right)
-               (window-width . 0.33)
-               (window-height . fit-window-to-buffer)))
+               '("\\*org-roam\\*"
+                 (display-buffer-in-direction)
+                 (direction . right)
+                 (window-width . 0.33)
+                 (window-height . fit-window-to-buffer)))
   :config
   (custom-set-variables
    '(org-directory "~/org/")
@@ -1124,11 +1138,12 @@ T - tag prefix
 	                         "* %? [[%:link][%:description]] \nCaptured On: %U")
                                 ))
   
-;; org-babel
+  ;; org-babel
   (org-babel-do-load-languages
    'org-babel-load-languages
    '((lisp . t)
      (python . t)
+     (js . t)
      (shell . t)
      (jupyter . t)))
   (setq org-confirm-babel-evaluate nil)
@@ -1138,7 +1153,6 @@ T - tag prefix
   (add-to-list 'org-structure-template-alist '("el" . "src emacs-lisp"))
   (add-to-list 'org-structure-template-alist '("py" . "src python :results output"))
   (add-to-list 'org-structure-template-alist '("jp" . "src jupyter-python :session py")))
-
 (defun my/org-syntax-table-modify ()
   "Modify `org-mode-syntax-table' for the current org buffer."
   (modify-syntax-entry ?< "." org-mode-syntax-table)
@@ -1167,22 +1181,29 @@ T - tag prefix
   (require 'org-roam-dailies)
   (org-roam-db-autosync-mode)
   (setq org-roam-node-display-template
-      (concat "${title:*} "
-              (propertize "${tags:20}" 'face 'org-tag)))
+        (concat "${title:*} "
+                (propertize "${tags:20}" 'face 'org-tag)))
   (setq org-roam-mode-sections
-      (list #'org-roam-backlinks-section
-	    #'org-roam-reflinks-section
-	    ;; #'org-roam-unlinked-references-section
-	    ))
+        (list #'org-roam-backlinks-section
+	      #'org-roam-reflinks-section
+	      ;; #'org-roam-unlinked-references-section
+	      ))
   (setq org-roam-dailies-capture-templates
-      '(("d" "default" entry "* %<%I:%M %p> \n%?"
-	 :if-new (file+head "%<%Y-%m-%d>.org" "#+title: %<%Y-%m-%d>\n"))))
+        '(("d" "default" entry "* %<%I:%M %p> \n%?"
+	   :if-new (file+head "%<%Y-%m-%d>.org" "#+title: %<%Y-%m-%d>\n"))))
   (defun org-roam-node-insert-immediate (arg &rest args)
     (interactive "P")
     (let ((args (cons arg args))
 	  (org-roam-capture-templates (list (append (car org-roam-capture-templates)
-						  '(:immediate-finish t)))))
+						    '(:immediate-finish t)))))
       (apply #'org-roam-node-insert args))))
+
+(advice-add #'corfu-insert
+            :after (lambda ()
+                     (when
+                         (eq major-mode 'org-mode)
+                       (org-roam-link-replace-all))))
+
 
 (defun my/org-roam-capture-periodically ()
   "Capture an org-roam note."
@@ -1192,7 +1213,7 @@ T - tag prefix
                                   (org-roam-dailies-capture-today))))
 
 (setq my/org-roam-timer
-	(run-at-time t 3600 'my/org-roam-capture-periodically))
+      (run-at-time t 3600 'my/org-roam-capture-periodically))
 
 ;; org-sidebar
 (use-package org-sidebar
@@ -1281,7 +1302,7 @@ T - tag prefix
 
 ;; spell-checking
 (use-package jinx
-  :hook (emacs-startup. global-jinx-mode)
+  :hook (emacs-startup . global-jinx-mode)
   :bind (("M-$" . jinx-correct)
          ("C-M-$" . jinx-languages)))
 
