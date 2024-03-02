@@ -34,6 +34,10 @@
       (eval-print-last-sexp)))
   (load bootstrap-file nil 'nomessage))
 
+;; quelpa
+(use-package quelpa
+  :ensure t)
+
 ;;;;;;;;;;;;;;;;;;;
 ;; file settings ;;
 ;;;;;;;;;;;;;;;;;;;
@@ -559,10 +563,8 @@ T - tag prefix
   ;; emacs 28: Hide commands in M-x which do not work in the current mode.
   ;; vertico commands are hidden in normal buffers.
   (setq read-extended-command-predicate
-        #'command-completion-default-include-p)
+        #'command-completion-default-include-p))
 
-  ;; enable recursive minibuffers
-  (setq enable-recursive-minibuffers t))
 
 ;; marginalia
 (use-package marginalia
@@ -706,7 +708,9 @@ T - tag prefix
         ("<return>" . corfu-insert)
         ("SPC" . corfu-insert-separator))
   :custom
+  (completion-styles '(orderless-fast basic))
   (corfu-auto t)                    ;; Enable auto completion
+  (corfu-auto-delay 1)
   (corfu-separator ?\s)
   (corfu-preselect 'prompt)         ;; Don't select first candidate
   (corfu-history-mode)
@@ -1034,7 +1038,27 @@ T - tag prefix
   (treesit-auto-add-to-auto-mode-alist 'all)
   (global-treesit-auto-mode))
 
-;; emmet
+;; combobulate
+(quelpa '(combobulate :fetcher github :repo mickeynp/combobulate))
+(use-package combobulate
+  :preface
+  ;; You can customize Combobulate's key prefix here.
+  ;; Note that you may have to restart Emacs for this to take effect!
+  (setq combobulate-key-prefix "C-c o")
+  :hook
+  ((python-ts-mode . combobulate-mode)
+   (js-ts-mode . combobulate-mode)
+   (html-ts-mode . combobulate-mode)
+   (css-ts-mode . combobulate-mode)
+   (yaml-ts-mode . combobulate-mode)
+   (typescript-ts-mode . combobulate-mode)
+   (json-ts-mode . combobulate-mode)
+   (tsx-ts-mode . combobulate-mode))
+  ;; Amend this to the directory where you keep Combobulate's source
+  ;; code.
+  :load-path ("path-to-git-checkout-of-combobulate"))
+  
+  ;; emmet
 (use-package emmet-mode
   :ensure t
   :bind (("C-j" . emmet-expand-lineg))
