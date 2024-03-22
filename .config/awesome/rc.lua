@@ -577,20 +577,7 @@ clientkeys = mytable.join(
         function (c)
             c.maximized = not c.maximized
             c:raise()
-        end ,
-        {description = "(un)maximize", group = "client"}),
-    awful.key({ modkey, "Control" }, "m",
-        function (c)
-            c.maximized_vertical = not c.maximized_vertical
-            c:raise()
-        end ,
-        {description = "(un)maximize vertically", group = "client"}),
-    awful.key({ modkey, "Shift"   }, "m",
-        function (c)
-            c.maximized_horizontal = not c.maximized_horizontal
-            c:raise()
-        end ,
-        {description = "(un)maximize horizontally", group = "client"})
+        end)
 )
 
 -- Bind all key numbers to tags.
@@ -862,3 +849,4 @@ awful.util.spawn("1password")
 awful.util.spawn("discord")
 awful.util.spawn("protonmail-bridge")
 awful.spawn.with_shell("~/display-setup.sh")
+awful.spawn.with_shell("~/.config/startup.sh")
