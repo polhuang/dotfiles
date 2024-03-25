@@ -10,7 +10,7 @@
 ;; 			 ("nongnu" . "https://elpa.nongnu.org/nongnu/")))
 
 ;; (unless package-archive-contents
-;;  (package-refresh-contents))
+;;   (package-refresh-contents))
 
 ;; enable for new systems
 ;; use-package - install if not installed (when not on linux)
@@ -42,7 +42,7 @@
 ;; file settings ;;
 ;;;;;;;;;;;;;;;;;;;
 
-;; store backup files in sepraate directory
+;; store backup files in separate directory
 (setq backup-directory-alist '(("." . "~/emacs.d/backups")))
 
 ;; store lock-file symlinks in separate directory
@@ -83,6 +83,11 @@
 
 ;; font
 (set-face-attribute 'default nil :family "Iosevka Comfy Fixed" :background nil)
+
+;; modeline
+(use-package doom-modeline
+  :ensure t
+  :init (doom-modeline-mode 1))
 
 (use-package fontify-face
   :ensure t)
@@ -346,7 +351,7 @@
   (define-key ibuffer-mode-map "." 'hydra-ibuffer-main/body))
 
 ;; hydra for dired
-(defhydra hydra-dired/body (:hint nil :color pink)
+(defhydra hydra-dired (:hint nil :color pink)
   "
 _+_ mkdir          _v_iew           _m_ark             _(_ details        _i_nsert-subdir    wdired
 _C_opy             _O_ view other   _U_nmark all       _)_ omit-mode      _$_ hide-subdir    C-x C-q : edit
@@ -398,7 +403,7 @@ T - tag prefix
   ("." nil :color blue))
 
 (with-eval-after-load 'dired
-  (define-key dired-mode-map "." 'hydra-dired))
+  (define-key dired-mode-map "." 'hydra-dired/body))
 
 ;; major-mode hydra
 (use-package major-mode-hydra
@@ -407,8 +412,13 @@ T - tag prefix
   ("C-c M-q ." . major-mode-hydra))
 
 (major-mode-hydra-define org-mode nil
-  ("Tasks"
-   (("a" org-goto "org-goto"))))
+  ("TODO"
+   (("t" my/to-do-complete "Cycle TODO")
+    ("d" org-deadline "Deadline")
+    ("s" org-schedule "Schedule")
+    ("i" org-clock-in "Clock in")
+    ("o" org-clock-out "Clock out")
+    ("a" org-archive-subtree-default "Archive"))))
 
 (pretty-hydra-define navigation-hydra (:quit-key "q")
   ("Mark motion"
@@ -522,6 +532,7 @@ T - tag prefix
   :bind ("M-<backspace>" . smart-backspace))
 
 ;; undo tree
+
 (use-package undo-tree
   :ensure t
   :init
@@ -1167,6 +1178,7 @@ T - tag prefix
   (("C-c n C-i" . org-id-get-create)
    ("C-c a" . org-agenda)
    ("C-c o s" . org-save-all-org-buffers)
+   ("C-c M-q c" . org-capture)
    :map org-mode-map
    ("C-c \\" . puni-mark-sexp-around-point)
    ("C-c C-s" . avy-goto-line))
@@ -1203,12 +1215,13 @@ T - tag prefix
   (setq org-startup-folded 'content)
 
   ;; org-capture
-  (setq org-capture-templates `(
-	                        ("p" "Protocol Text" entry (file+headline ,(concat org-directory "/roam/captures.org") "Captures")
+  (require 'org-protocol)
+  (setq org-capture-templates `(("p" "Protocol Text" entry (file+headline ,(concat org-directory "/roam/captures.org") "Captures")
 	                         "* %^{Title}\nSource: %u, %c\n #+BEGIN_QUOTE\n%i\n#+END_QUOTE\n\n\n")
 	                        ("L" "Protocol Link" entry (file+headline ,(concat org-directory "roam/captures.org") "Captures")
 	                         "* %? [[%:link][%:description]] \nCaptured On: %U")
-                                ))
+                                ("t" "Task" entry (file+headline ,(concat org-directory "tasks.org") "Tasks")
+                                 "* TODO %?\n %U")))
   
   ;; org-babel
   (org-babel-do-load-languages
@@ -1276,23 +1289,20 @@ T - tag prefix
                          (eq major-mode 'org-mode)
                        (org-roam-link-replace-all))))
 
-;; org-sidebar
-(use-package org-sidebar
-  :ensure t)
-
-;; modeline
-(use-package doom-modeline
+;; org-notify
+(use-package org-notify
   :ensure t
-  :init (doom-modeline-mode 1))
+  :config
+  (org-notify-start))
+
+;;;;;;;;;;;;;;;;;;;
+;; miscellaneous ;;
+;;;;;;;;;;;;;;;;;;;
 
 ;; nyan-mode
 (use-package nyan-mode
   :ensure t)
 (nyan-mode 1)
-
-;;;;;;;;;;;;;;;;;;;
-;; miscellaneous ;;
-;;;;;;;;;;;;;;;;;;;
 
 ;; dashboard
 (setq initial-buffer-choice (lambda () (get-buffer-create "*dashboard*")))
@@ -1304,11 +1314,11 @@ T - tag prefix
   (setq dashboard-banner-logo-title "~~ HI POL ~~")
   (setq dashboard-startup-banner "~/.dotfiles/.emacs.d/dashboard-banner.txt")
   (setq dashboard-footer-messages '("Time saved by emacs: 5 days 11 hours 47 minutes \nTime spent editing emacs config: 615 days 11 hours 38 minutes"))
-(setq dashboard-items '((recents  . 5)
-			(bookmarks . 5)
-			(projects . 5)
-			(agenda . 20)
-			(registers . 5)))
+  (setq dashboard-items '((recents  . 5)
+			  (bookmarks . 5)
+			  (projects . 5)
+			  (agenda . 20)
+			  (registers . 5)))
   (set-face-attribute 'dashboard-text-banner nil
 		      :inherit 'font-lock-variable-name-face
 		      :weight 'bold))
