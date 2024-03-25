@@ -9,8 +9,8 @@
 ;; 			 ("elpa" . "https://elpa.gnu.org/packages/")
 ;; 			 ("nongnu" . "https://elpa.nongnu.org/nongnu/")))
 
-(unless package-archive-contents
-  (package-refresh-contents))
+;; (unless package-archive-contents
+;;  (package-refresh-contents))
 
 ;; enable for new systems
 ;; use-package - install if not installed (when not on linux)
@@ -47,7 +47,6 @@
 
 ;; store lock-file symlinks in separate directory
 (setq lock-file-name-transforms `((".*" "~/tmp/emacs-lockfiles/" t)))
-
 
 ;; backup-by-copying. prevents lsp from auto-importing backup files
 (setq backup-by-copying t)
@@ -146,6 +145,20 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; navigation settings ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; scrolling
+(defvar my/default-scroll-lines 15)
+
+(defun my/scroll-up (orig-func &optional arg)
+  "Scroll up `my/default-scroll-lines' lines (probably less than default)."
+  (apply orig-func (list (or arg my/default-scroll-lines))))
+
+(defun my/scroll-down (orig-func &optional arg)
+  "Scroll down `my/default-scroll-lines' lines (probably less than default)."
+  (apply orig-func (list (or arg my/default-scroll-lines))))
+
+(advice-add 'scroll-up :around 'my/scroll-up)
+(advice-add 'scroll-down :around 'my/scroll-down)
 
 ;; registers
 (set-register ?e (cons 'file "~/.emacs.d/init.el"))
@@ -329,12 +342,11 @@
   ("/" ibuffer-filter-disable "disable")
   ("b" hydra-ibuffer-main/body "back" :color blue))
 
-
 (with-eval-after-load 'ibuffer
-		     (define-key ibuffer-mode-map "." 'hydra-ibuffer-main/body))
+  (define-key ibuffer-mode-map "." 'hydra-ibuffer-main/body))
 
 ;; hydra for dired
-(defhydra hydra-dired (:hint nil :color pink)
+(defhydra hydra-dired/body (:hint nil :color pink)
   "
 _+_ mkdir          _v_iew           _m_ark             _(_ details        _i_nsert-subdir    wdired
 _C_opy             _O_ view other   _U_nmark all       _)_ omit-mode      _$_ hide-subdir    C-x C-q : edit
@@ -385,13 +397,33 @@ T - tag prefix
   ("q" nil)
   ("." nil :color blue))
 
-(define-key dired-mode-map "." 'hydra-dired/body)
+(with-eval-after-load 'dired
+  (define-key dired-mode-map "." 'hydra-dired))
 
 ;; major-mode hydra
 (use-package major-mode-hydra
   :ensure t
   :bind
-  ("C-M-<return>" . major-mode-hydra))
+  ("C-c M-q ." . major-mode-hydra))
+
+(major-mode-hydra-define org-mode nil
+  ("Tasks"
+   (("a" org-goto "org-goto"))))
+
+(pretty-hydra-define navigation-hydra (:quit-key "q")
+  ("Mark motion"
+   (("C-x C-<space>" pop-global-mark "Pop global mark")
+    ("C-x C-x" exchange-point-and-mark "Exchange point and mark"))
+   "Text motion"
+   (("C-M-b" puni-backward-sexp "Backward sexp")
+    ("C-M-f" puni-forward-sexp "Forward sexp")
+    ("C-M-u" backward-up-list "Backward up hierarchy")
+    ("C-M-d" forward-down-list "Forward down hierarchy")
+    ("C-M-p" backward-list "Backward list")
+    ("C-M-n" forward-list "Forward list"))
+   "Text selection"
+   (("C-c \\" puni-mark-sexp-around-point "Mark around sexp")
+    ("M-h" mark-paragraph "Mark paragraph"))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; logs, debugging, and history ;;
@@ -509,8 +541,14 @@ T - tag prefix
 ;; electric pair
 (electric-pair-mode 1)
 (defvar org-electric-pairs '((?$ . ?$)) "Electric pairs for org mode.")
+(defvar tsx-electric-pairs '((?< . ?>)) "Electric pairs for tsx mode.")
+
 (defun my/org-add-electric-pairs ()
   (setq-local electric-pair-pairs (append electric-pair-pairs org-electric-pairs))
+  (setq-local electric-pair-text-pairs electric-pair-pairs))
+
+(defun my/tsx-add-electric-pairs ()
+  (setq-local electric-pair-pairs (append electric-pair-pairs tsx-electric-pairs))
   (setq-local electric-pair-text-pairs electric-pair-pairs))
 
 (use-package puni
@@ -609,8 +647,8 @@ T - tag prefix
 	 ("C-x r b" . consult-bookmark)            ;; orig. bookmark-jump
 	 ("C-x p b" . consult-project-buffer)      ;; orig. project-switch-to-buffer
 	 ;; Custom M-# bindings for fast register
-	 ("M-#" . consult-register-load)
-	 ("M-'" . consult-register-store)          ;; orig. abbrev-prefix-mark (unrelated)
+	 ("C-x r j" . consult-register-load)
+	 ("C-x r s" . consult-register-store)          ;; orig. abbrev-prefix-mark (unrelated)
 	 ("C-M-#" . consult-register)
 	 ;; Other custom bindings
 	 ("M-y" . consult-yank-pop)                ;; orig. yank-pop
@@ -1090,6 +1128,7 @@ T - tag prefix
 (use-package cdlatex
   :ensure t)
 
+;; enables inline latex previews
 (use-package org-fragtog
   :ensure t
   :hook (org-mode . org-fragtog-mode))
@@ -1390,7 +1429,6 @@ T - tag prefix
 (setq mu4e-confirm-quit nil)
 
 (mu4e t)
-
 
 ;; copilot. saving for end, since it seems to break if loaded earlier
 (use-package copilot
