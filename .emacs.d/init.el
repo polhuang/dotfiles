@@ -233,19 +233,18 @@
   _c_: cheat
   _C_: copilot
   _e_: eat
+  _k_: kill emacs
   _m_: mu4e
-  _r_: restart emacs
-  _S_: wipe scratch buffer
   _q_: go away
   _w_: windows
 "
   ("c" hydra-cheat/body :color blue)
   ("C" copilot-mode :color blue)
   ("e" eat :color blue)
+  ("k" save-buffers-kill-emacs :color blue)
   ("m" mu4e :color blue)
   ("q" nil :color blue)
   ("r" restart-emacs :color blue)
-  ("S" my/persistent-scratch-save-and-erase :color blue)
   ("w" hydra-windows/body :color blue)
   ("." nil :color blue)
   )

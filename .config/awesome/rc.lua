@@ -693,7 +693,7 @@ awful.rules.rules = {
         -- Note that the name property shown in xprop might be set slightly after creation of the client
         -- and the name shown there might not match defined rules here.
         name = {
-          "Event Tester",  -- xev.
+           "Event Tester",  -- xev.
         },
         role = {
           "AlarmWindow",  -- Thunderbird's calendar.
@@ -722,6 +722,8 @@ awful.rules.rules = {
       properties = { screen = 1, tag = " 三  msg " } },
     { rule = { class = "ticktick" },
       properties = { screen = 1, tag = " 八  admin " } },
+    { rule = { name = " *mu4e-main*" },
+      properties = { screen = 1, tag = " 八  admin "} },
     { rule = { class = "Emacs" },
       properties = { switch_to_tags = true },
       callback = function(c)
@@ -848,6 +850,7 @@ tag.connect_signal("property::selected", backham)
 beautiful.useless_gap = 10
 
 -- Autostart
+awful.spawn("emacsclient -c -a 'emacs'")
 awful.spawn("kitty -e btop")
 awful.spawn("/opt/keymapp/keymapp")
 awful.spawn("spotify")
@@ -858,4 +861,5 @@ awful.util.spawn("protonmail-bridge")
 awful.util.spawn("ticktick")
 awful.spawn.with_shell("~/display-setup.sh")
 awful.spawn.with_shell("~/.config/startup.sh")
-awful.spawn("emacsclient -c -a=''")
+awful.spawn("emacsclient -a='' -c --eval '(mu4e)'")
+
