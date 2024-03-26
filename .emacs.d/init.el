@@ -1328,6 +1328,8 @@ T - tag prefix
             (when (equal (buffer-name) "*dashboard*")
               (revert-buffer))))
 
+;; test
+
 ;; helpful
 (use-package helpful
   :ensure t
