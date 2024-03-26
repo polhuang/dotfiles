@@ -1312,10 +1312,6 @@ T - tag prefix
   (setq dashboard-footer-messages '("Time saved by emacs: 5 days 11 hours 47 minutes \nTime spent editing emacs config: 615 days 11 hours 38 minutes"))
   (setq dashboard-agenda-prefix-format "%-10:c %-12s")
   (setq dashboard-agenda-time-string-format "%m-%d %H:%M")
-  (add-hook 'server-after-make-frame-hook
-          (lambda ()
-            (when (equal (buffer-name) "*dashboard*")
-              (revert-buffer))))
   :config
   ;;(setq dashboard-agenda-prefix-format " %-10:c %-12s ")
   (setq dashboard-items '((recents  . 5)
@@ -1326,6 +1322,11 @@ T - tag prefix
   (setq dashboard-agenda-sort-strategy '(time-up))
   (setq initial-buffer-choice (lambda () (get-buffer-create "*dashboard*")))
   (dashboard-setup-startup-hook))
+
+  (add-hook 'server-after-make-frame-hook
+          (lambda ()
+            (when (equal (buffer-name) "*dashboard*")
+              (revert-buffer))))
 
 ;; helpful
 (use-package helpful
