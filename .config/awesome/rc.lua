@@ -141,7 +141,7 @@ local altkey       = "Mod1"
 local terminal     = "kitty"
 local vi_focus     = false -- vi-like client focus https://github.com/lcpz/awesome-copycats/issues/275
 local cycle_prev   = true  -- cycle with only the previously focused client or all https://github.com/lcpz/awesome-copycats/issues/274
-local editor       = "emacs"
+local editor       = "emacsclient -c"
 local browser      = "brave-browser"
 
 awful.util.terminal = terminal
@@ -844,7 +844,7 @@ awful.spawn("kitty -e btop")
 awful.spawn("/opt/keymapp/keymapp")
 awful.spawn("spotify")
 awful.spawn("/opt/WhatsAppWeb-linux-x64/WhatsAppWeb")
-awful.spawn("emacs")
+awful.spawn("emacs --daemon")
 awful.util.spawn("1password")
 awful.util.spawn("discord")
 awful.util.spawn("protonmail-bridge")
