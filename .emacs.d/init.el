@@ -39,13 +39,6 @@
 (use-package quelpa
   :ensure t)
 
-;;;;;;;;;;;;;;;;;;
-;; performance ;;;
-;;;;;;;;;;;;;;;;;;
-
-(use-package no-littering
-  :ensure t)
-
 ;;;;;;;;;;;;;;;;;;;
 ;; file settings ;;
 ;;;;;;;;;;;;;;;;;;;
@@ -54,10 +47,18 @@
 (setq backup-directory-alist '(("." . "~/emacs.d/backups")))
 
 ;; store lock-file symlinks in separate directory
-(setq lock-file-name-transforms `((".*" "~/tmp/emacs-lockfiles/" t)))
+(setq lock-file-name-transforms `((".*" "~/temp/emacs-lockfiles/" t)))
+
+(make-directory (expand-file-name "temp/autosaves/" user-emacs-directory) t)
+
+(setq auto-save-list-file-prefix (expand-file-name "temp/autosaves/sessions/" user-emacs-directory)
+      auto-save-file-name-transforms `((".*" ,(expand-file-name "temp/autosaves/" user-emacs-directory) t)))
 
 ;; backup-by-copying. prevents lsp from auto-importing backup files
 (setq backup-by-copying t)
+
+(use-package no-littering
+  :ensure t)
 
 ;;;;;;;;;;;;;;;;;
 ;; ui settings ;;
@@ -565,15 +566,33 @@ T - tag prefix
   (setq-local electric-pair-pairs (append electric-pair-pairs org-electric-pairs))
   (setq-local electric-pair-text-pairs electric-pair-pairs))
 
-(defun my/tsx-add-electric-pairs ()
-  (setq-local electric-pair-pairs (append electric-pair-pairs tsx-electric-pairs))
-  (setq-local electric-pair-text-pairs electric-pair-pairs))
-
 (use-package puni
   :ensure t
   :bind (("C-c \\" . 'puni-mark-sexp-around-point))
   :config
   (puni-global-mode t))
+
+(use-package tempel
+  :bind (("M-+" . tempel-complete)
+         ("M-*" . tempel-insert))
+  :init
+  (make-directory (expand-file-name "tempel/" user-emacs-directory) t)
+  (setq tempel-path (expand-file-name "tempel/" user-emacs-directory))
+  
+  (defun tempel-setup-capf ()
+   
+    (setq-local completion-at-point-functions
+                (cons #'tempel-complete
+                      completion-at-point-functions)))
+
+  (add-hook 'conf-mode-hook 'tempel-setup-capf)
+  (add-hook 'prog-mode-hook 'tempel-setup-capf)
+  (add-hook 'text-mode-hook 'tempel-setup-capf)
+  (add-hook 'org-mode-hook 'tempel-setup-capf)
+
+  ;; tempel keys
+  (tempel-key "C-c t f" fun emacs-lisp-mode-map)
+  (tempel-key "C-c t d" (format-time-string "%m-%d-%Y")))
 
 ;;;;;;;;;;;;;;;;;;;;;;;
 ;; completion system ;;
