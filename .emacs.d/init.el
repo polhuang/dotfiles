@@ -1317,15 +1317,16 @@ T - tag prefix
   (setq dashboard-items '((recents  . 5)
 			  (bookmarks . 5)
 			  (projects . 5)
-			  (agenda . 5)
+			  (agenda . 15)
 			  (registers . 5)))
   (setq dashboard-agenda-sort-strategy '(time-up))
-
   (setq initial-buffer-choice (lambda () (get-buffer-create "*dashboard*")))
   (dashboard-setup-startup-hook))
 
-;; test
-
+  (add-hook 'server-after-make-frame-hook
+          (lambda ()
+            (when (equal (buffer-name) "*dashboard*")
+              (revert-buffer))))
 
 ;; helpful
 (use-package helpful

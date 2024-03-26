@@ -30,7 +30,8 @@ local menubar       = require("menubar")
 local freedesktop   = require("freedesktop")
 local hotkeys_popup = require("awful.hotkeys_popup")
                       require("awful.hotkeys_popup.keys")
-local mytable       = awful.util.table or gears.table -- 4.{0,1} compatibility
+                      local mytable       = awful.util.table or gears.table -- 4.{0,1} compatibility
+local signal_started_before = false                      
 
 --- Test
 
@@ -141,11 +142,11 @@ local altkey       = "Mod1"
 local terminal     = "kitty"
 local vi_focus     = false -- vi-like client focus https://github.com/lcpz/awesome-copycats/issues/275
 local cycle_prev   = true  -- cycle with only the previously focused client or all https://github.com/lcpz/awesome-copycats/issues/274
-local editor       = "emacsclient -c"
+local editor       = "emacsclient -c -a=''"
 local browser      = "brave-browser"
 
 awful.util.terminal = terminal
-awful.util.tagnames = { " 一  sh ", " 二  key ", " 三  msg ", " 四  www ", " 五  emacs ", " 六  www2", " 七  todo ", " 八  music ", " 九  util " }
+awful.util.tagnames = { " 一  sh ", " 二  key ", " 三  msg ", " 四  www ", " 五  emacs ", " 六  www2", " 七  music ", " 八  admin ", " 九  util " }
 awful.layout.layouts = {
     --awful.layout.suit.floating,
     awful.layout.suit.tile,
@@ -710,7 +711,7 @@ awful.rules.rules = {
     { rule = { class = "discord" },
       properties = { screen = 1, tag = " 三  msg " } },
     { rule = { class = "Spotify" },
-      properties = { screen = 1, tag = " 八  music " } },
+      properties = { screen = 1, tag = " 七  music " } },
     { rule = { class = "Keymapp" },
       properties = { screen = 1, tag = " 二  key " } },
     { rule = { class = "Proton Mail Bridge" },
@@ -719,10 +720,17 @@ awful.rules.rules = {
       properties = { screen = 1, tag = " 九  util " } },
     { rule = { class = "whatsappweb-nativefier-d40211" },
       properties = { screen = 1, tag = " 三  msg " } },
-    { rule = { class = "Emacs" },
-      properties = { screen = 1, tag = " 五  emacs " } },
     { rule = { class = "ticktick" },
-      properties = { screen = 1, tag = " 七  todo " } }
+      properties = { screen = 1, tag = " 八  admin " } },
+    { rule = { class = "Emacs" },
+      properties = { switch_to_tags = true },
+      callback = function(c)
+         if not signal_started_before then
+            c:move_to_tag(screen[1].tags[5])
+         end
+         signal_started_before = true
+      end,
+    }
 }
 
 -- }}}
@@ -844,9 +852,10 @@ awful.spawn("kitty -e btop")
 awful.spawn("/opt/keymapp/keymapp")
 awful.spawn("spotify")
 awful.spawn("/opt/WhatsAppWeb-linux-x64/WhatsAppWeb")
-awful.spawn("emacs --daemon")
 awful.util.spawn("1password")
 awful.util.spawn("discord")
 awful.util.spawn("protonmail-bridge")
+awful.util.spawn("ticktick")
 awful.spawn.with_shell("~/display-setup.sh")
 awful.spawn.with_shell("~/.config/startup.sh")
+awful.spawn("emacsclient -c -a=''")
