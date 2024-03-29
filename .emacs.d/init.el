@@ -2,24 +2,20 @@
 ;; package settings ;;
 ;;;;;;;;;;;;;;;;;;;;;;
 
-;; start emacs server
-(server-start)
-
-;; enable for bootstrapping
 (setq package-archives '(("melpa" . "https://melpa.org/packages/")
  			 ("org" . "https://orgmode.org/elpa/")
  			 ("elpa" . "https://elpa.gnu.org/packages/")
  			 ("nongnu" . "https://elpa.nongnu.org/nongnu/")))
 
-;; (unless package-archive-contents
-;;   (package-refresh-contents))
+;; always install packages if not installed
+(setq use-package-always-ensure t)
 
-;; enable for new systems
-;; (unless (package-installed-p 'use-package)
-;;   (package-install 'use-package))
-;; (require 'use-package)
-;; (setq use-package-always-ensure t) ;; always install packages if not installed
-;; (setq use-package-always-defer t)
+;; quelpa
+(use-package quelpa
+  :ensure t)
+
+(unless package-archive-contents
+  (package-refresh-contents))
 
 ;; straight
 (defvar bootstrap-version)
@@ -35,17 +31,6 @@
       (eval-print-last-sexp)))
   (load bootstrap-file nil 'nomessage))
 
-;; quelpa
-(use-package quelpa
-  :ensure t)
-
-;;;;;;;;;;;;;;;;;;
-;; performance ;;;
-;;;;;;;;;;;;;;;;;;
-
-(use-package no-littering
-  :ensure t)
-
 ;;;;;;;;;;;;;;;;;;;
 ;; file settings ;;
 ;;;;;;;;;;;;;;;;;;;
@@ -54,10 +39,19 @@
 (setq backup-directory-alist '(("." . "~/emacs.d/backups")))
 
 ;; store lock-file symlinks in separate directory
-(setq lock-file-name-transforms `((".*" "~/tmp/emacs-lockfiles/" t)))
+(setq lock-file-name-transforms `((".*" "~/temp/emacs-lockfiles/" t)))
+
+;; store autosaves in separate directory
+(make-directory (expand-file-name "temp/autosaves/" user-emacs-directory) t)
+
+(setq auto-save-list-file-prefix (expand-file-name "temp/autosaves/sessions/" user-emacs-directory)
+      auto-save-file-name-transforms `((".*" ,(expand-file-name "temp/autosaves/" user-emacs-directory) t)))
 
 ;; backup-by-copying. prevents lsp from auto-importing backup files
 (setq backup-by-copying t)
+
+(use-package no-littering
+  :ensure t)
 
 ;;;;;;;;;;;;;;;;;
 ;; ui settings ;;
@@ -70,16 +64,23 @@
   (load-theme 'seoul256 t)
   :custom
   (seoul256-background 235)
+  (seoul256-background 234)
   :config
   (set-face-attribute 'default nil :foreground "#FFF0F5")
-  (set-face-attribute 'font-lock-keyword-face nil :foreground "#c66d86" :weight 'bold)
+  (set-face-attribute 'font-lock-keyword-face nil :foreground "#ffb9ba" :weight 'bold)
   (set-face-attribute 'font-lock-constant-face nil :weight 'bold)
-  (set-face-attribute 'font-lock-builtin-face nil :weight 'bold)
-  (set-face-attribute 'font-lock-function-name-face nil :weight 'bold)
+  (set-face-attribute 'font-lock-builtin-face nil :foreground "#fffed1" :weight 'bold)
+  (set-face-attribute 'font-lock-function-name-face nil :foreground "#d1fffe" :weight 'bold)  
   (set-face-attribute 'font-lock-variable-name-face nil :weight 'bold)
-  (set-face-attribute 'link nil :underline t)
+  (set-face-attribute 'link nil :foreground "#b1f3fb" :underline t)
   (set-face-attribute 'mode-line nil :background "#565656")
   (set-face-attribute 'highlight nil :background "#FFBFBD"))
+  
+;;(set-face-attribute 'completions-annotations))
+;; completions-annotations '((t :inherit (italic shadow)))
+
+;; alternate theme
+;; (load-theme 'gruvbox)
 
 (with-eval-after-load 'org
   (set-face-attribute 'org-level-1 nil :foreground "#ffd7af")
@@ -88,6 +89,9 @@
   (set-face-attribute 'org-block nil :background "#171717")
   (set-face-attribute 'org-todo nil :foreground "#c66d86" :weight 'bold)
   (set-face-attribute 'org-verbatim nil :foreground "#BC8F8F"))
+
+(with-eval-after-load 'marginalia
+  (set-face-attribute 'marginalia-documentation nil :inherit 'doom-mode-line :italic t ))
 
 ;; font
 (set-face-attribute 'default nil :family "Iosevka Comfy Fixed" :background nil)
@@ -101,7 +105,7 @@
   :ensure t)
 
 ;; misc ui settings
-(global-hl-line-mode t)                                   ; highligzfht current line
+(global-hl-line-mode t)                                   ; highlight current line
 (scroll-bar-mode -1)                                      ; disable visible scrollbar
 (tool-bar-mode -1)                                        ; disable the toolbar
 (tooltip-mode -1)                                         ; disable tooltips
@@ -232,19 +236,18 @@
   _c_: cheat
   _C_: copilot
   _e_: eat
+  _k_: kill emacs
   _m_: mu4e
-  _r_: restart emacs
-  _S_: wipe scratch buffer
   _q_: go away
   _w_: windows
 "
   ("c" hydra-cheat/body :color blue)
   ("C" copilot-mode :color blue)
   ("e" eat :color blue)
+  ("k" save-buffers-kill-emacs :color blue)
   ("m" mu4e :color blue)
   ("q" nil :color blue)
   ("r" restart-emacs :color blue)
-  ("S" my/persistent-scratch-save-and-erase :color blue)
   ("w" hydra-windows/body :color blue)
   ("." nil :color blue)
   )
@@ -565,15 +568,33 @@ T - tag prefix
   (setq-local electric-pair-pairs (append electric-pair-pairs org-electric-pairs))
   (setq-local electric-pair-text-pairs electric-pair-pairs))
 
-(defun my/tsx-add-electric-pairs ()
-  (setq-local electric-pair-pairs (append electric-pair-pairs tsx-electric-pairs))
-  (setq-local electric-pair-text-pairs electric-pair-pairs))
-
 (use-package puni
   :ensure t
   :bind (("C-c \\" . 'puni-mark-sexp-around-point))
   :config
   (puni-global-mode t))
+
+(use-package tempel
+  :bind (("M-+" . tempel-complete)
+         ("M-*" . tempel-insert))
+  :init
+  (make-directory (expand-file-name "tempel/" user-emacs-directory) t)
+  (setq tempel-path (expand-file-name "tempel/" user-emacs-directory))
+  
+  (defun tempel-setup-capf ()
+   
+    (setq-local completion-at-point-functions
+                (cons #'tempel-complete
+                      completion-at-point-functions)))
+
+  (add-hook 'conf-mode-hook 'tempel-setup-capf)
+  (add-hook 'prog-mode-hook 'tempel-setup-capf)
+  (add-hook 'text-mode-hook 'tempel-setup-capf)
+  (add-hook 'org-mode-hook 'tempel-setup-capf)
+
+  ;; tempel keys
+  (tempel-key "C-c t f" fun emacs-lisp-mode-map)
+  (tempel-key "C-c t d" (format-time-string "%m-%d-%Y")))
 
 ;;;;;;;;;;;;;;;;;;;;;;;
 ;; completion system ;;
@@ -992,6 +1013,7 @@ T - tag prefix
   :bind (("C-c e e" . eat)
          ("C-c e p" . eat-project))
   :custom
+  (setq eat-term-name "konsole")
   (eat-kill-buffer-on-exit t))
 
 ;;;;;;;;;;;;
@@ -1450,7 +1472,7 @@ T - tag prefix
  ;; If there is more than one, they won't work right.
  '(column-number-mode t)
  '(custom-safe-themes
-   '("08fce545d856ff35c6eda206028005ec46d6b93ce2246011dce85c94bcbbddae" "338722d89771729ce3f737de21ad6a2cef4370384ac2b19c3aefed6aabce732a" "27ead6e6c7cff99fdef17c4d1d0f150ac7439d54d6898441ddade1060ffe2387" "6c08f5b5626df145d7f4f27ed93f96e2ab1260d873c5fde46f15a363b8970718" "72d17088f47bc99e6c1acc7147090768f9b112f98119011e9f89afdc6af7d2ea" "889052d30c08e1b513ef01937a1ac2c76faf6e93860f7770a79c848a779afe36" "06c0a250ea244802d36dc0bd4d37659c40f96c2631626f46d5026d5bf0466771" "464e1a7ab72e8713ff390fb309a21b0b375629c30c9268b1c2404eabe01c2e07" "453cc3eb4d374dbe74b72bbb3532baeb6abd2789ab8c0edd8d66d81c32809dd5" "6af43cbb7ae4b74b3813b962b61b6a07b76a83731ab46202d1c25485307ff6a1" "02c97ddcba2a0172c9e438cd16d28574f93839cddd67af034cec4f6d3a30a07f" "6d7ce9896e72ae23382eb2832e092e5a289eb5f6943a8e413be841ccb7f45168" "9934da5c932a34267a20722306f570f81f677b41074b51e1c92018087b06eca3" "0df9e9f6ecc498c28ed52956adf99d98d19bf18fe424bd74202f625a0ace389b" "da8fd7c7d083745d21c34b88747fe1f7dfcece69a57047b1eff419fe74acc5ea" "6a62cfe0fd896f131494de343c5c002b905fdd7fdb06488c7fd405a9fb9b0eec" "cefa653ac9854ec8470b9abb4766680b91992dd8cf889af74de5f0054ad43595" "293f7bb269291cecbd4f9543c936dd0c74383851c8d06e8f8edee8947890fc2f" "ef72a99c6f9700a7f1e509800b7915faa9552506281fbc8dc4df9e6064af8771" "001927b082f617c85a0a7d5860c11b2a94037fe39eb8450aa6df003aa5b85de4" "21a72cea2980423159cb7f06bb53faee2513d679be095070836d040d6ea16e05" "ec3bd9faf564f7f80949c3bf2621485cf259fde2404238c64f62fe3c616ef6c4" "5c9ba44d2d9b59769d6f0dd525b1fd89c9ee1a471f117a134203ce62b0e72a94" "2d1608f8dbdc895a3d73d00bec99509cb445321b314f5b19016760432669442a" "ee0a7f852988fefebfe68347dd481ea54754f29819786882d295dbf3e23d24db" "de13d3eb29fff18462bf4145fe25e6f5fde1bd4552d2fa1e0f0cbbb60bdbbfc5" "90194d0c82bd7d8ce06916a1253644a75729e6988d001811e661f0f625737b79" "3e5582c40e6d3d67d4914def9e4477eeaf96b85bd68fe8c8bcfa2981221bb25c" "618dc96d223f47422fdfd9dfc27531f757ed6731a4869703552d634848aa07ec" "df7599dcbe27d38bb6ceb6a7892331a8e8a6583130085884deecab53737c531a" "03dc11c4f90327d6d8afeab45dfd7b5f8bcd819a1b16ca814cdb10ea08ff39e2" "78fcb0fa45d1785c69e6c5b4a920c389176e1a916ffe4081b36a53ddb5a91219" "a96934cfdee3c8c27b81647ab4d8a217c8f598b4d4507f7f28b0d36abdac7294" "668b4298cfeff89d4284dd5e041a89feed59f5b38da1fcca4110b409f825a8cc" "489776f273d41ddbda929cc061e8a91ec725b551013d39ff65e8da3e4fd218e3" "fec3394a5fdfd05d78db0866651e102b66b06eb6218b1a7810822efa6d4704d0" "66b15ce9c0c26d35f7467c7f3a88105e4dd6a850949b6bf1a6a61a50dc88a7fd" "e1202bc3b17fa8da2eb5088d7f8a1194c749fbbfe9ed30020da31e9887d98d18" "45bf550e91d84ce1b395ea64e5ca014ea477e67abb898661ee84f98c8ddafe54" "a77d694599b9f34262cf41b1e39b3d4ca7bc9c457ba382ca27fee353fd7fd2f6" "e644d9664157f46bca3a95e6c6966d804c946cee0e2d0f1d14116057d2eb10cc" "893ce266f731a9039e3e4c9c58af8dff118c08fd2eab8111d1a527d616dffcf3" "964fd4d77945e03e1623e5af5e662f6fe4996cf43078213eaffd08bb8d7eecdc" "a0caf64ade19ecc6f01d7cb7298ace571a1ee8d90c34f5eb27126018cfccf5c9" "48302697413383b114dae6501d9615819dd5f51421fe5105bfd9570e332c1cd9" "d6df0c5886d620ba059ac0d3021c277b4c8501ab84ebfa6bfaf0256853112155" "b7701ae8e3cce91f6212f20228b54a90e5d27245f7c3573fffe5d114b84d8fab" "d57c577f33eefafa092668c4d37e34d025c84c3a77eb222888464858c130f2ff" "7285f72f9783397e40c3b85c6934e72f6fa6b444a2e819a89b525e5382fffb93" "33fe99ba8325822cca89594267f2ef93a001c6a172a4550109492b6798507eba" "c4a7fa5b6000ae2e9c041e1e54a4e33e842646622353b0a533f2f4929dd179bb" "832360f5423c320d2a0a1aa93392fb15cc99f721c18d34df6741dea8e1a16ef2" "4a02a765cb921b6e3ee33c56aac66b651ec982cfebf5b8036ee80d2fdf7ef71d" "8f43e9b2fb5906e84d7eb107300fa691d7c5bd34c9d4dac0f85dbb2883aea7cc" ZD "9f576b637ed14603a29f968765d43ef576e6ce4da255fe23621ddb66f230c074" "13c0dab74051fd185f75756fc5dbcf1a4f25fd8b35a87255766e053221f3dbca" "3d624a4bd60a3bbb3e7dcc292606ff85c746ba77e0c787a98b1ff439d688610d" "909f81ce37f076f981bf0c9f6d8d9d22764359d675a96f682bef032fbf1fc1b8" "b148e6176c531e9035c3baccf1a2c3674f0d699184fb90f17230c2df42614142" "c67deeea1c8aaeb2ecb0f60c532a705fb2813785bf1cf889bf79784dadf6ea75" "702085252b400f5c72ff4bd2df8690223e9199b9686d41dc0de40fa91b346e5f" "ffc900ed5795f81158d2da866672ef5548b8b1cf1a6d3627648bb8298fdca446" "d91d5c21f1d4f49e42bb73c497564b8d253c6bc38c2d871d9f380327102ed18c" "a3487c5caa02f8c442d634a6ae0a837357ff32e27a6e7da62ab04d49b8ad1f83" "bbb1fd9668a6b4c6cdb41d260b1186988a7963c4e10e5320caa968dab39637d1" "ce9295caa77ca3be1c62f944603abaabe3b84e607629390e587ea55641578e18" "473f883c446a5ad97cc9415eb5b10048f33e690263faa0302f47e12893db4cba" "b2e11f3259d9cdfacca895c454b39d8e47c6f1ff0c5180745f13c304ab7bf285" "bd64291380c78456e03e289bb66e27824a2c9faf80fddd1a40e3bb620f46180d" "1c2103e1a5be7995eb28ce28be0267ea368f7c46731fd9cfd6de4f5728c78c35" "b304e4ec07cc7ba19587ee30178fbf478844cf72d09e78719d9d5dc74c5b607e" "6884aff666fe3317380e144f1e2e2db6ed25ab7b42297ae7bcbc5d9079bc18b7" "8a08a9c2441c7cb43d4368bb722fc5efc0f285cd25decc863be93aae5ed02a2b" "12f60864fc042caa733580d2e562b1fba731e67d42255a4ab64e0d800c618b21" "a0a87e340524d43b75d9a7460b44125cf82b0a14f45af57b93268d888b4ffdd8" "460afb53a3516a84c193b9a8f02fa69355e4071db2e988caf0a5a3f0043c061f" "e70c35dfe0cd912adc97cdfa6df78466688f18ca33e051c9da25d9e70c587350" "c48400236bf564e4218d833891abb202a957b5558289a823b8aa7de7114ca586" "08a5ca8d6ec82cce5d4b2f16ddf9d51fecd625aa0399b1467a0bba6116ea53cf" "5264e6aa97ef81ccabd423b37a81bc1a7ffb0300b7297df80daa0474e5724fbb" "17b048b1b9bdb8f0e0b1862c0968103f9b3851e5143e3d69ecb33b95caf1785e" "3a8a19397b4e3eb0bc5d056ddf3526a6fab6bff94900d34eae1905979b99267e" "2837d939c09a4e2ae33e5460a596326601014b02f172038dd6263c54ea3ceec5" "4c44ef493dfbc0aeb2e38fd7c2e2f24267d7c599abf030f26539ea937fd04ab1" "390cb71a54091b7e3e3d1cdfaad682dc4e44c8e4eb61aec1a55a178fc8d3ebde" "9b729d470d2f657265344edb4fcd360febdedadad11050481beb590885685bc9" "935cdfc778539529d8124a5500923a660b7e05eb9dba5a762107c7db7a4d56ae" "9031991af43f3a15e2b1fab62b5a0a985c46f24e596385f05bbf87770347d8ed" "28a104f642d09d3e5c62ce3464ea2c143b9130167282ea97ddcc3607b381823f" "2d035eb93f92384d11f18ed00930e5cc9964281915689fa035719cab71766a15" "3c7a784b90f7abebb213869a21e84da462c26a1fda7e5bd0ffebf6ba12dbd041" "31deed4ac5d0b65dc051a1da3611ef52411490b2b6e7c2058c13c7190f7e199b" "524fa911b70d6b94d71585c9f0c5966fe85fb3a9ddd635362bfabd1a7981a307" default))
+   '("7b8f5bbdc7c316ee62f271acf6bcd0e0b8a272fdffe908f8c920b0ba34871d98" "08fce545d856ff35c6eda206028005ec46d6b93ce2246011dce85c94bcbbddae" "338722d89771729ce3f737de21ad6a2cef4370384ac2b19c3aefed6aabce732a" "27ead6e6c7cff99fdef17c4d1d0f150ac7439d54d6898441ddade1060ffe2387" "6c08f5b5626df145d7f4f27ed93f96e2ab1260d873c5fde46f15a363b8970718" "72d17088f47bc99e6c1acc7147090768f9b112f98119011e9f89afdc6af7d2ea" "889052d30c08e1b513ef01937a1ac2c76faf6e93860f7770a79c848a779afe36" "06c0a250ea244802d36dc0bd4d37659c40f96c2631626f46d5026d5bf0466771" "464e1a7ab72e8713ff390fb309a21b0b375629c30c9268b1c2404eabe01c2e07" "453cc3eb4d374dbe74b72bbb3532baeb6abd2789ab8c0edd8d66d81c32809dd5" "6af43cbb7ae4b74b3813b962b61b6a07b76a83731ab46202d1c25485307ff6a1" "02c97ddcba2a0172c9e438cd16d28574f93839cddd67af034cec4f6d3a30a07f" "6d7ce9896e72ae23382eb2832e092e5a289eb5f6943a8e413be841ccb7f45168" "9934da5c932a34267a20722306f570f81f677b41074b51e1c92018087b06eca3" "0df9e9f6ecc498c28ed52956adf99d98d19bf18fe424bd74202f625a0ace389b" "da8fd7c7d083745d21c34b88747fe1f7dfcece69a57047b1eff419fe74acc5ea" "6a62cfe0fd896f131494de343c5c002b905fdd7fdb06488c7fd405a9fb9b0eec" "cefa653ac9854ec8470b9abb4766680b91992dd8cf889af74de5f0054ad43595" "293f7bb269291cecbd4f9543c936dd0c74383851c8d06e8f8edee8947890fc2f" "ef72a99c6f9700a7f1e509800b7915faa9552506281fbc8dc4df9e6064af8771" "001927b082f617c85a0a7d5860c11b2a94037fe39eb8450aa6df003aa5b85de4" "21a72cea2980423159cb7f06bb53faee2513d679be095070836d040d6ea16e05" "ec3bd9faf564f7f80949c3bf2621485cf259fde2404238c64f62fe3c616ef6c4" "5c9ba44d2d9b59769d6f0dd525b1fd89c9ee1a471f117a134203ce62b0e72a94" "2d1608f8dbdc895a3d73d00bec99509cb445321b314f5b19016760432669442a" "ee0a7f852988fefebfe68347dd481ea54754f29819786882d295dbf3e23d24db" "de13d3eb29fff18462bf4145fe25e6f5fde1bd4552d2fa1e0f0cbbb60bdbbfc5" "90194d0c82bd7d8ce06916a1253644a75729e6988d001811e661f0f625737b79" "3e5582c40e6d3d67d4914def9e4477eeaf96b85bd68fe8c8bcfa2981221bb25c" "618dc96d223f47422fdfd9dfc27531f757ed6731a4869703552d634848aa07ec" "df7599dcbe27d38bb6ceb6a7892331a8e8a6583130085884deecab53737c531a" "03dc11c4f90327d6d8afeab45dfd7b5f8bcd819a1b16ca814cdb10ea08ff39e2" "78fcb0fa45d1785c69e6c5b4a920c389176e1a916ffe4081b36a53ddb5a91219" "a96934cfdee3c8c27b81647ab4d8a217c8f598b4d4507f7f28b0d36abdac7294" "668b4298cfeff89d4284dd5e041a89feed59f5b38da1fcca4110b409f825a8cc" "489776f273d41ddbda929cc061e8a91ec725b551013d39ff65e8da3e4fd218e3" "fec3394a5fdfd05d78db0866651e102b66b06eb6218b1a7810822efa6d4704d0" "66b15ce9c0c26d35f7467c7f3a88105e4dd6a850949b6bf1a6a61a50dc88a7fd" "e1202bc3b17fa8da2eb5088d7f8a1194c749fbbfe9ed30020da31e9887d98d18" "45bf550e91d84ce1b395ea64e5ca014ea477e67abb898661ee84f98c8ddafe54" "a77d694599b9f34262cf41b1e39b3d4ca7bc9c457ba382ca27fee353fd7fd2f6" "e644d9664157f46bca3a95e6c6966d804c946cee0e2d0f1d14116057d2eb10cc" "893ce266f731a9039e3e4c9c58af8dff118c08fd2eab8111d1a527d616dffcf3" "964fd4d77945e03e1623e5af5e662f6fe4996cf43078213eaffd08bb8d7eecdc" "a0caf64ade19ecc6f01d7cb7298ace571a1ee8d90c34f5eb27126018cfccf5c9" "48302697413383b114dae6501d9615819dd5f51421fe5105bfd9570e332c1cd9" "d6df0c5886d620ba059ac0d3021c277b4c8501ab84ebfa6bfaf0256853112155" "b7701ae8e3cce91f6212f20228b54a90e5d27245f7c3573fffe5d114b84d8fab" "d57c577f33eefafa092668c4d37e34d025c84c3a77eb222888464858c130f2ff" "7285f72f9783397e40c3b85c6934e72f6fa6b444a2e819a89b525e5382fffb93" "33fe99ba8325822cca89594267f2ef93a001c6a172a4550109492b6798507eba" "c4a7fa5b6000ae2e9c041e1e54a4e33e842646622353b0a533f2f4929dd179bb" "832360f5423c320d2a0a1aa93392fb15cc99f721c18d34df6741dea8e1a16ef2" "4a02a765cb921b6e3ee33c56aac66b651ec982cfebf5b8036ee80d2fdf7ef71d" "8f43e9b2fb5906e84d7eb107300fa691d7c5bd34c9d4dac0f85dbb2883aea7cc" ZD "9f576b637ed14603a29f968765d43ef576e6ce4da255fe23621ddb66f230c074" "13c0dab74051fd185f75756fc5dbcf1a4f25fd8b35a87255766e053221f3dbca" "3d624a4bd60a3bbb3e7dcc292606ff85c746ba77e0c787a98b1ff439d688610d" "909f81ce37f076f981bf0c9f6d8d9d22764359d675a96f682bef032fbf1fc1b8" "b148e6176c531e9035c3baccf1a2c3674f0d699184fb90f17230c2df42614142" "c67deeea1c8aaeb2ecb0f60c532a705fb2813785bf1cf889bf79784dadf6ea75" "702085252b400f5c72ff4bd2df8690223e9199b9686d41dc0de40fa91b346e5f" "ffc900ed5795f81158d2da866672ef5548b8b1cf1a6d3627648bb8298fdca446" "d91d5c21f1d4f49e42bb73c497564b8d253c6bc38c2d871d9f380327102ed18c" "a3487c5caa02f8c442d634a6ae0a837357ff32e27a6e7da62ab04d49b8ad1f83" "bbb1fd9668a6b4c6cdb41d260b1186988a7963c4e10e5320caa968dab39637d1" "ce9295caa77ca3be1c62f944603abaabe3b84e607629390e587ea55641578e18" "473f883c446a5ad97cc9415eb5b10048f33e690263faa0302f47e12893db4cba" "b2e11f3259d9cdfacca895c454b39d8e47c6f1ff0c5180745f13c304ab7bf285" "bd64291380c78456e03e289bb66e27824a2c9faf80fddd1a40e3bb620f46180d" "1c2103e1a5be7995eb28ce28be0267ea368f7c46731fd9cfd6de4f5728c78c35" "b304e4ec07cc7ba19587ee30178fbf478844cf72d09e78719d9d5dc74c5b607e" "6884aff666fe3317380e144f1e2e2db6ed25ab7b42297ae7bcbc5d9079bc18b7" "8a08a9c2441c7cb43d4368bb722fc5efc0f285cd25decc863be93aae5ed02a2b" "12f60864fc042caa733580d2e562b1fba731e67d42255a4ab64e0d800c618b21" "a0a87e340524d43b75d9a7460b44125cf82b0a14f45af57b93268d888b4ffdd8" "460afb53a3516a84c193b9a8f02fa69355e4071db2e988caf0a5a3f0043c061f" "e70c35dfe0cd912adc97cdfa6df78466688f18ca33e051c9da25d9e70c587350" "c48400236bf564e4218d833891abb202a957b5558289a823b8aa7de7114ca586" "08a5ca8d6ec82cce5d4b2f16ddf9d51fecd625aa0399b1467a0bba6116ea53cf" "5264e6aa97ef81ccabd423b37a81bc1a7ffb0300b7297df80daa0474e5724fbb" "17b048b1b9bdb8f0e0b1862c0968103f9b3851e5143e3d69ecb33b95caf1785e" "3a8a19397b4e3eb0bc5d056ddf3526a6fab6bff94900d34eae1905979b99267e" "2837d939c09a4e2ae33e5460a596326601014b02f172038dd6263c54ea3ceec5" "4c44ef493dfbc0aeb2e38fd7c2e2f24267d7c599abf030f26539ea937fd04ab1" "390cb71a54091b7e3e3d1cdfaad682dc4e44c8e4eb61aec1a55a178fc8d3ebde" "9b729d470d2f657265344edb4fcd360febdedadad11050481beb590885685bc9" "935cdfc778539529d8124a5500923a660b7e05eb9dba5a762107c7db7a4d56ae" "9031991af43f3a15e2b1fab62b5a0a985c46f24e596385f05bbf87770347d8ed" "28a104f642d09d3e5c62ce3464ea2c143b9130167282ea97ddcc3607b381823f" "2d035eb93f92384d11f18ed00930e5cc9964281915689fa035719cab71766a15" "3c7a784b90f7abebb213869a21e84da462c26a1fda7e5bd0ffebf6ba12dbd041" "31deed4ac5d0b65dc051a1da3611ef52411490b2b6e7c2058c13c7190f7e199b" "524fa911b70d6b94d71585c9f0c5966fe85fb3a9ddd635362bfabd1a7981a307" default))
  '(global-display-line-numbers-mode t)
  '(js-indent-level 2)
  '(lsp-enable-links nil)

@@ -549,7 +549,7 @@ globalkeys = mytable.join(
 )
 
 clientkeys = mytable.join(
-    awful.key({ altkey, "Shift"   }, "m",      lain.util.magnify_client,
+    awful.key({ modkey, "Shift"   }, "m",      lain.util.magnify_client,
               {description = "magnify client", group = "client"}),
     awful.key({ modkey,           }, "f",
         function (c)
@@ -693,7 +693,7 @@ awful.rules.rules = {
         -- Note that the name property shown in xprop might be set slightly after creation of the client
         -- and the name shown there might not match defined rules here.
         name = {
-          "Event Tester",  -- xev.
+           "Event Tester",  -- xev.
         },
         role = {
           "AlarmWindow",  -- Thunderbird's calendar.
@@ -722,15 +722,6 @@ awful.rules.rules = {
       properties = { screen = 1, tag = " 三  msg " } },
     { rule = { class = "ticktick" },
       properties = { screen = 1, tag = " 八  admin " } },
-    { rule = { class = "Emacs" },
-      properties = { switch_to_tags = true },
-      callback = function(c)
-         if not signal_started_before then
-            c:move_to_tag(screen[1].tags[5])
-         end
-         signal_started_before = true
-      end,
-    }
 }
 
 -- }}}
@@ -848,6 +839,7 @@ tag.connect_signal("property::selected", backham)
 beautiful.useless_gap = 10
 
 -- Autostart
+awful.spawn("emacsclient -c -a ''", { screen = 1, tag = " 五  emacs "})
 awful.spawn("kitty -e btop")
 awful.spawn("/opt/keymapp/keymapp")
 awful.spawn("spotify")
@@ -858,4 +850,3 @@ awful.util.spawn("protonmail-bridge")
 awful.util.spawn("ticktick")
 awful.spawn.with_shell("~/display-setup.sh")
 awful.spawn.with_shell("~/.config/startup.sh")
-awful.spawn("emacsclient -c -a=''")
