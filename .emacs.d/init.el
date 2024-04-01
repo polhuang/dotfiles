@@ -75,9 +75,6 @@
   (set-face-attribute 'link nil :foreground "#b1f3fb" :underline t)
   (set-face-attribute 'mode-line nil :background "#565656")
   (set-face-attribute 'highlight nil :background "#FFBFBD"))
-  
-;;(set-face-attribute 'completions-annotations))
-;; completions-annotations '((t :inherit (italic shadow)))
 
 ;; alternate theme
 ;; (load-theme 'gruvbox)
@@ -92,6 +89,26 @@
 
 (with-eval-after-load 'marginalia
   (set-face-attribute 'marginalia-documentation nil :inherit 'doom-mode-line :italic t ))
+
+;; replace ansi colors for terminal
+(custom-set-faces
+ `(ansi-color-black ((t (:foreground ,"#1b1b23" :background ,(face-attribute 'default :background)))))
+ `(ansi-color-red ((t (:foreground ,"#ebb9b9" :background, "#ebb9b9"))))
+ `(ansi-color-green ((t (:foreground ,"#caf6bb" :background, "#caf6bb"))))
+ `(ansi-color-yellow ((t (:foreground ,"#e6dfb8" :background, "#e6dfb8"))))
+ `(ansi-color-blue ((t (:foreground ,"#cddbf9" :background, "#cddbf9"))))
+ `(ansi-color-magenta ((t (:foreground ,"#f6bbe7" :background, "#f6bbe7"))))
+ `(ansi-color-cyan ((t (:foreground ,"#b8dceb" :background, "#b8dceb"))))
+ `(ansi-color-white ((t (:foreground ,"#c8cedc" :background, "#c8cedc")))))
+
+(custom-set-faces
+ `(ansi-color-bright-black ((t (:foreground ,"#1b1b23" :background ,(face-attribute 'default :background)))))
+ `(ansi-color-bright-red ((t (:foreground ,"#d95e59" :background, "#d95e59"))))
+ `(ansi-color-bright-green ((t (:foreground ,"#8fc587" :background, "#8fc587"))))
+ `(ansi-color-bright-yellow ((t (:foreground ,"#ffcf85" :background, "#ffcf85"))))
+ `(ansi-color-bright-blue ((t (:foreground ,"#4a83c3" :background, "#4a83c3"))))
+ `(ansi-color-bright-magenta ((t (:foreground ,"#f6bbe7" :background, "#f6bbe7"))))
+ `(ansi-color-bright-cyan ((t (:foreground ,"#4eb3cd" :background, "#4eb3cd")))))
 
 ;; font
 (set-face-attribute 'default nil :family "Iosevka Comfy Fixed" :background nil)
@@ -114,7 +131,7 @@
 (setq visible-bell t)                                     ; set up the visible bell
 (global-visual-line-mode 1)                               ; visual line mode (word wrap)
 (column-number-mode)                                      ; display column number display in mode line
-(global-display-line-numbers-mode t)                      ; display line numbers
+(global-display-line-numbers-mode -1)                      ; display line numbers
 (setq use-dialog-box nil)                                 ; disable ui dialog prompts
 ;;(setq dired-omit-verbose nil)                             ; disable dired omit messsages
 ;;(add-hook 'dired-mode-hook (lambda () (dired-omit-mode)))      ; hide backup files in dired
@@ -1013,9 +1030,8 @@ T - tag prefix
   :bind (("C-c e e" . eat)
          ("C-c e p" . eat-project))
   :custom
-  (setq eat-term-name "konsole")
-  (eat-kill-buffer-on-exit t))
-
+  (eat-kill-buffer-on-exit t)
+  (setq eat-term-name "kitty"))
 ;;;;;;;;;;;;
 ;; coding ;;
 ;;;;;;;;;;;;
