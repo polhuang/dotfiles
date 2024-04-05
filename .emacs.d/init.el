@@ -10,14 +10,15 @@
 ;; always install packages if not installed
 (setq use-package-always-ensure t)
 
-;; quelpa
+;; enable packages from quelpa
 (use-package quelpa
   :ensure t)
 
+;; refresh package lists
 (unless package-archive-contents
   (package-refresh-contents))
 
-;; straight
+;; straight package manager
 (defvar bootstrap-version)
 (let ((bootstrap-file
        (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
@@ -30,6 +31,9 @@
       (goto-char (point-max))
       (eval-print-last-sexp)))
   (load bootstrap-file nil 'nomessage))
+
+;; upgrade all packages
+(package-upgrade-all)
 
 ;;;;;;;;;;;;;;;;;;;
 ;; file settings ;;
@@ -76,9 +80,6 @@
   (set-face-attribute 'mode-line nil :background "#565656")
   (set-face-attribute 'highlight nil :background "#FFBFBD"))
 
-;; alternate theme
-;; (load-theme 'gruvbox)
-
 (with-eval-after-load 'org
   (set-face-attribute 'org-level-1 nil :foreground "#ffd7af")
   (set-face-attribute 'org-level-4 nil :foreground "#FFBD98" :weight 'bold)
@@ -89,6 +90,9 @@
 
 (with-eval-after-load 'marginalia
   (set-face-attribute 'marginalia-documentation nil :inherit 'doom-mode-line :italic t ))
+
+;; backup theme (for sore eyes)
+;; (load-theme 'gruvbox)
 
 ;; replace ansi colors for terminal
 (custom-set-faces
@@ -122,20 +126,20 @@
   :ensure t)
 
 ;; misc ui settings
-(global-hl-line-mode t)                                   ; highlight current line
-(scroll-bar-mode -1)                                      ; disable visible scrollbar
-(tool-bar-mode -1)                                        ; disable the toolbar
-(tooltip-mode -1)                                         ; disable tooltips
-(set-fringe-mode 10)                                      ; give some breathing room
-(menu-bar-mode -1)                                        ; disable the menu bar
-(setq visible-bell t)                                     ; set up the visible bell
-(global-visual-line-mode 1)                               ; visual line mode (word wrap)
-(column-number-mode)                                      ; display column number display in mode line
-(global-display-line-numbers-mode -1)                      ; display line numbers
-(setq use-dialog-box nil)                                 ; disable ui dialog prompts
-;;(setq dired-omit-verbose nil)                             ; disable dired omit messsages
-;;(add-hook 'dired-mode-hook (lambda () (dired-omit-mode)))      ; hide backup files in dired
-(global-prettify-symbols-mode 1)                          ; prettify-symbols
+(global-hl-line-mode t)                                      ; highlight current line
+(scroll-bar-mode -1)                                         ; disable visible scrollbar
+(tool-bar-mode -1)                                           ; disable the toolbar
+(tooltip-mode -1)                                            ; disable tooltips
+(set-fringe-mode 10)                                         ; give some breathing room
+(menu-bar-mode -1)                                           ; disable the menu bar
+(setq visible-bell t)                                        ; set up the visible bell
+(global-visual-line-mode 1)                                  ; visual line mode (word wrap)
+(column-number-mode)                                         ; display column number display in mode line
+(global-display-line-numbers-mode -1)                        ; display line numbers
+(setq use-dialog-box nil)                                    ; disable ui dialog prompts
+;;(setq dired-omit-verbose nil)                              ; disable dired omit messsages
+;;(add-hook 'dired-mode-hook (lambda () (dired-omit-mode)))  ; hide backup files in dired
+(global-prettify-symbols-mode 1)                             ; prettify-symbols
 
 ;; chinese font
 (defface my-chinese-face
@@ -247,7 +251,7 @@
   :ensure t
   :bind (("C-c M-q a" . hydra-colossa/body)))
 
-;; hydra-colossa
+;; hydra-colossa (my personal global hydra)
 (defhydra hydra-colossa (:color amaranth :hint nil)
   "
   _c_: cheat
@@ -1432,8 +1436,7 @@ T - tag prefix
 (use-package elcord
   :ensure t
   :hook (emacs-startup . elcord-mode)
-  :custom
-  (setq elcord-idle-message "call me maybe?"))
+  :custom (elcord-idle-message "call me maybe?"))
 
 ;; gcal
 (load "~/.emacs.d/gcal.el")
