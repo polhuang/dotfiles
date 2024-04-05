@@ -253,9 +253,10 @@
   _c_: cheat
   _C_: copilot
   _e_: eat
-  _k_: kill emacs
+  _k_: kill emacs (and save buffers)
   _m_: mu4e
   _q_: go away
+  _s_: search org files
   _w_: windows
 "
   ("c" hydra-cheat/body :color blue)
@@ -265,9 +266,9 @@
   ("m" mu4e :color blue)
   ("q" nil :color blue)
   ("r" restart-emacs :color blue)
+  ("s" my/org-search :color blue)
   ("w" hydra-windows/body :color blue)
-  ("." nil :color blue)
-  )
+  ("." nil :color blue))
 
 (defhydra hydra-windows (:color amaranth :hint nil)
   "
@@ -1042,9 +1043,12 @@ T - tag prefix
 ;; projectile
 (global-set-key (kbd "C-x p") 'projectile-command-map)
 
+
 (use-package projectile
   :ensure t
+  :bind-keymap ("C-x p" . projectile-command-map)
   :config
+  (define-key projectile-command-map (kbd "e") #'eat-project)
   (projectile-mode +1))
 
 ;; lsp
@@ -1279,6 +1283,12 @@ T - tag prefix
   (add-to-list 'org-structure-template-alist '("el" . "src emacs-lisp"))
   (add-to-list 'org-structure-template-alist '("py" . "src python :results output"))
   (add-to-list 'org-structure-template-alist '("jp" . "src jupyter-python :session py")))
+
+;; org search
+(defun my/org-search ()
+  "Search through org files ."
+  (interactive)
+  (consult-ripgrep "~/org"))
 
 ;; org-roam
 (use-package org-roam
