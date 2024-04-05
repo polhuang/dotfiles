@@ -549,7 +549,7 @@ globalkeys = mytable.join(
 )
 
 clientkeys = mytable.join(
-    awful.key({ modkey, "Shift"   }, "m",      lain.util.magnify_client,
+   awful.key({ modkey,   }, "m",      lain.util.magnify_client,
               {description = "magnify client", group = "client"}),
     awful.key({ modkey,           }, "f",
         function (c)
@@ -574,7 +574,7 @@ clientkeys = mytable.join(
             c.minimized = true
         end ,
         {description = "minimize", group = "client"}),
-    awful.key({ modkey,           }, "m",
+    awful.key({ modkey, "Shift"          }, "m",
         function (c)
             c.maximized = not c.maximized
             c:raise()
