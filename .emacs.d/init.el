@@ -1,3 +1,5 @@
+;; to-do: move setq functions over to new use-package :preface keywords
+
 ;;;;;;;;;;;;;;;;;;;;;;
 ;; package settings ;;
 ;;;;;;;;;;;;;;;;;;;;;;
@@ -1180,8 +1182,9 @@ T - tag prefix
   (setq venv-location "~/.venv/"))
 
 ;; jupyter
-;;(use-package jupyter
-;;  :ensure t)
+(use-package jupyter
+  :ensure t
+  :defer t)
 
 ;; slime (the superior lisp interaction mode for emacs)
 (load (expand-file-name "~/.quicklisp/slime-helper.el"))
