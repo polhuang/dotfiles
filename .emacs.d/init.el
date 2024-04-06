@@ -686,6 +686,7 @@ T - tag prefix
   :ensure t
   :bind (;; C-c bindings in `mode-specific-map'
 	 ("C-c M-x" . consult-mode-command)
+         ("C-x C-r" . consult-recent-file)
 	 ("C-c h" . consult-history)
 	 ("C-c m" . consult-man)
 	 ("C-c i" . consult-info)
@@ -696,7 +697,6 @@ T - tag prefix
 	 ("C-x 4 b" . consult-buffer-other-window) ;; orig. switch-to-buffer-other-window
 	 ("C-x 5 b" . consult-buffer-other-frame)  ;; orig. switch-to-buffer-other-frame
 	 ("C-x r b" . consult-bookmark)            ;; orig. bookmark-jump
-	 ("C-x p b" . consult-project-buffer)      ;; orig. project-switch-to-buffer
 	 ;; Custom M-# bindings for fast register
 	 ("C-x r j" . consult-register-load)
 	 ("C-x r s" . consult-register-store)          ;; orig. abbrev-prefix-mark (unrelated)
@@ -741,63 +741,34 @@ T - tag prefix
   ;; the :init configuration is always executed (Not lazy)
   :init
 
-  ;; optionally configure the register formatting. This improves the register
-  ;; preview for `consult-register', `consult-register-load',
-  ;; `consult-register-store' and the Emacs built-ins.
+  ;; register preview delay and formatting
   (setq register-preview-delay 0.1
 	register-preview-function #'consult-register-format)
 
-  ;; optionally tweak the register preview window.
-  ;; This adds thin lines, sorting and hides the mode line of the window.
+  ;; adds thin lines + sorting, also hides the mode line of the window.
   (advice-add #'register-preview :override #'consult-register-window)
 
-  ;; use consult to select xref locations with preview
+  ;; uses consult to select xref locations with preview
   (setq xref-show-xrefs-function #'consult-xref
 	xref-show-definitions-function #'consult-xref)
 
-  ;; configure other variables and modes in the :config section,
-  ;; after lazily loading the package.
   :config
-
-  ;; optionally configure preview. The default value
-  ;; is 'any, such that any key triggers the preview.
-  ;; (setq consult-preview-key 'any)
-  ;; (setq consult-preview-key "M-.")
-  ;; (setq consult-preview-key '("S-<down>" "S-<up>"))
-  ;; for some commands and buffer sources it is useful to configure the
-  ;; :preview-key on a per-command basis using the `consult-customize' macro.
   (consult-customize
    consult-theme :preview-key '(:debounce 0.1 any)
    consult-ripgrep consult-git-grep consult-grep
    consult-bookmark consult-recent-file consult-xref
    consult--source-bookmark consult--source-file-register
    consult--source-recent-file consult--source-project-recent-file
-   ;; :preview-key "M-."s
+   ;; :preview-key "M-."sq
    :preview-key '(:debounce 0.1 any))
 
-  ;; optionally configure the narrowing key.
+  ;; configure narrowing key
   ;; both < and C-+ work reasonably well.
   (setq consult-narrow-key "<") ;; "C-+"
 
-
-  ;; optionally make narrowing help available in the minibuffer.
-  ;; you may want to use `embark-prefix-help-command' or which-key instead.
-  ;; (define-key consult-narrow-map (vconcat consult-narrow-key "?") #'consult-narrow-help)
-
-  ;; by default `consult-project-function' uses `project-root' from project.el.
-  ;; optionally configure a different project root function.
-  ;;;; 1. project.el (the default)
-  ;; (setq consult-project-function #'consult--default-project--function)
-  ;;;; 2. vc.el (vc-root-dir)
-  ;; (setq consult-project-function (lambda (_) (vc-root-dir)))
-  ;;;; 3. locate-dominating-file
-  ;; (setq consult-project-function (lambda (_) (locate-dominating-file "." ".git")))
-  ;;;; 4. projectile.el (projectile-project-root)
+  ;; use projectile
   (autoload 'projectile-project-root "projectile")
-  (setq consult-project-function (lambda (_) (projectile-project-root)))
-  ;;;; 5. no project support
-  ;; (setq consult-project-function nil)
-  )
+  (setq consult-project-function (lambda (_) (projectile-project-root))))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -1047,12 +1018,12 @@ T - tag prefix
 ;; projectile
 (global-set-key (kbd "C-x p") 'projectile-command-map)
 
-
 (use-package projectile
   :ensure t
   :bind-keymap ("C-x p" . projectile-command-map)
   :config
   (define-key projectile-command-map (kbd "e") #'eat-project)
+  (define-key projectile-command-map (kbd "b") #'consult-project-buffer)
   (projectile-mode +1))
 
 ;; lsp
