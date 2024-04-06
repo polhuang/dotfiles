@@ -723,6 +723,9 @@ T - tag prefix
 	 ("M-s L" . consult-line-multi)
 	 ("M-s k" . consult-keep-lines)
 	 ("M-s u" . consult-focus-lines)
+         ;; org bindings
+         ("C-c o t" . consult-org-agenda)
+         ("C-c o o" . consult-org-heading) ; probably should move to major-mode hydra
 	 ;; isearch integration - commented out because of ctrlf
 	 ;; ("M-s e" . consult-isearch-history)
 	 ;; :map isearch-mode-map
