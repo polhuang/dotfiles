@@ -82,6 +82,9 @@
   (set-face-attribute 'mode-line nil :background "#565656")
   (set-face-attribute 'highlight nil :background "#FFBFBD"))
 
+(setq org-todo-keyword-faces
+ '(("IN PROGRESS" . "#ffbd98")))
+
 (with-eval-after-load 'org
   (set-face-attribute 'org-level-1 nil :foreground "#ffd7af")
   (set-face-attribute 'org-level-4 nil :foreground "#FFBD98" :weight 'bold)
@@ -98,23 +101,29 @@
 
 ;; replace ansi colors for terminal
 (custom-set-faces
- `(ansi-color-black ((t (:foreground ,"#1b1b23" :background ,(face-attribute 'default :background)))))
- `(ansi-color-red ((t (:foreground ,"#ebb9b9" :background, "#ebb9b9"))))
- `(ansi-color-green ((t (:foreground ,"#caf6bb" :background, "#caf6bb"))))
- `(ansi-color-yellow ((t (:foreground ,"#e6dfb8" :background, "#e6dfb8"))))
- `(ansi-color-blue ((t (:foreground ,"#cddbf9" :background, "#cddbf9"))))
- `(ansi-color-magenta ((t (:foreground ,"#f6bbe7" :background, "#f6bbe7"))))
- `(ansi-color-cyan ((t (:foreground ,"#b8dceb" :background, "#b8dceb"))))
- `(ansi-color-white ((t (:foreground ,"#c8cedc" :background, "#c8cedc")))))
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(ansi-color-black ((t (:foreground "#1b1b23" :background "#252525"))))
+ '(ansi-color-blue ((t (:foreground "#cddbf9" :background "#cddbf9"))))
+ '(ansi-color-bright-black ((t (:foreground "#1b1b23" :background "#252525"))))
+ '(ansi-color-bright-blue ((t (:foreground "#4a83c3" :background "#4a83c3"))))
+ '(ansi-color-bright-cyan ((t (:foreground "#4eb3cd" :background "#4eb3cd"))))
+ '(ansi-color-bright-green ((t (:foreground "#8fc587" :background "#8fc587"))))
+ '(ansi-color-bright-magenta ((t (:foreground "#f6bbe7" :background "#f6bbe7"))))
+ '(ansi-color-bright-red ((t (:foreground "#d95e59" :background "#d95e59"))))
+ '(ansi-color-bright-yellow ((t (:foreground "#ffcf85" :background "#ffcf85"))))
+ '(ansi-color-cyan ((t (:foreground "#b8dceb" :background "#b8dceb"))))
+ '(ansi-color-green ((t (:foreground "#caf6bb" :background "#caf6bb"))))
+ '(ansi-color-magenta ((t (:foreground "#f6bbe7" :background "#f6bbe7"))))
+ '(ansi-color-red ((t (:foreground "#ebb9b9" :background "#ebb9b9"))))
+ '(ansi-color-white ((t (:foreground "#c8cedc" :background "#c8cedc"))))
+ '(ansi-color-yellow ((t (:foreground "#e6dfb8" :background "#e6dfb8"))))
+ '(italic ((t (:slant italic))))
+ '(org-ellipsis ((t (:underline nil)))))
 
-(custom-set-faces
- `(ansi-color-bright-black ((t (:foreground ,"#1b1b23" :background ,(face-attribute 'default :background)))))
- `(ansi-color-bright-red ((t (:foreground ,"#d95e59" :background, "#d95e59"))))
- `(ansi-color-bright-green ((t (:foreground ,"#8fc587" :background, "#8fc587"))))
- `(ansi-color-bright-yellow ((t (:foreground ,"#ffcf85" :background, "#ffcf85"))))
- `(ansi-color-bright-blue ((t (:foreground ,"#4a83c3" :background, "#4a83c3"))))
- `(ansi-color-bright-magenta ((t (:foreground ,"#f6bbe7" :background, "#f6bbe7"))))
- `(ansi-color-bright-cyan ((t (:foreground ,"#4eb3cd" :background, "#4eb3cd")))))
+
 
 ;; font
 (set-face-attribute 'default nil :family "Iosevka Comfy Fixed" :background nil)
@@ -455,7 +464,8 @@ T - tag prefix
     ("s" org-schedule "Schedule")
     ("i" org-clock-in "Clock in")
     ("o" org-clock-out "Clock out")
-    ("a" org-archive-subtree-default "Archive"))
+    ("a" org-archive-subtree-default "Archive")
+    ("A" org-agenda-file-to-front "Add as agenda file"))
   "Org"
    (("h" consult-org-heading "Headings"))))
 
@@ -1231,6 +1241,8 @@ T - tag prefix
   (setq org-startup-with-latex-preview t)
   (setq org-preview-latex-default-process 'dvipng)
   (org-clock-persistence-insinuate)
+  (setq org-todo-keywords
+      '((sequence "TODO" "IN PROGRESS" "DONE")))
   (setq org-agenda-start-with-log-mode t)
   (setq org-log-done 'time)
   (setq org-log-into-drawer t)
@@ -1482,6 +1494,8 @@ T - tag prefix
  '(js-indent-level 2)
  '(lsp-enable-links nil)
  '(menu-bar-mode nil)
+ '(org-agenda-files
+   '("/home/polhuang/org/tasks.org" "/home/polhuang/org/schedule.org" "/home/polhuang/org/backmatter-tasks.org"))
  '(package-selected-packages `(add-hook 'web-mode-hook #'lsp-deferred))
  '(register-preview-delay 0.0)
  '(send-mail-function 'smtpmail-send-it)
@@ -1496,10 +1510,4 @@ T - tag prefix
  '(which-key-echo-keystrokes 0.01)
  '(which-key-idle-delay 0.01)
  '(which-key-mode t))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(italic ((t (:slant italic))))
- '(org-ellipsis ((t (:underline nil)))))
+
