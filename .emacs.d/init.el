@@ -263,6 +263,7 @@
   _m_: mu4e
   _q_: go away
   _s_: search org files
+  _t_: tasks
   _w_: windows
 "
   ("c" hydra-cheat/body :color blue)
@@ -273,6 +274,7 @@
   ("q" nil :color blue)
   ("r" restart-emacs :color blue)
   ("s" my/org-search :color blue)
+  ("t" consult-org-agenda :color blue)
   ("w" hydra-windows/body :color blue)
   ("." nil :color blue))
 
@@ -453,7 +455,9 @@ T - tag prefix
     ("s" org-schedule "Schedule")
     ("i" org-clock-in "Clock in")
     ("o" org-clock-out "Clock out")
-    ("a" org-archive-subtree-default "Archive"))))
+    ("a" org-archive-subtree-default "Archive"))
+  "Org"
+   (("h" consult-org-heading "Headings"))))
 
 (pretty-hydra-define navigation-hydra (:quit-key "q")
   ("Mark motion"
@@ -725,9 +729,6 @@ T - tag prefix
 	 ("M-s L" . consult-line-multi)
 	 ("M-s k" . consult-keep-lines)
 	 ("M-s u" . consult-focus-lines)
-         ;; org bindings
-         ("C-c o t" . consult-org-agenda)
-         ("C-c o o" . consult-org-heading) ; probably should move to major-mode hydra
 	 ;; isearch integration - commented out because of ctrlf
 	 ;; ("M-s e" . consult-isearch-history)
 	 ;; :map isearch-mode-map
