@@ -9,9 +9,6 @@
  			 ("elpa" . "https://elpa.gnu.org/packages/")
  			 ("nongnu" . "https://elpa.nongnu.org/nongnu/")))
 
-;; always install packages if not installed
-(setq use-package-always-ensure t)
-
 ;; enable packages from quelpa
 (use-package quelpa
   :ensure t)
@@ -83,7 +80,7 @@
   (set-face-attribute 'highlight nil :background "#FFBFBD"))
 
 (setq org-todo-keyword-faces
- '(("IN PROGRESS" . "#ffbd98")))
+ '(("IN PROGRESS" . "orange")))
 
 (with-eval-after-load 'org
   (set-face-attribute 'org-level-1 nil :foreground "#ffd7af")
@@ -1449,6 +1446,8 @@ T - tag prefix
 ;; mu4e - eventually move over to use-package/straight
 ;; load mu4e
 (add-to-list 'load-path "/usr/share/emacs/site-lisp/elpa-src/mu4e-1.8.14/")
+(use-package mu4e
+  :ensure nil)
 (setq mail-user-agent 'mu4e-user-agent)
 (setq user-mail-address "paulleehuang@proton.me")
 
