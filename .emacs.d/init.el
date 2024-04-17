@@ -599,7 +599,8 @@ T - tag prefix
 
 ;; electric pair
 (electric-pair-mode 1)
-(defvar org-electric-pairs '((?$ . ?$)) "Electric pairs for org mode.")
+(defvar org-electric-pairs '((?$ . ?$))
+  "Electric pairs for org mode.")
 
 (defun my/org-add-electric-pairs ()
   (setq-local electric-pair-pairs (append electric-pair-pairs org-electric-pairs))
@@ -1444,33 +1445,36 @@ T - tag prefix
   (run-with-timer my-org-gcal-sync-delay nil 'my-org-gcal-sync))
 
 ;; mu4e - eventually move over to use-package/straight
-;; load mu4e
-(add-to-list 'load-path "/usr/share/emacs/site-lisp/elpa-src/mu4e-1.8.14/")
+;;(add-to-list 'load-path "/usr/share/emacs/site-lisp/elpa-src/mu4e-1.8.14/")
+;;(add-to-list 'load-path "/usr/local/share/emacs/site-lisp/mu4e/")
 (use-package mu4e
-  :ensure nil)
-(setq mail-user-agent 'mu4e-user-agent)
-(setq user-mail-address "paulleehuang@proton.me")
+  :ensure nil
+  :load-path "/usr/local/share/emacs/site-lisp/mu4e/"
+  :preface
+  (setq mail-user-agent 'mu4e-user-agent)
+  (setq user-mail-address "paulleehuang@proton.me")
 
-;; refresh mail using isync every 5 minutes
-(setq mu4e-update-interval (* 5 60))
-(setq mu4e-get-mail-command "mbsync -a")
-(setq mu4e-root-maildir "~/mail")
+  ;; refresh mail using isync every 5 minutes
+  (setq mu4e-update-interval (* 5 60))
+  (setq mu4e-get-mail-command "mbsync -a")
+  (setq mu4e-root-maildir "~/mail")
 
-;; setup dynamic folders
-(setq mu4e-drafts-folder "/Drafts"
-      mu4e-sent-folder   "/Sent"
-      mu4e-refile-folder "/Archive"
+  ;; setup dynamic folders
+  (setq mu4e-drafts-folder "/Drafts"
+        mu4e-sent-folder   "/Sent"
+        mu4e-refile-folder "/Archive"
         mu4e-trash-folder  "/Trash")
 
-(setq mu4e-maildir-shortcuts
-      '((:maildir "/Inbox"    :key ?i)
-        (:maildir "/Sent Mail" :key ?s)
-        (:maildir "/Trash"     :key ?t)
-        (:maildir "/Drafts"    :key ?d)
-        (:maildir "/Archive"   :key ?A)
+  (setq mu4e-maildir-shortcuts
+        '((:maildir "/Inbox"     :key ?i)
+          (:maildir "/Sent"      :key ?s)
+          (:maildir "/Trash"     :key ?t)
+          (:maildir "/Drafts"    :key ?d)
+          (:maildir "/Archive"   :key ?A)
           (:maildir "/All Mail"  :key ?a)))
 
-(setq mu4e-confirm-quit nil)
+  (setq mu4e-confirm-quit nil))
+
 
 ;; copilot. saving for end, since it seems to break if loaded earlier
 (use-package copilot
