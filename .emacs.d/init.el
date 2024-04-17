@@ -294,6 +294,21 @@
   ("t" crux-transpose-windows :color blue)
   ("s" my/toggle-window-split :color blue))
 
+(pretty-hydra-define navigation-hydra (:quit-key "q")
+  ("Mark motion"
+   (("C-x C-<space>" pop-global-mark "Pop global mark")
+    ("C-x C-x" exchange-point-and-mark "Exchange point and mark"))
+   "Text motion"
+   (("C-M-b" puni-backward-sexp "Backward sexp")
+    ("C-M-f" puni-forward-sexp "Forward sexp")
+    ("C-M-u" backward-up-list "Backward up hierarchy")
+    ("C-M-d" forward-down-list "Forward down hierarchy")
+    ("C-M-p" backward-list "Backward list")
+    ("C-M-n" forward-list "Forward list"))
+   "Text selection"
+   (("C-c \\" puni-mark-sexp-around-point "Mark around sexp")
+    ("M-h" mark-paragraph "Mark paragraph"))))
+
 (defhydra hydra-cheat (:color pink :hint nil)
   "
   but cheating is bad lol
@@ -466,22 +481,9 @@ T - tag prefix
     ("a" org-archive-subtree-default "Archive")
     ("A" org-agenda-file-to-front "Add as agenda file"))
   "Org"
-   (("h" consult-org-heading "Headings"))))
+  (("h" consult-org-heading "Headings"))))
 
-(pretty-hydra-define navigation-hydra (:quit-key "q")
-  ("Mark motion"
-   (("C-x C-<space>" pop-global-mark "Pop global mark")
-    ("C-x C-x" exchange-point-and-mark "Exchange point and mark"))
-   "Text motion"
-   (("C-M-b" puni-backward-sexp "Backward sexp")
-    ("C-M-f" puni-forward-sexp "Forward sexp")
-    ("C-M-u" backward-up-list "Backward up hierarchy")
-    ("C-M-d" forward-down-list "Forward down hierarchy")
-    ("C-M-p" backward-list "Backward list")
-    ("C-M-n" forward-list "Forward list"))
-   "Text selection"
-   (("C-c \\" puni-mark-sexp-around-point "Mark around sexp")
-    ("M-h" mark-paragraph "Mark paragraph"))))
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; logs, debugging, and history ;;
@@ -1516,8 +1518,9 @@ T - tag prefix
         mu4e-trash-folder  "/Trash")
 
   (setq mu4e-maildir-shortcuts
-        '((:maildir "/Inbox"     :key ?i)
+        '((:maildir "/inbox"     :key ?i)
           (:maildir "/Sent"      :key ?s)
+          (:maildir "/Starred"   :key ?S)
           (:maildir "/Trash"     :key ?t)
           (:maildir "/Drafts"    :key ?d)
           (:maildir "/Archive"   :key ?A)
@@ -1529,6 +1532,24 @@ T - tag prefix
       smtpmail-smtp-server "127.0.0.1"
       smtpmail-smtp-service 1025)
 
+  (setq message-signature "<#multipart type=alternative>
+<#part type=text/plain>
+[[https://linkedin.com/in/paulleehuang][LinkedIn]] | [[https://github.com/polhuang][Github]]
+
+Sent using [[https://google.com][mu4e]]
+<#/part>
+
+<#part type=text/html>
+<p>
+<a href=\"https://linkedin.com/in/paulleehuang\">LinkedIn</a> | <a href=\"https://github.com/polhuang\">Github</a>
+</p>
+
+<p>
+Sent from <a href=\"https://www.djcbsoftware.nl/code/mu/\">muzzxx</a>
+</p>
+<#/part>
+")
+  
   (setq mu4e-confirm-quit nil))
 
 
