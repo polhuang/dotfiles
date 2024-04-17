@@ -1356,6 +1356,10 @@ T - tag prefix
                           :actions -notify)
                   '(:time "30m" :period "5m" :duration 600 :actions -notify)))
 
+;; org-mime
+(use-package org-mime
+  :ensure t)
+
 ;;;;;;;;;;;;;;;;;;;
 ;; miscellaneous ;;
 ;;;;;;;;;;;;;;;;;;;
@@ -1498,6 +1502,7 @@ T - tag prefix
   :preface
   (setq mail-user-agent 'mu4e-user-agent)
   (setq user-mail-address "paulleehuang@proton.me")
+  (setq smtpmail-smtp-server "localhost")
 
   ;; refresh mail using isync every 5 minutes
   (setq mu4e-update-interval (* 5 60))
@@ -1517,6 +1522,12 @@ T - tag prefix
           (:maildir "/Drafts"    :key ?d)
           (:maildir "/Archive"   :key ?A)
           (:maildir "/All Mail"  :key ?a)))
+
+  ;; setup smtp
+  (setq message-send-mail-function 'smtpmail-send-it
+      auth-sources '("~/.authinfo")
+      smtpmail-smtp-server "127.0.0.1"
+      smtpmail-smtp-service 1025)
 
   (setq mu4e-confirm-quit nil))
 
