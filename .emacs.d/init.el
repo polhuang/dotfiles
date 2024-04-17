@@ -1337,11 +1337,24 @@ T - tag prefix
                          (eq major-mode 'org-mode)
                        (org-roam-link-replace-all))))
 
-;; org-notify
+;; org-notify - only works for deadlines, not scheduled tasks
 (use-package org-notify
   :ensure t
+  :after org
+  :custom (org-notify-timestamp-types '(:deadline))
   :config
-  (org-notify-start))
+  (org-notify-start)
+
+  (org-notify-add 'default
+                  '(:time "-1s" :period "20s" :duration 10
+                          :actions (-notify -ding))
+                  '(:time "1m" :period "20s" :duration 60
+                          :actions (-notify -ding))
+                  '(:time "5m" :period "1m" :duration 240
+                          :actions (-notify))
+                  '(:time "15m" :period "2m" :duration 600
+                          :actions -notify)
+                  '(:time "30m" :period "5m" :duration 600 :actions -notify)))
 
 ;;;;;;;;;;;;;;;;;;;
 ;; miscellaneous ;;
@@ -1451,9 +1464,34 @@ T - tag prefix
   ;; run org-gcal-sync after the specified delay
   (run-with-timer my-org-gcal-sync-delay nil 'my-org-gcal-sync))
 
-;; mu4e - eventually move over to use-package/straight
-;;(add-to-list 'load-path "/usr/share/emacs/site-lisp/elpa-src/mu4e-1.8.14/")
-;;(add-to-list 'load-path "/usr/local/share/emacs/site-lisp/mu4e/")
+(defun my-org-gcal-format (_calendar-id event _update-mode)
+  (when-let* ((stime (plist-get (plist-get event :start)
+                           :dateTime)))
+    (let ((deadline (org-entry-get (point) "DEADLINE")))
+      (message "need to set deadline")
+      (org-deadline nil stime)
+      (org-todo "TODO"))))
+
+;; (defun my-org-gcal-format (_calendar-id event _update-mode)
+;;   (when-let* ((stime (plist-get (plist-get event :start)
+;;                            :dateTime)))
+;;     (let ((deadline (org-entry-get (point) "DEADLINE")))
+;;       (unless deadline
+;;         (message "need to set deadline")
+;;         (org-deadline nil stime)
+;;         (org-todo "TODO")))))
+
+(add-hook 'org-gcal-after-update-entry-functions #'my-org-gcal-format)
+
+;; (defun my-org-gcal-set-deadline (_calendar-id event _update-mode)
+;;   "Set DEADLINE property to current time if not already set."
+;;   (when-let* ((stime (plist-get (plist-get event :start)
+;;                                 :dateTime))))
+;;   (unless (org-entry-get nil "DEADLINE")
+;;     (org-deadline nil (format-time-string "[%Y-%m-%d %a]" (current-time)))))
+
+
+;; mu4e
 (use-package mu4e
   :ensure nil
   :load-path "/usr/local/share/emacs/site-lisp/mu4e/"
