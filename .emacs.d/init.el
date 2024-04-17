@@ -1257,12 +1257,18 @@ T - tag prefix
 
   ;; org-capture
   (require 'org-protocol)
-  (setq org-capture-templates `(("p" "Protocol Text" entry (file+headline ,(concat org-directory "/roam/captures.org") "Captures")
-	                         "* %^{Title}\nSource: %u, %c\n #+BEGIN_QUOTE\n%i\n#+END_QUOTE\n\n\n")
-	                        ("L" "Protocol Link" entry (file+headline ,(concat org-directory "roam/captures.org") "Captures")
-	                         "* %? [[%:link][%:description]] \nCaptured On: %U")
-                                ("t" "Task" entry (file+headline ,(concat org-directory "tasks.org") "Tasks")
-                                 "* TODO %?\n %U")))
+  (setq org-capture-templates
+        `(("p" "Protocol Text" entry
+           (file+headline ,(concat org-directory "/roam/captures.org") "Captures")
+	   "* %^{Title}\nSource: %u, %c\n #+BEGIN_QUOTE\n%i\n#+END_QUOTE\n\n\n")
+	  ("L" "Protocol Link" entry
+           (file+headline ,(concat org-directory "/roam/captures.org") "Captures")
+	   "* %? [[%:link][%:description]] \nCaptured On: %U")
+          ("t" "Task" entry
+           (file+headline ,(concat org-directory "/tasks.org") "Tasks")
+           "* TODO %?\nSCHEDULED: <%(org-read-date nil nil)>\n"
+           :empty-lines-before 1
+           :empty-lines-after 1)))
   
   ;; org-babel
   (org-babel-do-load-languages
@@ -1366,7 +1372,8 @@ T - tag prefix
   (setq initial-buffer-choice (lambda () (get-buffer-create "*dashboard*")))
   (dashboard-setup-startup-hook))
 
-  (add-hook 'server-after-make-frame-hook
+;; refresh buffer after UI components load (necessary for emacs-daemon/client)
+(add-hook 'server-after-make-frame-hook
           (lambda ()
             (when (equal (buffer-name) "*dashboard*")
               (revert-buffer))))
