@@ -349,7 +349,7 @@
 (defhydra hydra-ibuffer-mark (:color teal :columns 5
 			      :after-exit (hydra-ibuffer-main/body))
   "Mark"
-  ("*" qqibuffer-unmark-all "unmark all")
+  ("*" ibuffer-unmark-all "unmark all")
   ("M" ibuffer-mark-by-mode "mode")
   ("m" ibuffer-mark-modified-buffers "modified")
   ("u" ibuffer-mark-unsaved-buffers "unsaved")
@@ -482,6 +482,20 @@ T - tag prefix
     ("A" org-agenda-file-to-front "Add as agenda file"))
   "Org"
   (("h" consult-org-heading "Headings"))))
+
+;; (major-mode-hydra-define mu4e-headers-mode nil
+;;   ("Marking"
+;;    (("=" mu4e-hedaers-mark-for-untrash "Untrash")
+;;     ("r" org-deadline "Deadline")
+;;     ("s" org-schedule "Schedule")
+;;     ("i" org-clock-in "Clock in")
+;;     ("o" org-clock-out "Clock out")
+;;     ("a" org-archive-subtree-default "Archive")
+;;     ("A" org-agenda-file-to-front "Add as agenda file"))
+;;   "Org"
+;;   (("h" consult-org-heading "Headings"))))
+
+
 
 
 
@@ -1501,7 +1515,8 @@ T - tag prefix
 (use-package mu4e
   :ensure nil
   :load-path "/usr/local/share/emacs/site-lisp/mu4e/"
-  :preface
+  :custom (mu4e-use-fancy-chars t)
+  :config
   (setq mail-user-agent 'mu4e-user-agent)
   (setq user-mail-address "paulleehuang@proton.me")
   (setq smtpmail-smtp-server "localhost")
@@ -1525,13 +1540,15 @@ T - tag prefix
           (:maildir "/Drafts"    :key ?d)
           (:maildir "/Archive"   :key ?A)
           (:maildir "/All Mail"  :key ?a)))
-
+  
   ;; setup smtp
   (setq message-send-mail-function 'smtpmail-send-it
       auth-sources '("~/.authinfo")
       smtpmail-smtp-server "127.0.0.1"
       smtpmail-smtp-service 1025)
-
+  
+  :config
+  ;; signature
   (setq message-signature "<#multipart type=alternative>
 <#part type=text/plain>
 [[https://linkedin.com/in/paulleehuang][LinkedIn]] | [[https://github.com/polhuang][Github]]
@@ -1549,6 +1566,21 @@ Sent from <a href=\"https://www.djcbsoftware.nl/code/mu/\">muzzxx</a>
 </p>
 <#/part>
 ")
+  ;; fancy header marks
+  (setq mu4e-headers-draft-mark     '("D" . "💈")
+        mu4e-headers-flagged-mark   '("F" . "📍")
+        mu4e-headers-new-mark       '("N" . "🔥")
+        mu4e-headers-passed-mark    '("P" . "❯")
+        mu4e-headers-replied-mark   '("R" . "❮")
+        mu4e-headers-seen-mark      '("S" . "☑")
+        mu4e-headers-trashed-mark   '("d" . "💀")
+        mu4e-headers-attach-mark    '("a" . "📎")
+        mu4e-headers-encrypted-mark '("x" . "🔒")
+        mu4e-headers-signed-mark    '("s" . "🔑")
+        mu4e-headers-unread-mark    '("u" . "⎕")
+        mu4e-headers-list-mark      '("l" . "🔈")
+        mu4e-headers-personal-mark  '("p" . "👨")
+        mu4e-headers-calendar-mark  '("c" . "📅"))
   
   (setq mu4e-confirm-quit nil))
 
