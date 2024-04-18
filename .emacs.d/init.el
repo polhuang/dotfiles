@@ -34,6 +34,14 @@
 ;; upgrade all packages
 (package-upgrade-all)
 
+;;;;;;;;;;;;;;;;;;;;
+;; emacs settings ;;
+;;;;;;;;;;;;;;;;;;;;
+
+;; define new prefix
+(defvar my-map (make-sparse-keymap))
+(define-key global-map (kbd "C-M-]") my-map)
+
 ;;;;;;;;;;;;;;;;;;;
 ;; file settings ;;
 ;;;;;;;;;;;;;;;;;;;
@@ -69,39 +77,43 @@
   (seoul256-background 235)
   (seoul256-background 234)
   :config
-  (set-face-attribute 'default nil :foreground "#FFF0F5")
-  (set-face-attribute 'font-lock-keyword-face nil :foreground "#ffb9ba" :weight 'bold)
-  (set-face-attribute 'font-lock-constant-face nil :weight 'bold)
-  (set-face-attribute 'font-lock-builtin-face nil :foreground "#fffed1" :weight 'bold)
-  (set-face-attribute 'font-lock-function-name-face nil :foreground "#d1fffe" :weight 'bold)  
-  (set-face-attribute 'font-lock-variable-name-face nil :weight 'bold)
-  (set-face-attribute 'link nil :foreground "#b1f3fb" :underline t)
-  (set-face-attribute 'mode-line nil :background "#565656")
-  (set-face-attribute 'highlight nil :background "#FFBFBD"))
+  (custom-set-faces
+   '(default ((t (:foreground "#FFF0F5"))))
+   '(font-lock-keyword-face ((t (:foreground "#ffb9ba" :weight bold))))
+   '(font-lock-constant-face ((t (:weight bold))))
+   '(font-lock-builtin-face ((t (:foreground "#fffed1" :weight bold))))
+   '(font-lock-function-name-face ((t (:foreground "#d1fffe" :weight bold))))
+   '(font-lock-variable-name-face ((t (:weight bold))))
+   '(link ((t (:foreground "#b1f3fb" :underline t))))
+   '(mode-line ((t (:background "#565656"))))
+   '(highlight ((t (:background "#FFBFBD"))))))
 
 (setq org-todo-keyword-faces
  '(("IN PROGRESS" . "orange")))
 
 (with-eval-after-load 'org
-  (set-face-attribute 'org-level-1 nil :foreground "#ffd7af")
-  (set-face-attribute 'org-level-4 nil :foreground "#FFBD98" :weight 'bold)
-  (set-face-attribute 'org-block-begin-line nil :foreground "#333233" :distant-foreground "#FFF0F5" :background "#FFBFBD")
-  (set-face-attribute 'org-block nil :background "#171717")
-  (set-face-attribute 'org-todo nil :foreground "#c66d86" :weight 'bold)
-  (set-face-attribute 'org-verbatim nil :foreground "#BC8F8F"))
+  (custom-set-faces
+   '(org-level-1 ((t (:foreground "#ffd7af"))))
+   '(org-level-4 ((t (:foreground "#FFBD98" :weight bold))))
+   '(org-block-begin-line ((t (:foreground "#333233" :distant-foreground "#FFF0F5" :background "#FFBFBD"))))
+   '(org-block ((t (:background "#171717"))))
+   '(org-todo ((t (:foreground "#c66d86" :weight bold))))
+   '(org-verbatim ((t (:foreground "#BC8F8F"))))))
 
 (with-eval-after-load 'marginalia
-  (set-face-attribute 'marginalia-documentation nil :inherit 'doom-mode-line :italic t ))
+  (custom-set-faces
+   '(marginalia-documentation ((t (:inherit doom-mode-line :italic t))))))
 
 ;; backup theme (for sore eyes)
 ;; (load-theme 'gruvbox)
 
+;; modeline
+(use-package doom-modeline
+  :ensure t
+  :init (doom-modeline-mode 1))
+
 ;; replace ansi colors for terminal
 (custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
  '(ansi-color-black ((t (:foreground "#1b1b23" :background "#252525"))))
  '(ansi-color-blue ((t (:foreground "#cddbf9" :background "#cddbf9"))))
  '(ansi-color-bright-black ((t (:foreground "#1b1b23" :background "#252525"))))
@@ -120,15 +132,16 @@
  '(italic ((t (:slant italic))))
  '(org-ellipsis ((t (:underline nil)))))
 
-;; font
-(set-face-attribute 'default nil :family "Iosevka Comfy Fixed" :background nil)
+;; fonts
+(custom-set-faces
+ '(default ((nil (:family "Iosevka Comfy Fixed" :background nil :inherit)))))
 
-;; modeline
-(use-package doom-modeline
-  :ensure t
-  :init (doom-modeline-mode 1))
+;; fontify-face
+(use-package fontify-face                                    ; fontify symbols representing faces
+  :ensure t)
 
-(use-package fontify-face
+;; rainbow mode
+(use-package rainbow-mode                                    ; colorize strings representing colors
   :ensure t)
 
 ;; misc ui settings
@@ -261,7 +274,7 @@
 
 (use-package hydra
   :ensure t
-  :bind (("C-c M-q a" . hydra-colossa/body)))
+  :bind (("C-M-M" . hydra-colossa/body)))
 
 ;; hydra-colossa (my personal global hydra)
 (defhydra hydra-colossa (:color amaranth :hint nil)
@@ -288,7 +301,8 @@
   ("s" my/org-search :color blue)
   ("t" consult-org-agenda :color blue)
   ("w" hydra-windows/body :color blue)
-  ("." nil :color blue))
+  ("." nil :color blue)
+  ("C-M-M" nil :color blue))
 
 (defhydra hydra-windows (:color amaranth :hint nil)
   "
@@ -353,7 +367,7 @@
   ("." nil "toggle hydra" :color blue))
 
 (defhydra hydra-ibuffer-mark (:color teal :columns 5
-			      :after-exit (hydra-ibuffer-main/body))
+			             :after-exit (hydra-ibuffer-main/body))
   "Mark"
   ("*" ibuffer-unmark-all "unmark all")
   ("M" ibuffer-mark-by-mode "mode")
@@ -368,9 +382,9 @@
   ("b" hydra-ibuffer-main/body "back" :color blue))
 
 (defhydra hydra-ibuffer-action (:color teal :columns 4
-				:after-exit
-				(if (eq major-mode 'ibuffer-mode)
-				    (hydra-ibuffer-main/body)))
+				       :after-exit
+				       (if (eq major-mode 'ibuffer-mode)
+				           (hydra-ibuffer-main/body)))
   "Action"
   ("A" ibuffer-do-view "view")
   ("E" ibuffer-do-eval "eval")
@@ -475,7 +489,7 @@ T - tag prefix
 (use-package major-mode-hydra
   :ensure t
   :bind
-  ("C-c M-q ." . major-mode-hydra))
+  ("C-M-] ." . major-mode-hydra))
 
 (major-mode-hydra-define org-mode nil
   ("TODO"
@@ -486,8 +500,8 @@ T - tag prefix
     ("o" org-clock-out "Clock out")
     ("a" org-archive-subtree-default "Archive")
     ("A" org-agenda-file-to-front "Add as agenda file"))
-  "Org"
-  (("h" consult-org-heading "Headings"))))
+   "Org"
+   (("h" consult-org-heading "Headings"))))
 
 (major-mode-hydra-define mu4e-headers-mode nil
   ("Marking"
@@ -498,8 +512,8 @@ T - tag prefix
     ("o" org-clock-out "Clock out")
     ("a" org-archive-subtree-default "Archive")
     ("A" org-agenda-file-to-front "Add as agenda file"))
-  "Org"
-  (("h" consult-org-heading "Headings"))))
+   "Org"
+   (("h" consult-org-heading "Headings"))))
 
 
 
@@ -529,7 +543,7 @@ T - tag prefix
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;; kill-this-buffer
-(global-set-key (kbd "C-c M-q k") 'kill-this-buffer) ;; C-c M-q is bound to keyboard macro
+(global-set-key (kbd "C-M-] k") 'kill-this-buffer) ;; C-c M-q is bound to keyboard macro
 
 ;; disable recursive minibuffers
 (setq enable-recursive-minibuffers nil)
@@ -602,7 +616,6 @@ T - tag prefix
   :bind ("M-<backspace>" . smart-backspace))
 
 ;; undo tree
-
 (use-package undo-tree
   :ensure t
   :init
@@ -741,6 +754,7 @@ T - tag prefix
 	 ("C-M-#" . consult-register)
 	 ;; Other custom bindings
 	 ("M-y" . consult-yank-pop)                ;; orig. yank-pop
+         ("C-M-Y" . consult-org-agenda)
 	 ;; M-g bindings in `goto-map'
 	 ("M-g e" . consult-compile-error)
 	 ("M-g f" . consult-flymake)               ;; Alternative: consult-flycheck
@@ -993,7 +1007,7 @@ T - tag prefix
 ;;;;;;;;;;;;;;;
 
 ;; scratch buffer functions
-(defun my/scratch-buffer-other-window ()
+(defun my/scratch-buffer-other-window () 
   "Open the *scratch* buffer in a new window."
   (interactive)
   (switch-to-buffer-other-window (get-buffer-create "*scratch*")))
@@ -1011,15 +1025,14 @@ T - tag prefix
           (insert selected-text "\n"))))
     (my/scratch-buffer-other-window)))
 
-(global-set-key (kbd "C-c M-q s") 'my/toggle-scratch-buffer-other-window)
+(global-set-key (kbd "C-M-Z") 'my/toggle-scratch-buffer-other-window)
 
 ;; persistent scratch
-(setq initial-scratch-message nil)
-(setq initial-major-mode 'org-mode)
-
 (use-package persistent-scratch
   :ensure t
   :config
+  (setq initial-scratch-message nil)
+  (setq initial-major-mode 'org-mode)
   (persistent-scratch-setup-default))
 
 ;; which-key
@@ -1041,11 +1054,12 @@ T - tag prefix
 ;; eat
 (use-package eat
   :ensure t
-  :bind (("C-c e e" . eat)
+  :bind (("C-M-] e" . eat)
          ("C-c e p" . eat-project))
   :custom
   (eat-kill-buffer-on-exit t)
   (setq eat-term-name "kitty"))
+
 ;;;;;;;;;;;;
 ;; coding ;;
 ;;;;;;;;;;;;
@@ -1237,7 +1251,7 @@ T - tag prefix
   (("C-c n C-i" . org-id-get-create)
    ("C-c a" . org-agenda)
    ("C-c o s" . org-save-all-org-buffers)
-   ("C-c M-q c" . org-capture)
+   ("C-M-] c" . org-capture)
    :map org-mode-map
    ("C-c \\" . puni-mark-sexp-around-point)
    ("C-c C-s" . avy-goto-line))
