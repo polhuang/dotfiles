@@ -120,8 +120,6 @@
  '(italic ((t (:slant italic))))
  '(org-ellipsis ((t (:underline nil)))))
 
-
-
 ;; font
 (set-face-attribute 'default nil :family "Iosevka Comfy Fixed" :background nil)
 
@@ -206,6 +204,12 @@
 (advice-add 'scroll-up :around 'my/scroll-up)
 (advice-add 'scroll-down :around 'my/scroll-down)
 
+;; tab jump out
+(use-package tab-jump-out
+  :ensure t
+  :config
+  (tab-jump-out-mode t))
+
 ;; registers
 (set-register ?e (cons 'file "~/.emacs.d/init.el"))
 (set-register ?a (cons 'file "~/.config/awesome/rc.lua"))
@@ -271,7 +275,7 @@
   _q_: go away
   _s_: search org files
   _t_: tasks
-  _w_: windows
+  _w_: windows + frames
 "
   ("c" hydra-cheat/body :color blue)
   ("C" copilot-mode :color blue)
@@ -291,8 +295,10 @@
   _t_: transpose
   _s_: toggle vertical/horizontal split
 "
+  ("c" clone-frame :color blue)
   ("t" crux-transpose-windows :color blue)
-  ("s" my/toggle-window-split :color blue))
+  ("s" my/toggle-window-split :color blue)
+  ("." nil :color blue))
 
 (pretty-hydra-define navigation-hydra (:quit-key "q")
   ("Mark motion"
@@ -483,17 +489,17 @@ T - tag prefix
   "Org"
   (("h" consult-org-heading "Headings"))))
 
-;; (major-mode-hydra-define mu4e-headers-mode nil
-;;   ("Marking"
-;;    (("=" mu4e-hedaers-mark-for-untrash "Untrash")
-;;     ("r" org-deadline "Deadline")
-;;     ("s" org-schedule "Schedule")
-;;     ("i" org-clock-in "Clock in")
-;;     ("o" org-clock-out "Clock out")
-;;     ("a" org-archive-subtree-default "Archive")
-;;     ("A" org-agenda-file-to-front "Add as agenda file"))
-;;   "Org"
-;;   (("h" consult-org-heading "Headings"))))
+(major-mode-hydra-define mu4e-headers-mode nil
+  ("Marking"
+   (("=" mu4e-headers-mark-for-untrash "Untrash")
+    ("r" org-deadline "Deadline")
+    ("s" org-schedule "Schedule")
+    ("i" org-clock-in "Clock in")
+    ("o" org-clock-out "Clock out")
+    ("a" org-archive-subtree-default "Archive")
+    ("A" org-agenda-file-to-front "Add as agenda file"))
+  "Org"
+  (("h" consult-org-heading "Headings"))))
 
 
 
@@ -1516,11 +1522,11 @@ T - tag prefix
   :ensure nil
   :load-path "/usr/local/share/emacs/site-lisp/mu4e/"
   :custom (mu4e-use-fancy-chars t)
-  :config
+  :preface
   (setq mail-user-agent 'mu4e-user-agent)
   (setq user-mail-address "paulleehuang@proton.me")
   (setq smtpmail-smtp-server "localhost")
-
+  :config
   ;; refresh mail using isync every 5 minutes
   (setq mu4e-update-interval (* 5 60))
   (setq mu4e-get-mail-command "mbsync -a")
@@ -1562,7 +1568,7 @@ Sent using [[https://google.com][mu4e]]
 </p>
 
 <p>
-Sent from <a href=\"https://www.djcbsoftware.nl/code/mu/\">muzzxx</a>
+Sent from <a href=\"https://www.djcbsoftware.nl/code/mu/\">mu</a>
 </p>
 <#/part>
 ")
@@ -1635,9 +1641,6 @@ Sent from <a href=\"https://www.djcbsoftware.nl/code/mu/\">muzzxx</a>
    '("/home/polhuang/org/tasks.org" "/home/polhuang/org/schedule.org" "/home/polhuang/org/backmatter-tasks.org"))
  '(package-selected-packages `(add-hook 'web-mode-hook #'lsp-deferred))
  '(register-preview-delay 0.0)
- '(send-mail-function 'smtpmail-send-it)
- '(smtpmail-smtp-server "imap.gmail.com")
- '(smtpmail-smtp-service 25)
  '(tool-bar-mode nil)
  '(treesit-font-lock-level 4)
  '(typescript-auto-indent-flag t)
