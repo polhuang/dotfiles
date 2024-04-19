@@ -78,27 +78,27 @@
   (seoul256-background 234)
   :config
   (custom-set-faces
-   '(default ((t (:foreground "#FFF0F5"))))
-   '(font-lock-keyword-face ((t (:foreground "#ffb9ba" :weight bold))))
-   '(font-lock-constant-face ((t (:weight bold))))
-   '(font-lock-builtin-face ((t (:foreground "#fffed1" :weight bold))))
-   '(font-lock-function-name-face ((t (:foreground "#d1fffe" :weight bold))))
-   '(font-lock-variable-name-face ((t (:weight bold))))
-   '(link ((t (:foreground "#b1f3fb" :underline t))))
-   '(mode-line ((t (:background "#565656"))))
-   '(highlight ((t (:background "#FFBFBD"))))))
+   '(default ((t (:foreground "#FFF0F5" :inherit))))
+   '(font-lock-keyword-face ((t (:foreground "#ffb9ba" :weight bold :inherit))))
+   '(font-lock-constant-face ((t (:weight bold :inherit))))
+   '(font-lock-builtin-face ((t (:foreground "#fffed1" :weight bold :inherit))))
+   '(font-lock-function-name-face ((t (:foreground "#d1fffe" :weight bold :inherit))))
+   '(font-lock-variable-name-face ((t (:weight bold :inherit))))
+   '(link ((t (:foreground "#b1f3fb" :underline t :inherit))))
+   '(mode-line ((t (:background "#565656" :inherit))))
+   '(highlight ((t (:background "#FFBFBD" :inherit))))))
 
 (setq org-todo-keyword-faces
  '(("IN PROGRESS" . "orange")))
 
 (with-eval-after-load 'org
   (custom-set-faces
-   '(org-level-1 ((t (:foreground "#ffd7af"))))
-   '(org-level-4 ((t (:foreground "#FFBD98" :weight bold))))
-   '(org-block-begin-line ((t (:foreground "#333233" :distant-foreground "#FFF0F5" :background "#FFBFBD"))))
-   '(org-block ((t (:background "#171717"))))
-   '(org-todo ((t (:foreground "#c66d86" :weight bold))))
-   '(org-verbatim ((t (:foreground "#BC8F8F"))))))
+   '(org-level-1 ((t (:foreground "#ffd7af" :weight bold :inherit))))
+   '(org-level-4 ((t (:foreground "#FFBD98" :weight bold :inherit))))
+   '(org-block-begin-line ((t (:foreground "#333233" :distant-foreground "#FFF0F5" :background "#FFBFBD" :inherit))))
+   '(org-block ((t (:background "#171717" :inherit))))
+   '(org-todo ((t (:foreground "#c66d86" :weight bold :inherit))))
+   '(org-verbatim ((t (:foreground "#BC8F8F" :inherit))))))
 
 (with-eval-after-load 'marginalia
   (custom-set-faces
@@ -112,9 +112,9 @@
   :ensure t
   :init (doom-modeline-mode 1))
 
-;; replace ansi colors for terminal
+;; replace ansi colors for terminal (custom-set-faces
 (custom-set-faces
- '(ansi-color-black ((t (:foreground "#1b1b23" :background "#252525"))))
+ '(ansi-color-black ((t (:foreground "#1b1b23" :background "#252525" :inherit))))
  '(ansi-color-blue ((t (:foreground "#cddbf9" :background "#cddbf9"))))
  '(ansi-color-bright-black ((t (:foreground "#1b1b23" :background "#252525"))))
  '(ansi-color-bright-blue ((t (:foreground "#4a83c3" :background "#4a83c3"))))
@@ -207,11 +207,11 @@
 (defvar my/default-scroll-lines 15)
 
 (defun my/scroll-up (orig-func &optional arg)
-  "Scroll up `my/default-scroll-lines' lines (probably less than default)."
+  "Scroll up `my/default-scroll-lines' lines"
   (apply orig-func (list (or arg my/default-scroll-lines))))
 
 (defun my/scroll-down (orig-func &optional arg)
-  "Scroll down `my/default-scroll-lines' lines (probably less than default)."
+  "Scroll down `my/default-scroll-lines' lines"
   (apply orig-func (list (or arg my/default-scroll-lines))))
 
 (advice-add 'scroll-up :around 'my/scroll-up)
@@ -274,7 +274,7 @@
 
 (use-package hydra
   :ensure t
-  :bind (("C-M-M" . hydra-colossa/body)))
+  :bind (("C-M-G" . hydra-colossa/body)))
 
 ;; hydra-colossa (my personal global hydra)
 (defhydra hydra-colossa (:color amaranth :hint nil)
@@ -302,7 +302,7 @@
   ("t" consult-org-agenda :color blue)
   ("w" hydra-windows/body :color blue)
   ("." nil :color blue)
-  ("C-M-M" nil :color blue))
+  ("C-M-G" nil :color blue))
 
 (defhydra hydra-windows (:color amaranth :hint nil)
   "
@@ -543,7 +543,12 @@ T - tag prefix
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;; kill-this-buffer
-(global-set-key (kbd "C-M-] k") 'kill-this-buffer) ;; C-c M-q is bound to keyboard macro
+(defun my/kill-this-buffer ()
+  (interactive)
+  (unless (string= (buffer-name) "*scratch*")
+    (kill-this-buffer)))
+
+(global-set-key (kbd "C-M-] k") 'my/kill-this-buffer)
 
 ;; disable recursive minibuffers
 (setq enable-recursive-minibuffers nil)
@@ -735,7 +740,7 @@ T - tag prefix
 
 (use-package consult
   :ensure t
-  :bind (;; C-c bindings in `mode-specific-map'
+  :bind ((;; C-c bindings in `mode-specific-map'
 	 ("C-c M-x" . consult-mode-command)
          ("C-x C-r" . consult-recent-file)
 	 ("C-c h" . consult-history)
@@ -785,7 +790,7 @@ T - tag prefix
 	 ;; minibuffer history
 	 :map minibuffer-local-map
 	 ("M-s" . consult-history)                 ;; orig. next-matching-history-element
-	 ("M-r" . consult-history))                ;; orig. previous-matching-history-element
+	 ("M-r" . consult-history)))                ;; orig. previous-matching-history-element
 
   ;; enable automatic preview at point in the *Completions* buffer.
   :hook (completion-list-mode . consult-preview-at-point-mode)
@@ -1007,34 +1012,99 @@ T - tag prefix
 ;;;;;;;;;;;;;;;
 
 ;; scratch buffer functions
+
+(defgroup scratchpad nil
+  "filler"
+  :group 'files
+  :prefix "scratchpad-")
+  
+(defcustom scratchpad-buffer-name "*scratch*"
+  "Custom scratchpad buffer name"
+  :type 'string
+  :group 'persistent-scratch)
+
+(defun my/restore-scratch-buffer ()
+  (interactive)
+  (with-current-buffer (get-buffer-create scratchpad-buffer-name)
+    (insert-file-contents "~/org/scratchpad.org")))
+
+
+(with-current-buffer (get-buffer-create scratchpad-buffer-name)
+          (goto-char (point-max))
+          (insert selected-text "\n"))))
+
+(my/restore-scratch-buffer)
+
+(defun persistent-scratch-restore (&optional file)
+  "Restore the scratch buffers.
+Load FILE and restore all saved buffers to their saved state.
+
+FILE is a file to restore scratch buffers from; when nil or when called
+interactively, `persistent-scratch-save-file' is used.
+
+This is a potentially destructive operation: if there's an open buffer with the
+same name as a saved buffer, the contents of that buffer will be overwritten."
+  (interactive)
+  (let ((save-data
+         (read
+          (with-temp-buffer
+            (let ((coding-system-for-read 'utf-8-unix))
+              (insert-file-contents (or file persistent-scratch-save-file)))
+            (buffer-string)))))
+    (dolist (saved-buffer save-data)
+      (with-current-buffer (get-buffer-create (aref saved-buffer 0))
+        (erase-buffer)
+        (insert (aref saved-buffer 1))
+        (funcall (or (aref saved-buffer 3) #'ignore))
+        (let ((point-and-mark (aref saved-buffer 2)))
+          (when point-and-mark
+            (goto-char (car point-and-mark))
+            (set-mark (cdr point-and-mark))))
+        (let ((narrowing (aref saved-buffer 4)))
+          (when narrowing
+            (narrow-to-region (car narrowing) (cdr narrowing))))
+        ;; Handle version 2 fields if present.
+        (when (>= (length saved-buffer) 6)
+          (unless (aref saved-buffer 5)
+            (deactivate-mark)))))))
+
 (defun my/scratch-buffer-other-window () 
   "Open the *scratch* buffer in a new window."
   (interactive)
-  (switch-to-buffer-other-window (get-buffer-create "*scratch*")))
+  (switch-to-buffer-other-window (get-buffer-create scratchpad-buffer-name)))
 
 (defun my/toggle-scratch-buffer-other-window ()
   "Toggle between *scratch* buffer and the current buffer."
   (interactive)
-  (if (string= (buffer-name) "*scratch*")
+  (if (string= (buffer-name) scratchpad-buffer-name)
       (delete-window)
     (let ((selected-text (when (region-active-p)
                            (buffer-substring-no-properties (region-beginning) (region-end)))))
       (when selected-text
-        (with-current-buffer (get-buffer-create "*scratch*")
+        (with-current-buffer (get-buffer-create scratchpad-buffer-name)
           (goto-char (point-max))
           (insert selected-text "\n"))))
     (my/scratch-buffer-other-window)))
 
+
+
 (global-set-key (kbd "C-M-Z") 'my/toggle-scratch-buffer-other-window)
 
 ;; persistent scratch
-(use-package persistent-scratch
-  :ensure t
-  :config
-  (setq initial-scratch-message nil)
-  (setq initial-major-mode 'org-mode)
-  (persistent-scratch-setup-default))
+;; (use-package persistent-scratch
+;;   :after org
+;;   :ensure t
+;;   :config
+;;   (setq initial-major-mode 'org-mode
+;;         initial-scratch-message nil)
+;;   (persistent-scratch-setup-default)
+;;   (setq persistent-scratch-save-file (concat org-directory "/scratch.org")))
 
+;;  (add-hook 'server-after-make-frame-hook
+;;           (lambda ()
+;;             (when (equal (buffer-name) "*scratch*")
+;;               (revert-buffer))))
+  
 ;; which-key
 (use-package which-key
   :ensure t
@@ -1254,12 +1324,14 @@ T - tag prefix
    ("C-M-] c" . org-capture)
    :map org-mode-map
    ("C-c \\" . puni-mark-sexp-around-point)
-   ("C-c C-s" . avy-goto-line))
+   ("C-c C-s" . avy-goto-line)
+   ("C-m" . nil))
   :hook
   (org-mode . org-indent-mode)
   (org-mode . turn-on-org-cdlatex)
   (org-mode . my/org-syntax-table-modify)
   (org-mode . my/org-add-electric-pairs)
+  (org-mode . my/scratch-buffer-dont-kill)
   :init
   (add-to-list 'display-buffer-alist
                '("\\*org-roam\\*"
@@ -1291,6 +1363,11 @@ T - tag prefix
     (modify-syntax-entry ?< "." org-mode-syntax-table)
     (modify-syntax-entry ?> "." org-mode-syntax-table))
 
+  (defun my/scratch-buffer-dont-kill ()
+    (if (equal buffer-name "*scratch")
+        ()
+    ))
+
   ;; org-capture
   (require 'org-protocol)
   (setq org-capture-templates
@@ -1300,6 +1377,7 @@ T - tag prefix
 	  ("L" "Protocol Link" entry
            (file+headline ,(concat org-directory "/roam/captures.org") "Captures")
 	   "* %? [[%:link][%:description]] \nCaptured On: %U")
+          ("s")
           ("t" "Task" entry
            (file+headline ,(concat org-directory "/tasks.org") "Tasks")
            "* TODO %?\nSCHEDULED: <%(org-read-date nil nil)>\n"
