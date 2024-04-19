@@ -1,4 +1,5 @@
-;; to-do: move setq functions over to new use-package :preface keywords
+;; to-dos
+;; move to literate config
 
 ;;;;;;;;;;;;;;;;;;;;;;
 ;; package settings ;;
@@ -74,31 +75,55 @@
   :init
   (load-theme 'seoul256 t)
   :custom
+  ;; (seoul256-background 235)
   (seoul256-background 235)
-  (seoul256-background 234)
   :config
-  (custom-set-faces
-   '(default ((t (:foreground "#FFF0F5" :inherit))))
-   '(font-lock-keyword-face ((t (:foreground "#ffb9ba" :weight bold :inherit))))
-   '(font-lock-constant-face ((t (:weight bold :inherit))))
-   '(font-lock-builtin-face ((t (:foreground "#fffed1" :weight bold :inherit))))
-   '(font-lock-function-name-face ((t (:foreground "#d1fffe" :weight bold :inherit))))
-   '(font-lock-variable-name-face ((t (:weight bold :inherit))))
-   '(link ((t (:foreground "#b1f3fb" :underline t :inherit))))
-   '(mode-line ((t (:background "#565656" :inherit))))
-   '(highlight ((t (:background "#FFBFBD" :inherit))))))
-
-(setq org-todo-keyword-faces
- '(("IN PROGRESS" . "orange")))
+  (set-face-attribute 'default nil :foreground "#f5f5f4")
+  (set-face-attribute 'font-lock-keyword-face nil :foreground "#ffb9ba" :weight 'bold)
+  (set-face-attribute 'font-lock-constant-face nil :weight 'bold)
+  (set-face-attribute 'font-lock-builtin-face nil :foreground "#fffed1" :weight 'bold)
+  (set-face-attribute 'font-lock-function-name-face nil :foreground "#d1fffe" :weight 'bold)  
+  (set-face-attribute 'font-lock-variable-name-face nil :weight 'bold)
+  (set-face-attribute 'link nil :foreground "#b1f3fb" :underline t)
+  (set-face-attribute 'mode-line nil :background "#565656")
+  (set-face-attribute 'highlight nil :background "#FFBFBD"))
 
 (with-eval-after-load 'org
-  (custom-set-faces
-   '(org-level-1 ((t (:foreground "#ffd7af" :weight bold :inherit))))
-   '(org-level-4 ((t (:foreground "#FFBD98" :weight bold :inherit))))
-   '(org-block-begin-line ((t (:foreground "#333233" :distant-foreground "#FFF0F5" :background "#FFBFBD" :inherit))))
-   '(org-block ((t (:background "#171717" :inherit))))
-   '(org-todo ((t (:foreground "#c66d86" :weight bold :inherit))))
-   '(org-verbatim ((t (:foreground "#BC8F8F" :inherit))))))
+  (set-face-attribute 'org-level-1 nil :foreground "#ffdfac" :distant-foreground "#171717")
+  (set-face-attribute 'org-level-2 nil :distant-foreground "#171717")
+  (set-face-attribute 'org-level-4 nil :foreground "#ffbd98")
+  (set-face-attribute 'org-block-begin-line nil :foreground "#333233" :distant-foreground "#fff0f5" :background "#ffbfbd")
+  (set-face-attribute 'org-block nil :background "#171717")
+  ;;(set-face-attribute 'org-todo nil :foreground "#c66d86" :weight 'bold :inherit)
+  ;;(set-face-attribute 'org-done nil :foreground "#8fc587")
+  (set-face-attribute 'org-headline-done nil :foreground "#caf6bb")
+  (set-face-attribute 'org-priority nil :foreground "#d24b50")
+  (set-face-attribute 'org-tag nil :foreground "#e67518")
+  (set-face-attribute 'org-verbatim nil :foreground "#beb0f1")
+  (setq org-todo-keyword-faces
+        '(("TODO" . (:foreground "#c66d86" :weight bold))
+          ("IN PROGRESS" . (:foreground "#ffce76" :distant-foreground "#171717" :weight bold))
+          ("DONE" . (:foreground "#a7f3d0" :weight bold)))))
+
+;; replace ansi colors for terminal
+(custom-set-faces
+ `(ansi-color-black ((t (:foreground ,"#1b1b23" :background ,(face-attribute 'default :background)))))
+ `(ansi-color-red ((t (:foreground ,"#ebb9b9" :background, "#ebb9b9"))))
+ `(ansi-color-green ((t (:foreground ,"#caf6bb" :background, "#caf6bb"))))
+ `(ansi-color-yellow ((t (:foreground ,"#e6dfb8" :background, "#e6dfb8"))))
+ `(ansi-color-blue ((t (:foreground ,"#cddbf9" :background, "#cddbf9"))))
+ `(ansi-color-magenta ((t (:foreground ,"#f6bbe7" :background, "#f6bbe7"))))
+ `(ansi-color-cyan ((t (:foreground ,"#b8dceb" :background, "#b8dceb"))))
+ `(ansi-color-white ((t (:foreground ,"#c8cedc" :background, "#c8cedc")))))
+
+(custom-set-faces
+ `(ansi-color-bright-black ((t (:foreground ,"#1b1b23" :background ,(face-attribute 'default :background)))))
+ `(ansi-color-bright-red ((t (:foreground ,"#d95e59" :background, "#d95e59"))))
+ `(ansi-color-bright-green ((t (:foreground ,"#8fc587" :background, "#8fc587"))))
+ `(ansi-color-bright-yellow ((t (:foreground ,"#ffcf85" :background, "#ffcf85"))))
+ `(ansi-color-bright-blue ((t (:foreground ,"#4a83c3" :background, "#4a83c3"))))
+ `(ansi-color-bright-magenta ((t (:foreground ,"#f6bbe7" :background, "#f6bbe7"))))
+ `(ansi-color-bright-cyan ((t (:foreground ,"#4eb3cd" :background, "#4eb3cd")))))
 
 (with-eval-after-load 'marginalia
   (custom-set-faces
@@ -106,31 +131,6 @@
 
 ;; backup theme (for sore eyes)
 ;; (load-theme 'gruvbox)
-
-;; modeline
-(use-package doom-modeline
-  :ensure t
-  :init (doom-modeline-mode 1))
-
-;; replace ansi colors for terminal (custom-set-faces
-(custom-set-faces
- '(ansi-color-black ((t (:foreground "#1b1b23" :background "#252525" :inherit))))
- '(ansi-color-blue ((t (:foreground "#cddbf9" :background "#cddbf9"))))
- '(ansi-color-bright-black ((t (:foreground "#1b1b23" :background "#252525"))))
- '(ansi-color-bright-blue ((t (:foreground "#4a83c3" :background "#4a83c3"))))
- '(ansi-color-bright-cyan ((t (:foreground "#4eb3cd" :background "#4eb3cd"))))
- '(ansi-color-bright-green ((t (:foreground "#8fc587" :background "#8fc587"))))
- '(ansi-color-bright-magenta ((t (:foreground "#f6bbe7" :background "#f6bbe7"))))
- '(ansi-color-bright-red ((t (:foreground "#d95e59" :background "#d95e59"))))
- '(ansi-color-bright-yellow ((t (:foreground "#ffcf85" :background "#ffcf85"))))
- '(ansi-color-cyan ((t (:foreground "#b8dceb" :background "#b8dceb"))))
- '(ansi-color-green ((t (:foreground "#caf6bb" :background "#caf6bb"))))
- '(ansi-color-magenta ((t (:foreground "#f6bbe7" :background "#f6bbe7"))))
- '(ansi-color-red ((t (:foreground "#ebb9b9" :background "#ebb9b9"))))
- '(ansi-color-white ((t (:foreground "#c8cedc" :background "#c8cedc"))))
- '(ansi-color-yellow ((t (:foreground "#e6dfb8" :background "#e6dfb8"))))
- '(italic ((t (:slant italic))))
- '(org-ellipsis ((t (:underline nil)))))
 
 ;; fonts
 (custom-set-faces
@@ -144,6 +144,11 @@
 (use-package rainbow-mode                                    ; colorize strings representing colors
   :ensure t)
 
+;; modeline
+(use-package doom-modeline
+  :ensure t
+  :init (doom-modeline-mode 1))
+
 ;; misc ui settings
 (global-hl-line-mode t)                                      ; highlight current line
 (scroll-bar-mode -1)                                         ; disable visible scrollbar
@@ -156,12 +161,12 @@
 (column-number-mode)                                         ; display column number display in mode line
 (global-display-line-numbers-mode -1)                        ; display line numbers
 (setq use-dialog-box nil)                                    ; disable ui dialog prompts
-;;(setq dired-omit-verbose nil)                              ; disable dired omit messsages
-;;(add-hook 'dired-mode-hook (lambda () (dired-omit-mode)))  ; hide backup files in dired
+;; (setq dired-omit-verbose nil)                              ; disable dired omit messsages
+;; (add-hook 'dired-mode-hook (lambda () (dired-omit-mode)))  ; hide backup files in dired
 (global-prettify-symbols-mode 1)                             ; prettify-symbols
 
 ;; chinese font
-(defface my-chinese-face
+(defface my/chinese-face
   '((t :family "Noto Sans CJK TC"))
   "Face for Chinese characters.")
 
@@ -179,7 +184,7 @@
 ;; icons
 (use-package nerd-icons-corfu
   :ensure t
-  :after corfu
+  :after (corfu)
   :config
   (add-to-list 'corfu-margin-formatters #'nerd-icons-corfu-formatter))
 
@@ -190,9 +195,7 @@
 
 (use-package nerd-icons-completion
   :ensure t
-  :hook (marginalia-mode . nerd-icons-completion-mode)
-  :config
-  (nerd-icons-completion-mode))
+  :hook (marginalia-mode . nerd-icons-completion-mode))
 
 (use-package nerd-icons-ibuffer
   :ensure t
@@ -207,11 +210,11 @@
 (defvar my/default-scroll-lines 15)
 
 (defun my/scroll-up (orig-func &optional arg)
-  "Scroll up `my/default-scroll-lines' lines"
-  (apply orig-func (list (or arg my/default-scroll-lines))))
+  "Redefine scroll-up distance. Uses prefix argument if possible, otherwise use default"
+  (apply orig-func (list (or arg my/default-scroll-lines)))) 
 
 (defun my/scroll-down (orig-func &optional arg)
-  "Scroll down `my/default-scroll-lines' lines"
+  "Redefine scroll lines distance. Uses prefix argument if possible, otherwise use default"
   (apply orig-func (list (or arg my/default-scroll-lines))))
 
 (advice-add 'scroll-up :around 'my/scroll-up)
@@ -221,7 +224,7 @@
 (use-package tab-jump-out
   :ensure t
   :config
-  (tab-jump-out-mode t))
+  (tab-jump-out-global-mode t))
 
 ;; registers
 (set-register ?e (cons 'file "~/.emacs.d/init.el"))
@@ -229,14 +232,13 @@
 (set-register ?s (cons 'file "~/.config/starship.toml"))
 (set-register ?z (cons 'file "~/.zshrc"))
 (set-register ?t (cons 'file "~/org/tasks.org"))
-(set-register ?k (cons 'file "~/org/roam/20231026150011-emacs.org"))
 
 ;; use ibuffer
 (global-set-key (kbd "C-x C-b") 'ibuffer)
 
 ;; switch to mini-buffer
 (global-set-key (kbd "C-x m") 'switch-to-minibuffer)
-(global-set-key "\C-x\ \C-r" 'recentf-open-files)
+(global-set-key (kbd "C-x C-r") 'recentf-open-files)
 
 ;; save place in files
 (save-place-mode 1)
@@ -253,9 +255,8 @@
 ;; popper
 (use-package popper
   :ensure t
-  :bind (("C-'"   . popper-toggle)
-         ("M-'"   . popper-cycle)
-         ("C-M-'" . popper-toggle-type))
+  :bind (("M-'"   . popper-cycle)
+         ("C-M-'" . popper-toggle-type)) ; turns a popup buffer into a regular window or vice-versa.
   :init
   (setq popper-reference-buffers
         '("\\*Messages\\*"
@@ -267,6 +268,162 @@
   (popper-mode +1)
   (popper-echo-mode +1))
 
+;; org mode
+
+(setq org-directory "~/org")
+(setq org-agenda-files '("/home/polhuang/org/tasks.org" "/home/polhuang/org/schedule.org" "/home/polhuang/org/backmatter-tasks.org"))
+
+(use-package org
+  :bind
+  (("C-c n C-i" . org-id-get-create)
+   ("C-c a" . org-agenda)
+   ("C-c o s" . org-save-all-org-buffers)
+   ("C-c M-q c" . org-capture)
+   :map org-mode-map
+   ("C-c \\" . puni-mark-sexp-around-point)
+   ("C-c C-s" . avy-goto-line))
+  :hook
+  (org-mode . org-indent-mode)
+  (org-mode . turn-on-org-cdlatex)
+  (org-mode . my/org-syntax-table-modify)
+  (org-mode . my/org-add-electric-pairs)
+  :init
+  (add-to-list 'display-buffer-alist
+               '("\\*org-roam\\*"
+                 (display-buffer-in-direction)
+                 (direction . right)
+                 (window-width . 0.33)
+                 (window-height . fit-window-to-buffer)))
+  :config
+  (setq org-indent-mode-turns-off-org-adapt-indentation nil)
+  (setq org-startup-with-inline-images t)
+  (setq org-ellipsis " ▾")
+  (custom-set-faces
+   '(org-ellipsis ((t (:underline nil)))))
+  (setq org-clock-persist 'history)
+  (setq org-format-latex-options (plist-put org-format-latex-options :scale 1.5))
+  (setq org-startup-with-latex-preview t)
+  (setq org-preview-latex-default-process 'dvipng)
+  (org-clock-persistence-insinuate)
+  (setq org-agenda-start-with-log-mode t)
+  (setq org-log-done 'time)
+  (setq org-log-into-drawer t)
+  (setq org-id-link-to-org-use-id 'create-if-interactive)
+  (setq org-startup-folded 'content)
+  (defun my/org-syntax-table-modify ()
+    "Modify `org-mode-syntax-table' to treat < and > characters as punctuation."
+    (modify-syntax-entry ?< "." org-mode-syntax-table)
+    (modify-syntax-entry ?> "." org-mode-syntax-table))
+
+  (defun my/scratch-buffer-dont-kill ()
+    (if (equal buffer-name "*scratch")
+        ()))
+
+  ;; org-capture
+  (require 'org-protocol)
+  (setq org-capture-templates
+        `(("p" "Protocol Text" entry
+           (file+headline ,(concat org-directory "/roam/captures.org") "Captures")
+	   "* %^{Title}\nSource: %u, %c\n #+BEGIN_QUOTE\n%i\n#+END_QUOTE\n\n\n")
+	  ("L" "Protocol Link" entry
+           (file+headline ,(concat org-directory "/roam/captures.org") "Captures")
+	   "* %? [[%:link][%:description]] \nCaptured On: %U")
+          ("s")
+          ("t" "Task" entry
+           (file+headline ,(concat org-directory "/tasks.org") "Tasks")
+           "* TODO %?\nSCHEDULED: <%(org-read-date nil nil)>\n"
+           :empty-lines-before 1
+           :empty-lines-after 1)))
+  
+  ;; org-babel
+  (org-babel-do-load-languages
+   'org-babel-load-languages
+   '((lisp . t)
+     (python . t)
+     (js . t)
+     (shell . t)
+     (jupyter . t)))
+  (setq org-confirm-babel-evaluate nil)
+  (setq org-src-tab-acts-natively t)
+  (setq org-babel-python-command "python3")
+  (add-to-list 'org-structure-template-alist '("el" . "src emacs-lisp"))
+  (add-to-list 'org-structure-template-alist '("py" . "src python :results output"))
+  (add-to-list 'org-structure-template-alist '("jp" . "src jupyter-python :session py")))
+
+;; org search
+(defun my/org-search ()
+  "Search through org files ."
+  (interactive)
+  (consult-ripgrep "~/org"))
+
+;; org-roam
+(use-package org-roam
+  :ensure t
+  :init
+  (setq org-roam-v2-ack t)
+  (setq org-roam-directory (file-truename "~/org/roam/"))
+  :custom
+  (org-roam-completion-everywhere t)
+  :bind (("C-c n l" . org-roam-buffer-toggle)
+	 ("C-c n f" . org-roam-node-find)
+	 ("C-c n i" . org-roam-node-insert)
+	 ("C-c n c" . org-roam-capture)
+	 ("C-c n g" . org-roam-graph)
+         ("C-c n t" . org-roam-tag-add)
+	 ("C-c n I" . org-roam-node-insert-immediate)
+	 :map org-mode-map
+	 (("C-M-i" . completion-at-point)))
+  :bind-keymap
+  ("C-c n d" . org-roam-dailies-map)
+  :config
+  (require 'org-roam-dailies)
+  (org-roam-db-autosync-mode)
+  (setq org-roam-node-display-template
+        (concat "${title:*} "
+                (propertize "${tags:20}" 'face 'org-tag)))
+  (setq org-roam-mode-sections
+        (list #'org-roam-backlinks-section
+	      #'org-roam-reflinks-section
+	      ;; #'org-roam-unlinked-references-section
+	      ))
+  (setq org-roam-dailies-capture-templates
+        '(("d" "default" entry "* %<%I:%M %p> \n%?"
+	   :if-new (file+head "%<%Y-%m-%d>.org" "#+title: %<%Y-%m-%d>\n"))))
+  (defun org-roam-node-insert-immediate (arg &rest args)
+    (interactive "P")
+    (let ((args (cons arg args))
+	  (org-roam-capture-templates (list (append (car org-roam-capture-templates)
+						    '(:immediate-finish t)))))
+      (apply #'org-roam-node-insert args))))
+
+(advice-add #'corfu-insert
+            :after (lambda ()
+                     (when
+                         (eq major-mode 'org-mode)
+                       (org-roam-link-replace-all))))
+
+;; org-notify - only works for deadlines, not scheduled tasks
+(use-package org-notify
+  :ensure t
+  :after org
+  :custom (org-notify-timestamp-types '(:deadline))
+  :config
+  (org-notify-start)
+
+  (org-notify-add 'default
+                  '(:time "-1s" :period "20s" :duration 10
+                          :actions (-notify -ding))
+		  '(:time "1m" :period "20s" :duration 60
+                          :actions (-notify -ding))
+                  '(:time "5m" :period "1m" :duration 240
+                          :actions (-notify))
+                  '(:time "15m" :period "2m" :duration 600
+                          :actions -notify)
+                  '(:time "30m" :period "5m" :duration 600 :actions -notify)))
+
+;; org-mime
+(use-package org-mime
+  :ensure t)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; hydra ----------------------------------------------------------------------- ;;
@@ -515,10 +672,6 @@ T - tag prefix
    "Org"
    (("h" consult-org-heading "Headings"))))
 
-
-
-
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; logs, debugging, and history ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -613,6 +766,7 @@ T - tag prefix
 ;; editing ;;
 ;;;;;;;;;;;;;
 
+;; typing replaces selected field
 (delete-selection-mode 1)
 
 ;; intellij-style backspace
@@ -624,7 +778,7 @@ T - tag prefix
 (use-package undo-tree
   :ensure t
   :init
-  (global-undo-tree-mode 1)
+  (global-undo-tree-mode)
   :custom
   (undo-tree-history-directory-alist '(("." . "~/.emacs.d/undo")))
   (undo-tree-auto-save-history t)
@@ -639,9 +793,8 @@ T - tag prefix
 
 ;; electric pair
 (electric-pair-mode 1)
-(defvar org-electric-pairs '((?$ . ?$))
-  "Electric pairs for org mode.")
 
+(defvar org-electric-pairs '((?$ . ?$))) ; add custom pairs
 (defun my/org-add-electric-pairs ()
   (setq-local electric-pair-pairs (append electric-pair-pairs org-electric-pairs))
   (setq-local electric-pair-text-pairs electric-pair-pairs))
@@ -655,24 +808,26 @@ T - tag prefix
 (use-package tempel
   :bind (("M-+" . tempel-complete)
          ("M-*" . tempel-insert))
+  :preface
   :init
-  (make-directory (expand-file-name "tempel/" user-emacs-directory) t)
-  (setq tempel-path (expand-file-name "tempel/" user-emacs-directory))
+  (make-directory (expand-file-name "templates/" org-directory) t)
+  (setq tempel-path (expand-file-name "templates/" org-directory))
   
   (defun tempel-setup-capf ()
-   
     (setq-local completion-at-point-functions
                 (cons #'tempel-complete
                       completion-at-point-functions)))
-
-  (add-hook 'conf-mode-hook 'tempel-setup-capf)
+  
   (add-hook 'prog-mode-hook 'tempel-setup-capf)
   (add-hook 'text-mode-hook 'tempel-setup-capf)
   (add-hook 'org-mode-hook 'tempel-setup-capf)
 
   ;; tempel keys
   (tempel-key "C-c t f" fun emacs-lisp-mode-map)
-  (tempel-key "C-c t d" (format-time-string "%m-%d-%Y")))
+  (tempel-key "C-c t d" (format-time-string "%m-%d-%Y"))
+  
+  :custom
+  (tempel-trigger-prefix "<"))
 
 ;;;;;;;;;;;;;;;;;;;;;;;
 ;; completion system ;;
@@ -733,6 +888,7 @@ T - tag prefix
   :ensure t
   :init
   (marginalia-mode))
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; consult --------------------------------------------------------------------- ;;
@@ -1013,83 +1169,6 @@ T - tag prefix
 
 ;; scratch buffer functions
 
-(defgroup scratchpad nil
-  "filler"
-  :group 'files
-  :prefix "scratchpad-")
-  
-(defcustom scratchpad-buffer-name "*scratch*"
-  "Custom scratchpad buffer name"
-  :type 'string
-  :group 'persistent-scratch)
-
-(defun my/restore-scratch-buffer ()
-  (interactive)
-  (with-current-buffer (get-buffer-create scratchpad-buffer-name)
-    (insert-file-contents "~/org/scratchpad.org")))
-
-
-(with-current-buffer (get-buffer-create scratchpad-buffer-name)
-          (goto-char (point-max))
-          (insert selected-text "\n"))))
-
-(my/restore-scratch-buffer)
-
-(defun persistent-scratch-restore (&optional file)
-  "Restore the scratch buffers.
-Load FILE and restore all saved buffers to their saved state.
-
-FILE is a file to restore scratch buffers from; when nil or when called
-interactively, `persistent-scratch-save-file' is used.
-
-This is a potentially destructive operation: if there's an open buffer with the
-same name as a saved buffer, the contents of that buffer will be overwritten."
-  (interactive)
-  (let ((save-data
-         (read
-          (with-temp-buffer
-            (let ((coding-system-for-read 'utf-8-unix))
-              (insert-file-contents (or file persistent-scratch-save-file)))
-            (buffer-string)))))
-    (dolist (saved-buffer save-data)
-      (with-current-buffer (get-buffer-create (aref saved-buffer 0))
-        (erase-buffer)
-        (insert (aref saved-buffer 1))
-        (funcall (or (aref saved-buffer 3) #'ignore))
-        (let ((point-and-mark (aref saved-buffer 2)))
-          (when point-and-mark
-            (goto-char (car point-and-mark))
-            (set-mark (cdr point-and-mark))))
-        (let ((narrowing (aref saved-buffer 4)))
-          (when narrowing
-            (narrow-to-region (car narrowing) (cdr narrowing))))
-        ;; Handle version 2 fields if present.
-        (when (>= (length saved-buffer) 6)
-          (unless (aref saved-buffer 5)
-            (deactivate-mark)))))))
-
-(defun my/scratch-buffer-other-window () 
-  "Open the *scratch* buffer in a new window."
-  (interactive)
-  (switch-to-buffer-other-window (get-buffer-create scratchpad-buffer-name)))
-
-(defun my/toggle-scratch-buffer-other-window ()
-  "Toggle between *scratch* buffer and the current buffer."
-  (interactive)
-  (if (string= (buffer-name) scratchpad-buffer-name)
-      (delete-window)
-    (let ((selected-text (when (region-active-p)
-                           (buffer-substring-no-properties (region-beginning) (region-end)))))
-      (when selected-text
-        (with-current-buffer (get-buffer-create scratchpad-buffer-name)
-          (goto-char (point-max))
-          (insert selected-text "\n"))))
-    (my/scratch-buffer-other-window)))
-
-
-
-(global-set-key (kbd "C-M-Z") 'my/toggle-scratch-buffer-other-window)
-
 ;; persistent scratch
 ;; (use-package persistent-scratch
 ;;   :after org
@@ -1100,11 +1179,11 @@ same name as a saved buffer, the contents of that buffer will be overwritten."
 ;;   (persistent-scratch-setup-default)
 ;;   (setq persistent-scratch-save-file (concat org-directory "/scratch.org")))
 
-;;  (add-hook 'server-after-make-frame-hook
+;; (add-hook 'server-after-make-frame-hook
 ;;           (lambda ()
 ;;             (when (equal (buffer-name) "*scratch*")
 ;;               (revert-buffer))))
-  
+
 ;; which-key
 (use-package which-key
   :ensure t
@@ -1308,180 +1387,22 @@ same name as a saved buffer, the contents of that buffer will be overwritten."
 (load (expand-file-name "~/.quicklisp/slime-helper.el"))
 (setq inferior-lisp-program "sbcl")
 
-;;;;;;;;;;;;;;
-;; org mode ;;
-;;;;;;;;;;;;;;
-
-(setq org-directory "~/org")
-(setq org-agenda-files '("/home/polhuang/org/tasks.org" "/home/polhuang/org/schedule.org" "/home/polhuang/org/backmatter-tasks.org"))
-
-;; org mode
-(use-package org
-  :bind
-  (("C-c n C-i" . org-id-get-create)
-   ("C-c a" . org-agenda)
-   ("C-c o s" . org-save-all-org-buffers)
-   ("C-M-] c" . org-capture)
-   :map org-mode-map
-   ("C-c \\" . puni-mark-sexp-around-point)
-   ("C-c C-s" . avy-goto-line)
-   ("C-m" . nil))
-  :hook
-  (org-mode . org-indent-mode)
-  (org-mode . turn-on-org-cdlatex)
-  (org-mode . my/org-syntax-table-modify)
-  (org-mode . my/org-add-electric-pairs)
-  (org-mode . my/scratch-buffer-dont-kill)
-  :init
-  (add-to-list 'display-buffer-alist
-               '("\\*org-roam\\*"
-                 (display-buffer-in-direction)
-                 (direction . right)
-                 (window-width . 0.33)
-                 (window-height . fit-window-to-buffer)))
-  :config
-  (setq org-indent-mode-turns-off-org-adapt-indentation nil)
-  (setq org-startup-with-inline-images t)
-  (setq org-ellipsis " ▾")
-  (custom-set-faces
-   '(org-ellipsis ((t (:underline nil)))))
-  (setq org-clock-persist 'history)
-  (setq org-format-latex-options (plist-put org-format-latex-options :scale 1.5))
-  (setq org-startup-with-latex-preview t)
-  (setq org-preview-latex-default-process 'dvipng)
-  (org-clock-persistence-insinuate)
-  (setq org-todo-keywords
-      '((sequence "TODO" "IN PROGRESS" "DONE")))
-  (setq org-agenda-start-with-log-mode t)
-  (setq org-log-done 'time)
-  (setq org-log-into-drawer t)
-  (setq org-id-link-to-org-use-id 'create-if-interactive)
-  (setq org-startup-folded 'content)
-
-  (defun my/org-syntax-table-modify ()
-    "Modify `org-mode-syntax-table' to treat < and > characters as punctuation."
-    (modify-syntax-entry ?< "." org-mode-syntax-table)
-    (modify-syntax-entry ?> "." org-mode-syntax-table))
-
-  (defun my/scratch-buffer-dont-kill ()
-    (if (equal buffer-name "*scratch")
-        ()
-    ))
-
-  ;; org-capture
-  (require 'org-protocol)
-  (setq org-capture-templates
-        `(("p" "Protocol Text" entry
-           (file+headline ,(concat org-directory "/roam/captures.org") "Captures")
-	   "* %^{Title}\nSource: %u, %c\n #+BEGIN_QUOTE\n%i\n#+END_QUOTE\n\n\n")
-	  ("L" "Protocol Link" entry
-           (file+headline ,(concat org-directory "/roam/captures.org") "Captures")
-	   "* %? [[%:link][%:description]] \nCaptured On: %U")
-          ("s")
-          ("t" "Task" entry
-           (file+headline ,(concat org-directory "/tasks.org") "Tasks")
-           "* TODO %?\nSCHEDULED: <%(org-read-date nil nil)>\n"
-           :empty-lines-before 1
-           :empty-lines-after 1)))
-  
-  ;; org-babel
-  (org-babel-do-load-languages
-   'org-babel-load-languages
-   '((lisp . t)
-     (python . t)
-     (js . t)
-     (shell . t)
-     (jupyter . t)))
-  (setq org-confirm-babel-evaluate nil)
-  (setq org-src-tab-acts-natively t)
-  (setq org-babel-python-command "python3")
-  (add-to-list 'org-structure-template-alist '("el" . "src emacs-lisp"))
-  (add-to-list 'org-structure-template-alist '("py" . "src python :results output"))
-  (add-to-list 'org-structure-template-alist '("jp" . "src jupyter-python :session py")))
-
-;; org search
-(defun my/org-search ()
-  "Search through org files ."
-  (interactive)
-  (consult-ripgrep "~/org"))
-
-;; org-roam
-(use-package org-roam
-  :ensure t
-  :init
-  (setq org-roam-v2-ack t)
-  (setq org-roam-directory (file-truename "~/org/roam/"))
-  :custom
-  (org-roam-completion-everywhere t)
-  :bind (("C-c n l" . org-roam-buffer-toggle)
-	 ("C-c n f" . org-roam-node-find)
-	 ("C-c n i" . org-roam-node-insert)
-	 ("C-c n c" . org-roam-capture)
-	 ("C-c n g" . org-roam-graph)
-         ("C-c n t" . org-roam-tag-add)
-	 ("C-c n I" . org-roam-node-insert-immediate)
-	 :map org-mode-map
-	 (("C-M-i" . completion-at-point)))
-  :bind-keymap
-  ("C-c n d" . org-roam-dailies-map)
-  :config
-  (require 'org-roam-dailies)
-  (org-roam-db-autosync-mode)
-  (setq org-roam-node-display-template
-        (concat "${title:*} "
-                (propertize "${tags:20}" 'face 'org-tag)))
-  (setq org-roam-mode-sections
-        (list #'org-roam-backlinks-section
-	      #'org-roam-reflinks-section
-	      ;; #'org-roam-unlinked-references-section
-	      ))
-  (setq org-roam-dailies-capture-templates
-        '(("d" "default" entry "* %<%I:%M %p> \n%?"
-	   :if-new (file+head "%<%Y-%m-%d>.org" "#+title: %<%Y-%m-%d>\n"))))
-  (defun org-roam-node-insert-immediate (arg &rest args)
-    (interactive "P")
-    (let ((args (cons arg args))
-	  (org-roam-capture-templates (list (append (car org-roam-capture-templates)
-						    '(:immediate-finish t)))))
-      (apply #'org-roam-node-insert args))))
-
-(advice-add #'corfu-insert
-            :after (lambda ()
-                     (when
-                         (eq major-mode 'org-mode)
-                       (org-roam-link-replace-all))))
-
-;; org-notify - only works for deadlines, not scheduled tasks
-(use-package org-notify
-  :ensure t
-  :after org
-  :custom (org-notify-timestamp-types '(:deadline))
-  :config
-  (org-notify-start)
-
-  (org-notify-add 'default
-                  '(:time "-1s" :period "20s" :duration 10
-                          :actions (-notify -ding))
-                  '(:time "1m" :period "20s" :duration 60
-                          :actions (-notify -ding))
-                  '(:time "5m" :period "1m" :duration 240
-                          :actions (-notify))
-                  '(:time "15m" :period "2m" :duration 600
-                          :actions -notify)
-                  '(:time "30m" :period "5m" :duration 600 :actions -notify)))
-
-;; org-mime
-(use-package org-mime
-  :ensure t)
-
 ;;;;;;;;;;;;;;;;;;;
 ;; miscellaneous ;;
 ;;;;;;;;;;;;;;;;;;;
 
 ;; nyan-mode
 (use-package nyan-mode
-  :ensure t)
-(nyan-mode 1)
+  :ensure t
+  :config
+  (nyan-mode 1))
+
+;; zone-mode
+(use-package zone
+  :ensure nil
+  :config
+  (zone-when-idle 120))
+
 
 ;; dashboard
 (use-package dashboard
