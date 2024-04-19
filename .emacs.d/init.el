@@ -78,27 +78,27 @@
   (seoul256-background 234)
   :config
   (custom-set-faces
-   '(default ((t (:foreground "#FFF0F5"))))
-   '(font-lock-keyword-face ((t (:foreground "#ffb9ba" :weight bold))))
-   '(font-lock-constant-face ((t (:weight bold))))
-   '(font-lock-builtin-face ((t (:foreground "#fffed1" :weight bold))))
-   '(font-lock-function-name-face ((t (:foreground "#d1fffe" :weight bold))))
-   '(font-lock-variable-name-face ((t (:weight bold))))
-   '(link ((t (:foreground "#b1f3fb" :underline t))))
-   '(mode-line ((t (:background "#565656"))))
-   '(highlight ((t (:background "#FFBFBD"))))))
+   '(default ((t (:foreground "#FFF0F5" :inherit))))
+   '(font-lock-keyword-face ((t (:foreground "#ffb9ba" :weight bold :inherit))))
+   '(font-lock-constant-face ((t (:weight bold :inherit))))
+   '(font-lock-builtin-face ((t (:foreground "#fffed1" :weight bold :inherit))))
+   '(font-lock-function-name-face ((t (:foreground "#d1fffe" :weight bold :inherit))))
+   '(font-lock-variable-name-face ((t (:weight bold :inherit))))
+   '(link ((t (:foreground "#b1f3fb" :underline t :inherit))))
+   '(mode-line ((t (:background "#565656" :inherit))))
+   '(highlight ((t (:background "#FFBFBD" :inherit))))))
 
 (setq org-todo-keyword-faces
  '(("IN PROGRESS" . "orange")))
 
 (with-eval-after-load 'org
   (custom-set-faces
-   '(org-level-1 ((t (:foreground "#ffd7af"))))
-   '(org-level-4 ((t (:foreground "#FFBD98" :weight bold))))
-   '(org-block-begin-line ((t (:foreground "#333233" :distant-foreground "#FFF0F5" :background "#FFBFBD"))))
-   '(org-block ((t (:background "#171717"))))
-   '(org-todo ((t (:foreground "#c66d86" :weight bold))))
-   '(org-verbatim ((t (:foreground "#BC8F8F"))))))
+   '(org-level-1 ((t (:foreground "#ffd7af" :weight bold :inherit))))
+   '(org-level-4 ((t (:foreground "#FFBD98" :weight bold :inherit))))
+   '(org-block-begin-line ((t (:foreground "#333233" :distant-foreground "#FFF0F5" :background "#FFBFBD" :inherit))))
+   '(org-block ((t (:background "#171717" :inherit))))
+   '(org-todo ((t (:foreground "#c66d86" :weight bold :inherit))))
+   '(org-verbatim ((t (:foreground "#BC8F8F" :inherit))))))
 
 (with-eval-after-load 'marginalia
   (custom-set-faces
@@ -112,9 +112,9 @@
   :ensure t
   :init (doom-modeline-mode 1))
 
-;; replace ansi colors for terminal
+;; replace ansi colors for terminal (custom-set-faces
 (custom-set-faces
- '(ansi-color-black ((t (:foreground "#1b1b23" :background "#252525"))))
+ '(ansi-color-black ((t (:foreground "#1b1b23" :background "#252525" :inherit))))
  '(ansi-color-blue ((t (:foreground "#cddbf9" :background "#cddbf9"))))
  '(ansi-color-bright-black ((t (:foreground "#1b1b23" :background "#252525"))))
  '(ansi-color-bright-blue ((t (:foreground "#4a83c3" :background "#4a83c3"))))
@@ -207,11 +207,11 @@
 (defvar my/default-scroll-lines 15)
 
 (defun my/scroll-up (orig-func &optional arg)
-  "Scroll up `my/default-scroll-lines' lines (probably less than default)."
+  "Scroll up `my/default-scroll-lines' lines"
   (apply orig-func (list (or arg my/default-scroll-lines))))
 
 (defun my/scroll-down (orig-func &optional arg)
-  "Scroll down `my/default-scroll-lines' lines (probably less than default)."
+  "Scroll down `my/default-scroll-lines' lines"
   (apply orig-func (list (or arg my/default-scroll-lines))))
 
 (advice-add 'scroll-up :around 'my/scroll-up)
@@ -274,7 +274,7 @@
 
 (use-package hydra
   :ensure t
-  :bind (("C-M-M" . hydra-colossa/body)))
+  :bind (("C-M-G" . hydra-colossa/body)))
 
 ;; hydra-colossa (my personal global hydra)
 (defhydra hydra-colossa (:color amaranth :hint nil)
@@ -302,7 +302,7 @@
   ("t" consult-org-agenda :color blue)
   ("w" hydra-windows/body :color blue)
   ("." nil :color blue)
-  ("C-M-M" nil :color blue))
+  ("C-M-G" nil :color blue))
 
 (defhydra hydra-windows (:color amaranth :hint nil)
   "
@@ -543,7 +543,11 @@ T - tag prefix
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;; kill-this-buffer
-(global-set-key (kbd "C-M-] k") 'kill-this-buffer) ;; C-c M-q is bound to keyboard macro
+(defun my/kill-this-buffer ()
+  (unless (string= (buffer-name) "*Scratch*")
+    (kill-this-buffer)))
+
+(global-set-key (kbd "C-M-] k") 'my/kill-this-buffer) 
 
 ;; disable recursive minibuffers
 (setq enable-recursive-minibuffers nil)
@@ -761,7 +765,7 @@ T - tag prefix
 	 ("M-g g" . consult-goto-line)             ;; orig. goto-line
 	 ;; ("M-g M-g" . consult-goto-line)           ;; orig. goto-line
 	 ("M-g o" . consult-outline)               ;; Alternative: consult-org-heading
-	 ("M-g m" . consult-mark)
+m	 ("M-g m" . consult-mark)
 	 ("M-g k" . consult-global-mark)
 	 ("M-g i" . consult-imenu)
 	 ("M-g I" . consult-imenu-multi)
@@ -1027,12 +1031,15 @@ T - tag prefix
 
 (global-set-key (kbd "C-M-Z") 'my/toggle-scratch-buffer-other-window)
 
+
+
 ;; persistent scratch
 (use-package persistent-scratch
   :ensure t
+  :preface
+  (setq initial-major-mode 'org-mode
+        initial-scratch-message nil)
   :config
-  (setq initial-scratch-message nil)
-  (setq initial-major-mode 'org-mode)
   (persistent-scratch-setup-default))
 
 ;; which-key
@@ -1254,12 +1261,14 @@ T - tag prefix
    ("C-M-] c" . org-capture)
    :map org-mode-map
    ("C-c \\" . puni-mark-sexp-around-point)
-   ("C-c C-s" . avy-goto-line))
+   ("C-c C-s" . avy-goto-line)
+   ("C-m" . nil))
   :hook
   (org-mode . org-indent-mode)
   (org-mode . turn-on-org-cdlatex)
   (org-mode . my/org-syntax-table-modify)
   (org-mode . my/org-add-electric-pairs)
+  (org-mode . my/scratch-buffer-dont-kill)
   :init
   (add-to-list 'display-buffer-alist
                '("\\*org-roam\\*"
@@ -1290,6 +1299,11 @@ T - tag prefix
     "Modify `org-mode-syntax-table' to treat < and > characters as punctuation."
     (modify-syntax-entry ?< "." org-mode-syntax-table)
     (modify-syntax-entry ?> "." org-mode-syntax-table))
+
+  (defun my/scratch-buffer-dont-kill ()
+    (if (equal buffer-name "*scratch")
+        ()
+    ))
 
   ;; org-capture
   (require 'org-protocol)
