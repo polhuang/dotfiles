@@ -544,10 +544,11 @@ T - tag prefix
 
 ;; kill-this-buffer
 (defun my/kill-this-buffer ()
-  (unless (string= (buffer-name) "*Scratch*")
+  (interactive)
+  (unless (string= (buffer-name) "*scratch*")
     (kill-this-buffer)))
 
-(global-set-key (kbd "C-M-] k") 'my/kill-this-buffer) 
+(global-set-key (kbd "C-M-] k") 'my/kill-this-buffer)
 
 ;; disable recursive minibuffers
 (setq enable-recursive-minibuffers nil)
@@ -739,7 +740,7 @@ T - tag prefix
 
 (use-package consult
   :ensure t
-  :bind (;; C-c bindings in `mode-specific-map'
+  :bind ((;; C-c bindings in `mode-specific-map'
 	 ("C-c M-x" . consult-mode-command)
          ("C-x C-r" . consult-recent-file)
 	 ("C-c h" . consult-history)
@@ -765,7 +766,7 @@ T - tag prefix
 	 ("M-g g" . consult-goto-line)             ;; orig. goto-line
 	 ;; ("M-g M-g" . consult-goto-line)           ;; orig. goto-line
 	 ("M-g o" . consult-outline)               ;; Alternative: consult-org-heading
-m	 ("M-g m" . consult-mark)
+	 ("M-g m" . consult-mark)
 	 ("M-g k" . consult-global-mark)
 	 ("M-g i" . consult-imenu)
 	 ("M-g I" . consult-imenu-multi)
@@ -789,7 +790,7 @@ m	 ("M-g m" . consult-mark)
 	 ;; minibuffer history
 	 :map minibuffer-local-map
 	 ("M-s" . consult-history)                 ;; orig. next-matching-history-element
-	 ("M-r" . consult-history))                ;; orig. previous-matching-history-element
+	 ("M-r" . consult-history)))                ;; orig. previous-matching-history-element
 
   ;; enable automatic preview at point in the *Completions* buffer.
   :hook (completion-list-mode . consult-preview-at-point-mode)
@@ -1011,37 +1012,99 @@ m	 ("M-g m" . consult-mark)
 ;;;;;;;;;;;;;;;
 
 ;; scratch buffer functions
+
+(defgroup scratchpad nil
+  "filler"
+  :group 'files
+  :prefix "scratchpad-")
+  
+(defcustom scratchpad-buffer-name "*scratch*"
+  "Custom scratchpad buffer name"
+  :type 'string
+  :group 'persistent-scratch)
+
+(defun my/restore-scratch-buffer ()
+  (interactive)
+  (with-current-buffer (get-buffer-create scratchpad-buffer-name)
+    (insert-file-contents "~/org/scratchpad.org")))
+
+
+(with-current-buffer (get-buffer-create scratchpad-buffer-name)
+          (goto-char (point-max))
+          (insert selected-text "\n"))))
+
+(my/restore-scratch-buffer)
+
+(defun persistent-scratch-restore (&optional file)
+  "Restore the scratch buffers.
+Load FILE and restore all saved buffers to their saved state.
+
+FILE is a file to restore scratch buffers from; when nil or when called
+interactively, `persistent-scratch-save-file' is used.
+
+This is a potentially destructive operation: if there's an open buffer with the
+same name as a saved buffer, the contents of that buffer will be overwritten."
+  (interactive)
+  (let ((save-data
+         (read
+          (with-temp-buffer
+            (let ((coding-system-for-read 'utf-8-unix))
+              (insert-file-contents (or file persistent-scratch-save-file)))
+            (buffer-string)))))
+    (dolist (saved-buffer save-data)
+      (with-current-buffer (get-buffer-create (aref saved-buffer 0))
+        (erase-buffer)
+        (insert (aref saved-buffer 1))
+        (funcall (or (aref saved-buffer 3) #'ignore))
+        (let ((point-and-mark (aref saved-buffer 2)))
+          (when point-and-mark
+            (goto-char (car point-and-mark))
+            (set-mark (cdr point-and-mark))))
+        (let ((narrowing (aref saved-buffer 4)))
+          (when narrowing
+            (narrow-to-region (car narrowing) (cdr narrowing))))
+        ;; Handle version 2 fields if present.
+        (when (>= (length saved-buffer) 6)
+          (unless (aref saved-buffer 5)
+            (deactivate-mark)))))))
+
 (defun my/scratch-buffer-other-window () 
   "Open the *scratch* buffer in a new window."
   (interactive)
-  (switch-to-buffer-other-window (get-buffer-create "*scratch*")))
+  (switch-to-buffer-other-window (get-buffer-create scratchpad-buffer-name)))
 
 (defun my/toggle-scratch-buffer-other-window ()
   "Toggle between *scratch* buffer and the current buffer."
   (interactive)
-  (if (string= (buffer-name) "*scratch*")
+  (if (string= (buffer-name) scratchpad-buffer-name)
       (delete-window)
     (let ((selected-text (when (region-active-p)
                            (buffer-substring-no-properties (region-beginning) (region-end)))))
       (when selected-text
-        (with-current-buffer (get-buffer-create "*scratch*")
+        (with-current-buffer (get-buffer-create scratchpad-buffer-name)
           (goto-char (point-max))
           (insert selected-text "\n"))))
     (my/scratch-buffer-other-window)))
 
+
+
 (global-set-key (kbd "C-M-Z") 'my/toggle-scratch-buffer-other-window)
 
-
-
 ;; persistent scratch
-(use-package persistent-scratch
-  :ensure t
-  :preface
-  (setq initial-major-mode 'org-mode
-        initial-scratch-message nil)
-  :config
-  (persistent-scratch-setup-default))
+;; (use-package persistent-scratch
+;;   :after org
+;;   :ensure t
+;;   :config
+;;   (setq initial-major-mode 'org-mode
+;;         initial-scratch-message nil)
+;;   (persistent-scratch-setup-default)
+;;   (setq persistent-scratch-save-file (concat org-directory "/scratch.org")))
 
+;;  (add-hook 'server-after-make-frame-hook
+;;           (lambda ()
+;;             (when (equal (buffer-name) "*scratch*")
+;;               (revert-buffer))))
+  
 ;; which-key
 (use-package which-key
   :ensure t
@@ -1314,6 +1377,7 @@ m	 ("M-g m" . consult-mark)
 	  ("L" "Protocol Link" entry
            (file+headline ,(concat org-directory "/roam/captures.org") "Captures")
 	   "* %? [[%:link][%:description]] \nCaptured On: %U")
+          ("s")
           ("t" "Task" entry
            (file+headline ,(concat org-directory "/tasks.org") "Tasks")
            "* TODO %?\nSCHEDULED: <%(org-read-date nil nil)>\n"
