@@ -818,7 +818,7 @@ T - tag prefix
   :preface
   :init
   (make-directory (expand-file-name "templates/" org-directory) t)
-  (setq tempel-path (expand-file-name "templates/" org-directory))
+  (setq tempel-path (expand-file-name "templates/*.eld" org-directory))
   
   (defun tempel-setup-capf ()
     (setq-local completion-at-point-functions
@@ -828,7 +828,8 @@ T - tag prefix
   (add-hook 'prog-mode-hook 'tempel-setup-capf)
   (add-hook 'text-mode-hook 'tempel-setup-capf)
   (add-hook 'org-mode-hook 'tempel-setup-capf)
-
+  (global-tempel-abbrev-mode)
+  
   ;; tempel keys
   (tempel-key "C-c t f" fun emacs-lisp-mode-map)
   (tempel-key "C-c t d" (format-time-string "%m-%d-%Y"))
