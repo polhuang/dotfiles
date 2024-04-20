@@ -1,6 +1,17 @@
 ;; to-dos
 ;; move to literate config
 
+;;;;;;;;;;;;;;;;;;;;
+;; emacs settings ;;
+;;;;;;;;;;;;;;;;;;;;
+
+;; set gc threshold for startup performance
+(setq gc-cons-threshold (* 50 1000 1000))
+
+;; define new prefix
+(defvar my-map (make-sparse-keymap))
+(define-key global-map (kbd "C-M-]") my-map)
+
 ;;;;;;;;;;;;;;;;;;;;;;
 ;; package settings ;;
 ;;;;;;;;;;;;;;;;;;;;;;
@@ -35,13 +46,7 @@
 ;; upgrade all packages
 (package-upgrade-all)
 
-;;;;;;;;;;;;;;;;;;;;
-;; emacs settings ;;
-;;;;;;;;;;;;;;;;;;;;
 
-;; define new prefix
-(defvar my-map (make-sparse-keymap))
-(define-key global-map (kbd "C-M-]") my-map)
 
 ;;;;;;;;;;;;;;;;;;;
 ;; file settings ;;
@@ -268,6 +273,10 @@
   (popper-mode +1)
   (popper-echo-mode +1))
 
+;;;;;;;;;;;;;;
+;; org mode ;;
+;;;;;;;;;;;;;;
+
 ;; org mode
 
 (setq org-directory "~/org")
@@ -304,6 +313,8 @@
   (setq org-format-latex-options (plist-put org-format-latex-options :scale 1.5))
   (setq org-startup-with-latex-preview t)
   (setq org-preview-latex-default-process 'dvipng)
+  (setq org-todo-keywords
+          '((sequence "TODO" "IN PROGRESS" "DONE")))
   (org-clock-persistence-insinuate)
   (setq org-agenda-start-with-log-mode t)
   (setq org-log-done 'time)
@@ -314,10 +325,6 @@
     "Modify `org-mode-syntax-table' to treat < and > characters as punctuation."
     (modify-syntax-entry ?< "." org-mode-syntax-table)
     (modify-syntax-entry ?> "." org-mode-syntax-table))
-
-  (defun my/scratch-buffer-dont-kill ()
-    (if (equal buffer-name "*scratch")
-        ()))
 
   ;; org-capture
   (require 'org-protocol)
@@ -1167,22 +1174,15 @@ T - tag prefix
 ;; utilities ;;
 ;;;;;;;;;;;;;;;
 
-;; scratch buffer functions
-
 ;; persistent scratch
-;; (use-package persistent-scratch
-;;   :after org
-;;   :ensure t
-;;   :config
-;;   (setq initial-major-mode 'org-mode
-;;         initial-scratch-message nil)
-;;   (persistent-scratch-setup-default)
-;;   (setq persistent-scratch-save-file (concat org-directory "/scratch.org")))
+(use-package persistent-scratch
+  :config
+  (persistent-scratch-setup-default))
 
-;; (add-hook 'server-after-make-frame-hook
-;;           (lambda ()
-;;             (when (equal (buffer-name) "*scratch*")
-;;               (revert-buffer))))
+(add-hook 'server-after-make-frame-hook
+          (lambda ()
+            (when (equal (buffer-name) "*scratch*")
+              (revert-buffer))))
 
 ;; which-key
 (use-package which-key
@@ -1289,7 +1289,6 @@ T - tag prefix
         (yaml "https://github.com/ikatyang/tree-sitter-yaml")))
 
 ;; use (treesit-language-available-p 'language) to test if language treesit is installed
-
 (setq major-mode-remap-alist
       '((yaml-mode . yaml-ts-mode)
         (bash-mode . bash-ts-mode)
@@ -1488,6 +1487,17 @@ T - tag prefix
   :hook (emacs-startup . elcord-mode)
   :custom (elcord-idle-message "call me maybe?"))
 
+;; erc (irc)
+(setq erc-nick "polhuang"
+      erc-user-full-name "pol huang"
+      erc-autojoin-channels-alist
+      '(("#emacs" "#systemcrafters")))
+
+(defun my/connect-to-irc
+    (interactive)
+  (erc :server "irc.libera.com"
+       :port "6667"))
+
 ;; gcal
 (load "~/.emacs.d/gcal.el")
 
@@ -1638,6 +1648,11 @@ Sent from <a href=\"https://www.djcbsoftware.nl/code/mu/\">mu</a>
       (interactive (list t))
       (when interactive
         (cape-interactive #'codeium-completion-at-point))))
+
+(load "~/projects/scratchpad/scratchpad.el")
+
+;; Custom keymap
+(global-set-key (kbd "C-M-z") #'scratchpad-toggle)
 
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
