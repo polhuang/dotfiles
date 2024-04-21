@@ -37,8 +37,8 @@ local signal_started_before = false
 
 local image_widget = wibox.widget {
    image  = "/home/polhuang/Downloads/asdf.png",
-    forced_height = 100,
-    forced_width = 100,
+    forced_height = 576,
+    forced_width = 1422,
     resize = true,
     visible = true,
     widget = wibox.widget.imagebox
@@ -324,7 +324,8 @@ globalkeys = mytable.join(
     -- Show help
     awful.key({ modkey,           }, "s",      hotkeys_popup.show_help,
               {description="show help", group="awesome"}),
-
+    awful.key({ modkey }, "y", function () toggle_image() end,
+              {description = "toggle image widget", group = "help"}),
     -- Tag browsing
     awful.key({ modkey,           }, "Left",   awful.tag.viewprev,
               {description = "view previous", group = "tag"}),
@@ -596,8 +597,6 @@ for i = 1, 9 do
                         end
                   end,
                   {description = "view tag #"..i, group = "tag"}),
-  awful.key({ modkey }, "y", function () toggle_image() end,
-              {description = "toggle image widget", group = "custom"}),
         -- Toggle tag display.
         awful.key({ modkey, "Shift" }, "#" .. i + 9,
                   function ()
@@ -682,6 +681,7 @@ awful.rules.rules = {
           "Arandr",
           "Blueman-manager",
           "Gpick",
+          "dolphin",
           "Kruler",
           "MessageWin",  -- kalarm.
           "Sxiv",
