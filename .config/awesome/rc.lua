@@ -721,7 +721,7 @@ awful.rules.rules = {
     { rule = { class = "whatsappweb-nativefier-d40211" },
       properties = { screen = 1, tag = " 三  msg " } },
     { rule = { class = "ticktick" },
-      properties = { screen = 1, tag = " 八  admin " } },
+      properties = { screen = 1, tag = " 八  admin " } }
 }
 
 -- }}}
@@ -740,6 +740,11 @@ client.connect_signal("manage", function (c)
         -- Prevent clients from being unreachable after screen count changes.
         awful.placement.no_offscreen(c)
     end
+end)
+
+-- Automatically jump to tag with urgent client
+client.connect_signal("property::urgent", function(c)
+                         c:jump_to()
 end)
 
 -- Add a titlebar if titlebars_enabled is set to true in the rules.
