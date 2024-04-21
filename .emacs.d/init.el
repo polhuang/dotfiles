@@ -1,14 +1,12 @@
-;; to-dos
-;; move to literate config
+;;; load config org file
+;; (org-babel-load-file "~/.emacs.d/configuration.org")
 
-;;;;;;;;;;;;;;;;;;;;
-;; emacs settings ;;
-;;;;;;;;;;;;;;;;;;;;
+;;;; emacs settings
 
-;; set gc threshold for startup performance
+;;;; set gc threshold for startup performance
 (setq gc-cons-threshold (* 50 1000 1000))
 
-;; define new prefix
+;;;;;;;; define new prefixr
 (defvar my-map (make-sparse-keymap))
 (define-key global-map (kbd "C-M-]") my-map)
 
@@ -83,11 +81,11 @@
   ;; (seoul256-background 235)
   (seoul256-background 235)
   :config
-  (set-face-attribute 'default nil :foreground "#f5f5f4")
+  (set-face-attribute 'default nil :foreground "#e0def4")
   (set-face-attribute 'font-lock-keyword-face nil :foreground "#ffb9ba" :weight 'bold)
   (set-face-attribute 'font-lock-constant-face nil :weight 'bold)
   (set-face-attribute 'font-lock-builtin-face nil :foreground "#fffed1" :weight 'bold)
-  (set-face-attribute 'font-lock-function-name-face nil :foreground "#d1fffe" :weight 'bold)  
+  (set-face-attribute 'font-lock-function-name-face nil :foreground "#d1fffe" :weight 'bold)
   (set-face-attribute 'font-lock-variable-name-face nil :weight 'bold)
   (set-face-attribute 'link nil :foreground "#b1f3fb" :underline t)
   (set-face-attribute 'mode-line nil :background "#565656")
@@ -110,6 +108,7 @@
           ("IN PROGRESS" . (:foreground "#ffce76" :distant-foreground "#171717" :weight bold))
           ("DONE" . (:foreground "#a7f3d0" :weight bold)))))
 
+
 ;; replace ansi colors for terminal
 (custom-set-faces
  `(ansi-color-black ((t (:foreground ,"#1b1b23" :background ,(face-attribute 'default :background)))))
@@ -130,14 +129,48 @@
  `(ansi-color-bright-magenta ((t (:foreground ,"#f6bbe7" :background, "#f6bbe7"))))
  `(ansi-color-bright-cyan ((t (:foreground ,"#4eb3cd" :background, "#4eb3cd")))))
 
+;; (custom-set-faces
+;;  ;; custom-set-faces was added by Custom.
+;;  ;; If you edit it by hand, you could mess it up, so be careful.
+;;  ;; Your init file should contain only one such instance.
+;;  ;; If there is more than one, they won't work right.
+;;  '(default ((nil (:family "Iosevka Comfy Fixed" :background nil :inherit))))
+;;  '(ansi-color-black ((t (:foreground "#1b1b23" :background "#252525"))))
+;;  '(ansi-color-blue ((t (:foreground "#cddbf9" :background "#cddbf9"))))
+;;  '(ansi-color-bright-black ((t (:foreground "#1b1b23" :background "#252525"))))
+;;  '(ansi-color-bright-blue ((t (:foreground "#4a83c3" :background "#4a83c3"))))
+;;  '(ansi-color-bright-cyan ((t (:foreground "#4eb3cd" :background "#4eb3cd"))))
+;;  '(ansi-color-bright-green ((t (:foreground "#8fc587" :background "#8fc587"))))
+;;  '(ansi-color-bright-magenta ((t (:foreground "#f6bbe7" :background "#f6bbe7"))))
+;;  '(ansi-color-bright-red ((t (:foreground "#d95e59" :background "#d95e59"))))
+;;  '(ansi-color-bright-yellow ((t (:foreground "#ffcf85" :background "#ffcf85"))))
+;;  '(ansi-color-cyan ((t (:foreground "#b8dceb" :background "#b8dceb"))))
+;;  '(ansi-color-green ((t (:foreground "#caf6bb" :background "#caf6bb"))))
+;;  '(ansi-color-magenta ((t (:foreground "#f6bbe7" :background "#f6bbe7"))))
+;;  '(ansi-color-red ((t (:foreground "#ebb9b9" :background "#ebb9b9"))))
+;;  '(ansi-color-white ((t (:foreground "#c8cedc" :background "#c8cedc"))))
+;;  '(ansi-color-yellow ((t (:foreground "#e6dfb8" :background "#e6dfb8"))))
+;;  '(marginalia-documentation ((t (:inherit doom-mode-line :italic t))))
+;;  '(org-ellipsis ((t (:underline nil)))))
+
 (with-eval-after-load 'marginalia
   (custom-set-faces
    '(marginalia-documentation ((t (:inherit doom-mode-line :italic t))))))
+
+(use-package autothemer :ensure t)
+
+(straight-use-package
+ '(rose-pine-emacs
+   :host github
+   :repo "thongpv87/rose-pine-emacs"
+   :branch "master"))
+(load-theme 'rose-pine-color t)
 
 ;; backup theme (for sore eyes)
 ;; (load-theme 'gruvbox)
 
 ;; fonts
+
 (custom-set-faces
  '(default ((nil (:family "Iosevka Comfy Fixed" :background nil :inherit)))))
 
@@ -200,7 +233,7 @@
 
 (use-package nerd-icons-completion
   :ensure t
-  :hook (marginalia-mode . nerd-icons-completion-mode))
+ :hook (marginalia-mode . nerd-icons-completion-mode))
 
 (use-package nerd-icons-ibuffer
   :ensure t
@@ -255,7 +288,7 @@
 (use-package avy
   :ensure t
   :bind (("C-s" . avy-goto-char)
-         ("C-c C-s" . avy-goto-line)))
+         ("M-g M-g" . avy-goto-line)))
 
 ;; popper
 (use-package popper
@@ -278,7 +311,6 @@
 ;;;;;;;;;;;;;;
 
 ;; org mode
-
 (setq org-directory "~/org")
 (setq org-agenda-files '("/home/polhuang/org/tasks.org" "/home/polhuang/org/schedule.org" "/home/polhuang/org/backmatter-tasks.org"))
 
@@ -287,7 +319,7 @@
   (("C-c n C-i" . org-id-get-create)
    ("C-c a" . org-agenda)
    ("C-c o s" . org-save-all-org-buffers)
-   ("C-c M-q c" . org-capture)
+   ("C-M-] c" . org-capture)
    :map org-mode-map
    ("C-c \\" . puni-mark-sexp-around-point)
    ("C-c C-s" . avy-goto-line))
@@ -1489,10 +1521,12 @@ T - tag prefix
   :custom (elcord-idle-message "call me maybe?"))
 
 ;; erc (irc)
-(setq erc-nick "polhuang"
+(use-package erc
+  :config
+  (setq erc-nick "polhuang"
       erc-user-full-name "pol huang"
       erc-autojoin-channels-alist
-      '(("#emacs" "#systemcrafters")))
+      '(("#emacs" "#systemcrafters"))))
 
 (defun my/connect-to-irc
     (interactive)
@@ -1612,8 +1646,8 @@ Sent from <a href=\"https://www.djcbsoftware.nl/code/mu/\">mu</a>
         mu4e-headers-personal-mark  '("p" . "👨")
         mu4e-headers-calendar-mark  '("c" . "📅"))
   
-  (setq mu4e-confirm-quit nil))
-
+  (setq mu4e-confirm-quit nil)
+  (mu4e))
 
 ;; copilot. saving for end, since it seems to break if loaded earlier
 (use-package copilot
@@ -1662,6 +1696,8 @@ Sent from <a href=\"https://www.djcbsoftware.nl/code/mu/\">mu</a>
  ;; If there is more than one, they won't work right.
  '(codeium/metadata/api_key "3b26de11-593c-441e-967d-5ba6ae91577c")
  '(column-number-mode t)
+ '(custom-safe-themes
+   '("e9aa348abd3713a75f2c5ba279aa581b1c6ec187ebefbfa33373083ff8004c7c" "7b8f5bbdc7c316ee62f271acf6bcd0e0b8a272fdffe908f8c920b0ba34871d98" default))
  '(global-display-line-numbers-mode t)
  '(js-indent-level 2)
  '(lsp-enable-links nil)
@@ -1679,4 +1715,3 @@ Sent from <a href=\"https://www.djcbsoftware.nl/code/mu/\">mu</a>
  '(which-key-echo-keystrokes 0.01)
  '(which-key-idle-delay 0.01)
  '(which-key-mode t))
-
