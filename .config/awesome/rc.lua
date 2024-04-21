@@ -742,11 +742,6 @@ client.connect_signal("manage", function (c)
     end
 end)
 
--- Automatically jump to tag with urgent client
-client.connect_signal("property::urgent", function(c)
-                         c:jump_to()
-end)
-
 -- Add a titlebar if titlebars_enabled is set to true in the rules.
 client.connect_signal("request::titlebars", function(c)
     -- Custom
