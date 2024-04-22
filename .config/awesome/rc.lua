@@ -716,8 +716,6 @@ awful.rules.rules = {
       properties = { screen = 1, tag = " 二  key " } },
     { rule = { class = "Proton Mail Bridge" },
       properties = { screen = 1, tag = " 九  util " } },
-    { rule = { class = "1Password" },
-      properties = { screen = 1, tag = " 九  util " } },
     { rule = { class = "whatsappweb-nativefier-d40211" },
       properties = { screen = 1, tag = " 三  msg " } },
     { rule = { class = "ticktick" },
@@ -844,9 +842,10 @@ awful.spawn("kitty -e btop")
 awful.spawn("/opt/keymapp/keymapp")
 awful.spawn("spotify")
 awful.spawn("/opt/WhatsAppWeb-linux-x64/WhatsAppWeb")
-awful.util.spawn("1password")
+awful.util.spawn("1password", { screen = 1, tag = " 九  util " })
 awful.util.spawn("discord")
 awful.util.spawn("protonmail-bridge")
 awful.util.spawn("ticktick")
 awful.spawn.with_shell("~/display-setup.sh")
 awful.spawn.with_shell("~/.config/startup.sh")
+
