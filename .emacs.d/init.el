@@ -1,14 +1,12 @@
-;; to-dos
-;; move to literate config
+;;; load config org file
+;; (org-babel-load-file "~/.emacs.d/configuration.org")
 
-;;;;;;;;;;;;;;;;;;;;
-;; emacs settings ;;
-;;;;;;;;;;;;;;;;;;;;
+;;;; emacs settings
 
-;; set gc threshold for startup performance
+;;;; set gc threshold for startup performance
 (setq gc-cons-threshold (* 50 1000 1000))
 
-;; define new prefix
+;;;;;;;; define new prefix
 (defvar my-map (make-sparse-keymap))
 (define-key global-map (kbd "C-M-]") my-map)
 
@@ -46,8 +44,6 @@
 ;; upgrade all packages
 (package-upgrade-all)
 
-
-
 ;;;;;;;;;;;;;;;;;;;
 ;; file settings ;;
 ;;;;;;;;;;;;;;;;;;;
@@ -74,72 +70,77 @@
 ;; ui settings ;;
 ;;;;;;;;;;;;;;;;;
 
+
+;; (use-package seoul256-theme
+;;   :ensure t)
+
+(setq cherry-seoul256-background 235)
+(load "~/projects/cherry-seoul256/cherry-seoul256-theme.el")
+(add-to-list 'custom-theme-load-path "~/projects/cherry-seoul256")
+(load-theme 'cherry-seoul256 t)
+
 ;; theme
-(use-package seoul256-theme
-  :ensure t
-  :init
-  (load-theme 'seoul256 t)
-  :custom
-  ;; (seoul256-background 235)
-  (seoul256-background 235)
-  :config
-  (set-face-attribute 'default nil :foreground "#f5f5f4")
-  (set-face-attribute 'font-lock-keyword-face nil :foreground "#ffb9ba" :weight 'bold)
-  (set-face-attribute 'font-lock-constant-face nil :weight 'bold)
-  (set-face-attribute 'font-lock-builtin-face nil :foreground "#fffed1" :weight 'bold)
-  (set-face-attribute 'font-lock-function-name-face nil :foreground "#d1fffe" :weight 'bold)  
-  (set-face-attribute 'font-lock-variable-name-face nil :weight 'bold)
-  (set-face-attribute 'link nil :foreground "#b1f3fb" :underline t)
-  (set-face-attribute 'mode-line nil :background "#565656")
-  (set-face-attribute 'highlight nil :background "#FFBFBD"))
+;; (use-package seoul256-theme
+;;   :ensure t
+;;   :init
+;;   :custom
+;;   ;; (seoul256-background 235)
+;;   (seoul256-background 235)
+;;   :config
+;;   (set-face-attribute 'default nil :foreground "#e0def4")
+;;   (set-face-attribute 'font-lock-keyword-face nil :foreground "#ffb9ba" :weight 'bold)
+;;   (set-face-attribute 'font-lock-constant-face nil :weight 'bold)
+;;   (set-face-attribute 'font-lock-builtin-face nil :foreground "#fffed1" :weight 'bold)
+;;   (set-face-attribute 'font-lock-function-name-face nil :foreground "#d1fffe" :weight 'bold)
+;;   (set-face-attribute 'font-lock-variable-name-face nil :weight 'bold)
+;;   (set-face-attribute 'link nil :foreground "#b1f3fb" :underline t)
+;;   (set-face-attribute 'mode-line nil :background "#565656")
+;;   (set-face-attribute 'highlight nil :background "#FFBFBD"))
 
-(with-eval-after-load 'org
-  (set-face-attribute 'org-level-1 nil :foreground "#ffdfac" :distant-foreground "#171717")
-  (set-face-attribute 'org-level-2 nil :distant-foreground "#171717")
-  (set-face-attribute 'org-level-4 nil :foreground "#ffbd98")
-  (set-face-attribute 'org-block-begin-line nil :foreground "#333233" :distant-foreground "#fff0f5" :background "#ffbfbd")
-  (set-face-attribute 'org-block nil :background "#171717")
-  ;;(set-face-attribute 'org-todo nil :foreground "#c66d86" :weight 'bold :inherit)
-  ;;(set-face-attribute 'org-done nil :foreground "#8fc587")
-  (set-face-attribute 'org-headline-done nil :foreground "#caf6bb")
-  (set-face-attribute 'org-priority nil :foreground "#d24b50")
-  (set-face-attribute 'org-tag nil :foreground "#e67518")
-  (set-face-attribute 'org-verbatim nil :foreground "#beb0f1")
-  (setq org-todo-keyword-faces
-        '(("TODO" . (:foreground "#c66d86" :weight bold))
-          ("IN PROGRESS" . (:foreground "#ffce76" :distant-foreground "#171717" :weight bold))
-          ("DONE" . (:foreground "#a7f3d0" :weight bold)))))
+;; (with-eval-after-load 'org
+;;   (set-face-attribute 'org-level-1 nil :foreground "#ffdfac" :distant-foreground "#171717")
+;;   (set-face-attribute 'org-level-2 nil :distant-foreground "#171717")
+;;   (set-face-attribute 'org-level-4 nil :foreground "#ffbd98")
+;;   (set-face-attribute 'org-block-begin-line nil :foreground "#333233" :distant-foreground "#fff0f5" :background "#ffbfbd")
+;;   (set-face-attribute 'org-block nil :background "#171717")
+;;   ;;(set-face-attribute 'org-todo nil :foreground "#c66d86" :weight 'bold :inherit)
+;;   ;;(set-face-attribute 'org-done nil :foreground "#8fc587")
+;;   (set-face-attribute 'org-headline-done nil :foreground "#caf6bb")
+;;   (set-face-attribute 'org-priority nil :foreground "#d24b50")
+;;   (set-face-attribute 'org-tag nil :foreground "#e67518")
+;;   (set-face-attribute 'org-verbatim nil :foreground "#beb0f1")
+;;   (setq org-todo-keyword-faces
+;;         '(("TODO" . (:foreground "#c66d86" :weight bold))
+;;           ("IN PROGRESS" . (:foreground "#ffce76" :distant-foreground "#171717" :weight bold))
+;;           ("DONE" . (:foreground "#a7f3d0" :weight bold)))))
 
-;; replace ansi colors for terminal
-(custom-set-faces
- `(ansi-color-black ((t (:foreground ,"#1b1b23" :background ,(face-attribute 'default :background)))))
- `(ansi-color-red ((t (:foreground ,"#ebb9b9" :background, "#ebb9b9"))))
- `(ansi-color-green ((t (:foreground ,"#caf6bb" :background, "#caf6bb"))))
- `(ansi-color-yellow ((t (:foreground ,"#e6dfb8" :background, "#e6dfb8"))))
- `(ansi-color-blue ((t (:foreground ,"#cddbf9" :background, "#cddbf9"))))
- `(ansi-color-magenta ((t (:foreground ,"#f6bbe7" :background, "#f6bbe7"))))
- `(ansi-color-cyan ((t (:foreground ,"#b8dceb" :background, "#b8dceb"))))
- `(ansi-color-white ((t (:foreground ,"#c8cedc" :background, "#c8cedc")))))
+;; ansi colors
 
-(custom-set-faces
- `(ansi-color-bright-black ((t (:foreground ,"#1b1b23" :background ,(face-attribute 'default :background)))))
- `(ansi-color-bright-red ((t (:foreground ,"#d95e59" :background, "#d95e59"))))
- `(ansi-color-bright-green ((t (:foreground ,"#8fc587" :background, "#8fc587"))))
- `(ansi-color-bright-yellow ((t (:foreground ,"#ffcf85" :background, "#ffcf85"))))
- `(ansi-color-bright-blue ((t (:foreground ,"#4a83c3" :background, "#4a83c3"))))
- `(ansi-color-bright-magenta ((t (:foreground ,"#f6bbe7" :background, "#f6bbe7"))))
- `(ansi-color-bright-cyan ((t (:foreground ,"#4eb3cd" :background, "#4eb3cd")))))
+;; (set-face-attribute 'ansi-color-black nil :foreground "#1b1b23" :background (face-attribute 'default :background))
+;; (set-face-attribute 'ansi-color-red nil :foreground "#ebb9b9" :background "#ebb9b9")
+;; (set-face-attribute 'ansi-color-green nil :foreground "#caf6bb" :background "#caf6bb")
+;; (set-face-attribute 'ansi-color-yellow nil :foreground "#e6dfb8" :background "#e6dfb8")
+;; (set-face-attribute 'ansi-color-blue nil :foreground "#cddbf9" :background "#cddbf9")
+;; (set-face-attribute 'ansi-color-magenta nil :foreground "#f6bbe7" :background "#f6bbe7")
+;; (set-face-attribute 'ansi-color-cyan nil :foreground "#b8dceb" :background "#b8dceb")
+;; (set-face-attribute 'ansi-color-white nil :foreground "#c8cedc" :background "#c8cedc")
+
+;; (set-face-attribute 'ansi-color-bright-black nil :foreground "#1b1b23" :background (face-attribute 'default :background))
+;; (set-face-attribute 'ansi-color-bright-red nil :foreground "#d95e59" :background "#d95e59")
+;; (set-face-attribute 'ansi-color-bright-green nil :foreground "#8fc587" :background "#8fc587")
+;; (set-face-attribute 'ansi-color-bright-yellow nil :foreground "#ffcf85" :background "#ffcf85")
+;; (set-face-attribute 'ansi-color-bright-blue nil :foreground "#4a83c3" :background "#4a83c3")
+;; (set-face-attribute 'ansi-color-bright-magenta nil :foreground "#f6bbe7" :background "#f6bbe7")
+;; (set-face-attribute 'ansi-color-bright-cyan nil :foreground "#4eb3cd" :background "#4eb3cd")
+
+(use-package autothemer
+  :ensure t)
 
 (with-eval-after-load 'marginalia
-  (custom-set-faces
-   '(marginalia-documentation ((t (:inherit doom-mode-line :italic t))))))
-
-;; backup theme (for sore eyes)
-;; (load-theme 'gruvbox)
+  (set-face-attribute 'marginalia-documentation nil :inherit 'doom-mode-line :slant 'italic))
 
 ;; fonts
-(custom-set-faces
- '(default ((nil (:family "Iosevka Comfy Fixed" :background nil :inherit)))))
+(set-face-attribute 'default nil :family "Iosevka Comfy Fixed" :inherit t)
 
 ;; fontify-face
 (use-package fontify-face                                    ; fontify symbols representing faces
@@ -164,11 +165,18 @@
 (setq visible-bell t)                                        ; set up the visible bell
 (global-visual-line-mode 1)                                  ; visual line mode (word wrap)
 (column-number-mode)                                         ; display column number display in mode line
-(global-display-line-numbers-mode -1)                        ; display line numbers
 (setq use-dialog-box nil)                                    ; disable ui dialog prompts
 ;; (setq dired-omit-verbose nil)                              ; disable dired omit messsages
-;; (add-hook 'dired-mode-hook (lambda () (dired-omit-mode)))  ; hide backup files in dired
 (global-prettify-symbols-mode 1)                             ; prettify-symbols
+
+;; display line numbers
+(require 'display-line-numbers)
+(global-display-line-numbers-mode 1)                        ; display line numbers
+(setq display-line-numbers-width-start t)
+(defun display-line-numbers--turn-on ()
+  "Turn on `display-line-numbers-mode.`"
+  (unless (or (minibufferp) (eq major-mode 'pdf-view-mode))
+    (display-line-numbers-mode)))
 
 ;; chinese font
 (defface my/chinese-face
@@ -248,14 +256,14 @@
 ;; save place in files
 (save-place-mode 1)
 
-;; single space after period (for M-a / M-e)
+;; single space after period delimits sentence (for M-a / M-e)
 (setq sentence-end-double-space nil)
 
 ;; avy
 (use-package avy
   :ensure t
   :bind (("C-s" . avy-goto-char)
-         ("C-c C-s" . avy-goto-line)))
+         ("M-g M-g" . avy-goto-line)))
 
 ;; popper
 (use-package popper
@@ -278,7 +286,6 @@
 ;;;;;;;;;;;;;;
 
 ;; org mode
-
 (setq org-directory "~/org")
 (setq org-agenda-files '("/home/polhuang/org/tasks.org" "/home/polhuang/org/schedule.org" "/home/polhuang/org/backmatter-tasks.org"))
 
@@ -287,7 +294,7 @@
   (("C-c n C-i" . org-id-get-create)
    ("C-c a" . org-agenda)
    ("C-c o s" . org-save-all-org-buffers)
-   ("C-c M-q c" . org-capture)
+   ("C-M-] c" . org-capture)
    :map org-mode-map
    ("C-c \\" . puni-mark-sexp-around-point)
    ("C-c C-s" . avy-goto-line))
@@ -307,8 +314,7 @@
   (setq org-indent-mode-turns-off-org-adapt-indentation nil)
   (setq org-startup-with-inline-images t)
   (setq org-ellipsis " ▾")
-  (custom-set-faces
-   '(org-ellipsis ((t (:underline nil)))))
+  (set-face-attribute 'org-ellipsis nil :underline nil)
   (setq org-clock-persist 'history)
   (setq org-format-latex-options (plist-put org-format-latex-options :scale 1.5))
   (setq org-startup-with-latex-preview t)
@@ -818,7 +824,7 @@ T - tag prefix
   :preface
   :init
   (make-directory (expand-file-name "templates/" org-directory) t)
-  (setq tempel-path (expand-file-name "templates/" org-directory))
+  (setq tempel-path (expand-file-name "templates/*.eld" org-directory))
   
   (defun tempel-setup-capf ()
     (setq-local completion-at-point-functions
@@ -828,7 +834,8 @@ T - tag prefix
   (add-hook 'prog-mode-hook 'tempel-setup-capf)
   (add-hook 'text-mode-hook 'tempel-setup-capf)
   (add-hook 'org-mode-hook 'tempel-setup-capf)
-
+  (global-tempel-abbrev-mode)
+  
   ;; tempel keys
   (tempel-key "C-c t f" fun emacs-lisp-mode-map)
   (tempel-key "C-c t d" (format-time-string "%m-%d-%Y"))
@@ -1174,6 +1181,47 @@ T - tag prefix
 ;; utilities ;;
 ;;;;;;;;;;;;;;;
 
+;; repeat mode
+(use-package repeat
+  :config
+  (repeat-mode 1)
+  (setq repeat-on-final-keystroke t)
+  (setq set-mark-command-repeat-pop t))
+
+(defun repeatize (keymap)
+  "Add `repeat-mode' support to a KEYMAP."
+  (map-keymap
+   (lambda (_key cmd)
+     (when (symbolp cmd)
+       (put cmd 'repeat-map keymap)))
+   (symbol-value keymap)))
+
+(defvar structural-navigation-map
+  (let ((map (make-sparse-keymap)))
+    (pcase-dolist (`(,k . ,f)
+                   '(("u" . backward-up-list)
+                     ("f" . puni-forward-sexp)
+                     ("b" . puni-backward-sexp)
+                     ("d" . down-list)
+                     ("k" . kill-sexp)
+                     ("<backspace>" . backward-kill-sexp)
+                     ("]" . puni-slurp-forward)
+                     ("[" . puni-slurp-backward)
+                     ("}" . puni-barf-forward)
+                     ("{" . puni-barf-backward)
+                     ("," . er/expand-region)))
+      (define-key map (kbd k) f))
+    map))
+
+(map-keymap
+ (lambda (_ cmd)
+   (put cmd 'repeat-map 'structural-navigation-map)) structural-navigation-map)
+
+;; expand-region
+(use-package expand-region
+  :bind ("C-," . er/expand-region)
+  )
+
 ;; persistent scratch
 (use-package persistent-scratch
   :config
@@ -1390,6 +1438,18 @@ T - tag prefix
 ;; miscellaneous ;;
 ;;;;;;;;;;;;;;;;;;;
 
+(setq pdf-view-incompatible-modes '(display-line-numbers-mode))
+;; pdf-tools
+(use-package pdf-tools
+  :ensure t
+  :preface
+  
+  :init
+  :config
+  (setq auto-mode-alist
+        (append '(("\\.pdf\\'" . pdf-view-mode))
+                auto-mode-alist)))
+
 ;; nyan-mode
 (use-package nyan-mode
   :ensure t
@@ -1400,7 +1460,7 @@ T - tag prefix
 (use-package zone
   :ensure nil
   :config
-  (zone-when-idle 120))
+  (zone-when-idle 600))
 
 
 ;; dashboard
@@ -1488,10 +1548,12 @@ T - tag prefix
   :custom (elcord-idle-message "call me maybe?"))
 
 ;; erc (irc)
-(setq erc-nick "polhuang"
+(use-package erc
+  :config
+  (setq erc-nick "polhuang"
       erc-user-full-name "pol huang"
       erc-autojoin-channels-alist
-      '(("#emacs" "#systemcrafters")))
+      '(("#emacs" "#systemcrafters"))))
 
 (defun my/connect-to-irc
     (interactive)
@@ -1544,7 +1606,22 @@ T - tag prefix
 (use-package mu4e
   :ensure nil
   :load-path "/usr/local/share/emacs/site-lisp/mu4e/"
-  :custom (mu4e-use-fancy-chars t)
+  :custom
+  (mu4e-use-fancy-chars t)
+  (mu4e-bookmarks
+     '(( :name  "Unread messages"
+      :query "flag:unread AND NOT flag:trashed AND NOT \"maildir:/All Mail\""
+      :key ?u)
+    ( :name "Today's messages"
+      :query "date:today..now"
+      :key ?t)
+    ( :name "Last 7 days"
+      :query "date:7d..now"
+      :hide-unread t
+      :key ?w)
+    ( :name "Messages with images"
+      :query "mime:image/*"
+      :key ?p)))
   :preface
   (setq mail-user-agent 'mu4e-user-agent)
   (setq user-mail-address "paulleehuang@proton.me")
@@ -1554,6 +1631,7 @@ T - tag prefix
   (setq mu4e-update-interval (* 5 60))
   (setq mu4e-get-mail-command "mbsync -a")
   (setq mu4e-root-maildir "~/mail")
+
 
   ;; setup dynamic folders
   (setq mu4e-drafts-folder "/Drafts"
@@ -1575,6 +1653,7 @@ T - tag prefix
       auth-sources '("~/.authinfo")
       smtpmail-smtp-server "127.0.0.1"
       smtpmail-smtp-service 1025)
+  
   
   :config
   ;; signature
@@ -1610,9 +1689,7 @@ Sent from <a href=\"https://www.djcbsoftware.nl/code/mu/\">mu</a>
         mu4e-headers-list-mark      '("l" . "🔈")
         mu4e-headers-personal-mark  '("p" . "👨")
         mu4e-headers-calendar-mark  '("c" . "📅"))
-  
-  (setq mu4e-confirm-quit nil))
-
+  (mu4e))
 
 ;; copilot. saving for end, since it seems to break if loaded earlier
 (use-package copilot
@@ -1661,7 +1738,8 @@ Sent from <a href=\"https://www.djcbsoftware.nl/code/mu/\">mu</a>
  ;; If there is more than one, they won't work right.
  '(codeium/metadata/api_key "3b26de11-593c-441e-967d-5ba6ae91577c")
  '(column-number-mode t)
- '(global-display-line-numbers-mode t)
+ '(custom-safe-themes
+   '("b4c6b60bf5cf727ca62651c0a0147e0e6ba63564215bd3fd9bab771e7914bea8" "c9dba7f4b46497b5bddfab834603fc1748d50f6ea027c347561bb3d81a9c6a32" "57763ac4917fe06157c891fd73fd9a9db340bfe3a04392bb68b2df9032ce14a5" "e9aa348abd3713a75f2c5ba279aa581b1c6ec187ebefbfa33373083ff8004c7c" "7b8f5bbdc7c316ee62f271acf6bcd0e0b8a272fdffe908f8c920b0ba34871d98" default))
  '(js-indent-level 2)
  '(lsp-enable-links nil)
  '(menu-bar-mode nil)
@@ -1678,4 +1756,9 @@ Sent from <a href=\"https://www.djcbsoftware.nl/code/mu/\">mu</a>
  '(which-key-echo-keystrokes 0.01)
  '(which-key-idle-delay 0.01)
  '(which-key-mode t))
-
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
