@@ -173,7 +173,7 @@
 (require 'display-line-numbers)
 (global-display-line-numbers-mode 1)                        ; display line numbers
 (setq display-line-numbers-width-start t)
-(defun display-line-numbers--turn-on ()
+(defun dzisplay-line-numbers--turn-on ()
   "Turn on `display-line-numbers-mode.`"
   (unless (or (minibufferp) (eq major-mode 'pdf-view-mode))
     (display-line-numbers-mode)))
@@ -287,6 +287,7 @@
 
 ;; org mode
 (setq org-directory "~/org")
+
 (setq org-agenda-files '("/home/polhuang/org/tasks.org" "/home/polhuang/org/schedule.org" "/home/polhuang/org/backmatter-tasks.org"))
 
 (use-package org
@@ -343,7 +344,7 @@
 	   "* %? [[%:link][%:description]] \nCaptured On: %U")
           ("s")
           ("t" "Task" entry
-           (file+headline ,(concat org-directory "/tasks.org") "Tasks")
+           (file+headline ,(concat org-directory "/tasks.org") "Inbox")
            "* TODO %?\nSCHEDULED: <%(org-read-date nil nil)>\n"
            :empty-lines-before 1
            :empty-lines-after 1)))
@@ -407,7 +408,10 @@
     (let ((args (cons arg args))
 	  (org-roam-capture-templates (list (append (car org-roam-capture-templates)
 						    '(:immediate-finish t)))))
-      (apply #'org-roam-node-insert args))))
+      (apply #'org-roam-node-insert args)))
+
+  ;; update org roam ids
+  (org-roam-update-org-id-locations))
 
 (advice-add #'corfu-insert
             :after (lambda ()
