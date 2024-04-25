@@ -140,7 +140,7 @@
   (set-face-attribute 'marginalia-documentation nil :inherit 'doom-mode-line :slant 'italic))
 
 ;; fonts
-(set-face-attribute 'default nil :family "Iosevka Comfy Fixed")
+(set-face-attribute 'default nil :family "Iosevka Comfy Fixed" :inherit t)
 
 ;; fontify-face
 (use-package fontify-face                                    ; fontify symbols representing faces
