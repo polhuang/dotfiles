@@ -6,7 +6,7 @@
 ;;;; set gc threshold for startup performance
 (setq gc-cons-threshold (* 50 1000 1000))
 
-;;;;;;;; define new prefixr
+;;;;;;;; define new prefix
 (defvar my-map (make-sparse-keymap))
 (define-key global-map (kbd "C-M-]") my-map)
 
@@ -75,8 +75,8 @@
 ;;   :ensure t)
 
 (setq cherry-seoul256-background 235)
-(add-to-list 'custom-theme-load-path "~/projects/cherry-seoul256")
 (load "~/projects/cherry-seoul256/cherry-seoul256-theme.el")
+(add-to-list 'custom-theme-load-path "~/projects/cherry-seoul256")
 (load-theme 'cherry-seoul256 t)
 
 ;; theme
@@ -140,7 +140,7 @@
   (set-face-attribute 'marginalia-documentation nil :inherit 'doom-mode-line :slant 'italic))
 
 ;; fonts
-(set-face-attribute 'default nil :family "Iosevka Comfy Fixed" :inherit t)
+(set-face-attribute 'default nil :family "Iosevka Comfy Fixed")
 
 ;; fontify-face
 (use-package fontify-face                                    ; fontify symbols representing faces
@@ -165,11 +165,18 @@
 (setq visible-bell t)                                        ; set up the visible bell
 (global-visual-line-mode 1)                                  ; visual line mode (word wrap)
 (column-number-mode)                                         ; display column number display in mode line
-(global-display-line-numbers-mode -1)                        ; display line numbers
 (setq use-dialog-box nil)                                    ; disable ui dialog prompts
 ;; (setq dired-omit-verbose nil)                              ; disable dired omit messsages
-;; (add-hook 'dired-mode-hook (lambda () (dired-omit-mode)))  ; hide backup files in dired
 (global-prettify-symbols-mode 1)                             ; prettify-symbols
+
+;; display line numbers
+(require 'display-line-numbers)
+(global-display-line-numbers-mode 1)                        ; display line numbers
+(setq display-line-numbers-width-start t)
+(defun display-line-numbers--turn-on ()
+  "Turn on `display-line-numbers-mode.`"
+  (unless (or (minibufferp) (eq major-mode 'pdf-view-mode))
+    (display-line-numbers-mode)))
 
 ;; chinese font
 (defface my/chinese-face
@@ -201,7 +208,7 @@
 
 (use-package nerd-icons-completion
   :ensure t
- :hook (marginalia-mode . nerd-icons-completion-mode))
+  :hook (marginalia-mode . nerd-icons-completion-mode))
 
 (use-package nerd-icons-ibuffer
   :ensure t
@@ -249,7 +256,7 @@
 ;; save place in files
 (save-place-mode 1)
 
-;; single space after period (for M-a / M-e)
+;; single space after period delimits sentence (for M-a / M-e)
 (setq sentence-end-double-space nil)
 
 ;; avy
@@ -1174,6 +1181,47 @@ T - tag prefix
 ;; utilities ;;
 ;;;;;;;;;;;;;;;
 
+;; repeat mode
+(use-package repeat
+  :config
+  (repeat-mode 1)
+  (setq repeat-on-final-keystroke t)
+  (setq set-mark-command-repeat-pop t))
+
+(defun repeatize (keymap)
+  "Add `repeat-mode' support to a KEYMAP."
+  (map-keymap
+   (lambda (_key cmd)
+     (when (symbolp cmd)
+       (put cmd 'repeat-map keymap)))
+   (symbol-value keymap)))
+
+(defvar structural-navigation-map
+  (let ((map (make-sparse-keymap)))
+    (pcase-dolist (`(,k . ,f)
+                   '(("u" . backward-up-list)
+                     ("f" . puni-forward-sexp)
+                     ("b" . puni-backward-sexp)
+                     ("d" . down-list)
+                     ("k" . kill-sexp)
+                     ("<backspace>" . backward-kill-sexp)
+                     ("]" . puni-slurp-forward)
+                     ("[" . puni-slurp-backward)
+                     ("}" . puni-barf-forward)
+                     ("{" . puni-barf-backward)
+                     ("," . er/expand-region)))
+      (define-key map (kbd k) f))
+    map))
+
+(map-keymap
+ (lambda (_ cmd)
+   (put cmd 'repeat-map 'structural-navigation-map)) structural-navigation-map)
+
+;; expand-region
+(use-package expand-region
+  :bind ("C-," . er/expand-region)
+  )
+
 ;; persistent scratch
 (use-package persistent-scratch
   :config
@@ -1390,6 +1438,18 @@ T - tag prefix
 ;; miscellaneous ;;
 ;;;;;;;;;;;;;;;;;;;
 
+(setq pdf-view-incompatible-modes '(display-line-numbers-mode))
+;; pdf-tools
+(use-package pdf-tools
+  :ensure t
+  :preface
+  
+  :init
+  :config
+  (setq auto-mode-alist
+        (append '(("\\.pdf\\'" . pdf-view-mode))
+                auto-mode-alist)))
+
 ;; nyan-mode
 (use-package nyan-mode
   :ensure t
@@ -1546,7 +1606,22 @@ T - tag prefix
 (use-package mu4e
   :ensure nil
   :load-path "/usr/local/share/emacs/site-lisp/mu4e/"
-  :custom (mu4e-use-fancy-chars t)
+  :custom
+  (mu4e-use-fancy-chars t)
+  (mu4e-bookmarks
+     '(( :name  "Unread messages"
+      :query "flag:unread AND NOT flag:trashed AND NOT \"maildir:/All Mail\""
+      :key ?u)
+    ( :name "Today's messages"
+      :query "date:today..now"
+      :key ?t)
+    ( :name "Last 7 days"
+      :query "date:7d..now"
+      :hide-unread t
+      :key ?w)
+    ( :name "Messages with images"
+      :query "mime:image/*"
+      :key ?p)))
   :preface
   (setq mail-user-agent 'mu4e-user-agent)
   (setq user-mail-address "paulleehuang@proton.me")
@@ -1556,6 +1631,7 @@ T - tag prefix
   (setq mu4e-update-interval (* 5 60))
   (setq mu4e-get-mail-command "mbsync -a")
   (setq mu4e-root-maildir "~/mail")
+
 
   ;; setup dynamic folders
   (setq mu4e-drafts-folder "/Drafts"
@@ -1577,6 +1653,7 @@ T - tag prefix
       auth-sources '("~/.authinfo")
       smtpmail-smtp-server "127.0.0.1"
       smtpmail-smtp-service 1025)
+  
   
   :config
   ;; signature
@@ -1663,7 +1740,6 @@ Sent from <a href=\"https://www.djcbsoftware.nl/code/mu/\">mu</a>
  '(column-number-mode t)
  '(custom-safe-themes
    '("b4c6b60bf5cf727ca62651c0a0147e0e6ba63564215bd3fd9bab771e7914bea8" "c9dba7f4b46497b5bddfab834603fc1748d50f6ea027c347561bb3d81a9c6a32" "57763ac4917fe06157c891fd73fd9a9db340bfe3a04392bb68b2df9032ce14a5" "e9aa348abd3713a75f2c5ba279aa581b1c6ec187ebefbfa33373083ff8004c7c" "7b8f5bbdc7c316ee62f271acf6bcd0e0b8a272fdffe908f8c920b0ba34871d98" default))
- '(global-display-line-numbers-mode t)
  '(js-indent-level 2)
  '(lsp-enable-links nil)
  '(menu-bar-mode nil)
