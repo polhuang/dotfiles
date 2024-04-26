@@ -49,7 +49,7 @@
 ;;;;;;;;;;;;;;;;;;;
 
 ;; store backup files in separate directory
-(setq backup-directory-alist '(("." . "~/emacs.d/backups")))
+(setq backup-directory-alist '(("." . "~/.emacs.d/backups")))
 
 ;; store lock-file symlinks in separate directory
 (setq lock-file-name-transforms `((".*" "~/temp/emacs-lockfiles/" t)))
@@ -173,7 +173,7 @@
 (require 'display-line-numbers)
 (global-display-line-numbers-mode 1)                        ; display line numbers
 (setq display-line-numbers-width-start t)
-(defun display-line-numbers--turn-on ()
+(defun dzisplay-line-numbers--turn-on ()
   "Turn on `display-line-numbers-mode.`"
   (unless (or (minibufferp) (eq major-mode 'pdf-view-mode))
     (display-line-numbers-mode)))
@@ -287,6 +287,7 @@
 
 ;; org mode
 (setq org-directory "~/org")
+
 (setq org-agenda-files '("/home/polhuang/org/tasks.org" "/home/polhuang/org/schedule.org" "/home/polhuang/org/backmatter-tasks.org"))
 
 (use-package org
@@ -343,7 +344,7 @@
 	   "* %? [[%:link][%:description]] \nCaptured On: %U")
           ("s")
           ("t" "Task" entry
-           (file+headline ,(concat org-directory "/tasks.org") "Tasks")
+           (file+headline ,(concat org-directory "/tasks.org") "Inbox")
            "* TODO %?\nSCHEDULED: <%(org-read-date nil nil)>\n"
            :empty-lines-before 1
            :empty-lines-after 1)))
@@ -407,7 +408,10 @@
     (let ((args (cons arg args))
 	  (org-roam-capture-templates (list (append (car org-roam-capture-templates)
 						    '(:immediate-finish t)))))
-      (apply #'org-roam-node-insert args))))
+      (apply #'org-roam-node-insert args)))
+
+  ;; update org roam ids
+  (org-roam-update-org-id-locations))
 
 (advice-add #'corfu-insert
             :after (lambda ()
@@ -1271,6 +1275,7 @@ T - tag prefix
   :ensure t
   :bind-keymap ("C-x p" . projectile-command-map)
   :config
+  (setq projectile-project-search-path '("~/projects/"))
   (define-key projectile-command-map (kbd "e") #'eat-project)
   (define-key projectile-command-map (kbd "b") #'consult-project-buffer)
   (projectile-mode +1))
@@ -1292,6 +1297,7 @@ T - tag prefix
 	 (lsp-completion-mode . my/lsp-mode-setup-completion)
 	 (typescript-ts-mode . lsp-deferred)
          (js-ts-mode . lsp-deferred)
+         (c-ts-mode . lsp-deferred)
          (tsx-ts-mode . lsp-deferred)
          (css-ts-mode . lsp-deferred)
 	 ;; (python-ts-mode . lsp-deferred)
@@ -1438,17 +1444,25 @@ T - tag prefix
 ;; miscellaneous ;;
 ;;;;;;;;;;;;;;;;;;;
 
-(setq pdf-view-incompatible-modes '(display-line-numbers-mode))
+
 ;; pdf-tools
 (use-package pdf-tools
   :ensure t
-  :preface
-  
-  :init
+  :hook (pdf-view-mode . (lambda () (display-line-numbers-mode -1)))
   :config
   (setq auto-mode-alist
         (append '(("\\.pdf\\'" . pdf-view-mode))
                 auto-mode-alist)))
+
+;; perspective
+(use-package perspective
+  :bind
+  :custom
+  (consult-customize consult--source-buffer :hidden t :default nil)
+  (add-to-list 'consult-buffer-sources persp-consult-source)
+  (persp-mode-prefix-key (kbd "C-c M-p"))
+  :init
+  (persp-mode))
 
 ;; nyan-mode
 (use-package nyan-mode
@@ -1458,7 +1472,7 @@ T - tag prefix
 
 ;; zone-mode
 (use-package zone
-  :ensure nil
+  :ensure nilz
   :config
   (zone-when-idle 600))
 
