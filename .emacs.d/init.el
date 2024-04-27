@@ -438,6 +438,8 @@
                           :actions -notify)
                   '(:time "30m" :period "5m" :duration 600 :actions -notify)))
 
+;; org-pomodoro
+
 ;; org-mime
 (use-package org-mime
   :ensure t)
@@ -451,7 +453,7 @@
   :bind (("C-M-G" . hydra-colossa/body)))
 
 ;; hydra-colossa (my personal global hydra)
-(defhydra hydra-colossa (:color amaranth :hint nil)
+(defhydra hydra-colossa (:colz or amaranth :hint nil)
   "
   _c_: cheat
   _C_: copilot
@@ -712,11 +714,14 @@ T - tag prefix
 ;; buffers / windows / frames  ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;; kill-this-buffer
+;; kill this buffer
 (defun my/kill-this-buffer ()
   (interactive)
   (unless (string= (buffer-name) "*scratch*")
-    (kill-this-buffer)))
+    (if (> (count-windows) 1)
+        (kill-buffer-and-window)
+      (kill-this-buffer))))
+
 
 (global-set-key (kbd "C-M-] k") 'my/kill-this-buffer)
 
@@ -1298,6 +1303,7 @@ T - tag prefix
 	 (typescript-ts-mode . lsp-deferred)
          (js-ts-mode . lsp-deferred)
          (c-ts-mode . lsp-deferred)
+         (rust-ts-mode . lsp-deferred)
          (tsx-ts-mode . lsp-deferred)
          (css-ts-mode . lsp-deferred)
 	 ;; (python-ts-mode . lsp-deferred)
@@ -1337,6 +1343,7 @@ T - tag prefix
         (lua "https://github.com/MunifTanjim/tree-sitter-lua")
         (markdown "https://github.com/ikatyang/tree-sitter-markdown")
         (python "https://github.com/tree-sitter/tree-sitter-python")
+        (rust "https://github.com/tree-sitter/tree-sitter-rust")
         (toml "https://github.com/tree-sitter/tree-sitter-toml")
         (tsx "https://github.com/tree-sitter/tree-sitter-typescript" "master" "tsx/src")
         (typescript "https://github.com/tree-sitter/tree-sitter-typescript" "master" "typescript/src")
@@ -1444,7 +1451,6 @@ T - tag prefix
 ;; miscellaneous ;;
 ;;;;;;;;;;;;;;;;;;;
 
-
 ;; pdf-tools
 (use-package pdf-tools
   :ensure t
@@ -1472,7 +1478,7 @@ T - tag prefix
 
 ;; zone-mode
 (use-package zone
-  :ensure nilz
+  :ensure nil
   :config
   (zone-when-idle 600))
 
@@ -1487,7 +1493,7 @@ T - tag prefix
   (setq dashboard-agenda-prefix-format "%-10:c %-12s")
   (setq dashboard-agenda-time-string-format "%m-%d %H:%M")
   :config
-  ;;(setq dashboard-agenda-prefix-format " %-10:c %-12s ")
+  ;; (setq dashboard-agenda-prefix-format " %-10:c %-12s ")
   (setq dashboard-items '((recents  . 5)
 			  (bookmarks . 5)
 			  (projects . 5)
