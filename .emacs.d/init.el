@@ -169,6 +169,10 @@
 ;; (setq dired-omit-verbose nil)                              ; disable dired omit messsages
 (global-prettify-symbols-mode 1)                             ; prettify-symbols
 
+;; notifications
+(require 'alert)
+(setq alert-default-style "notifications")
+
 ;; display line numbers
 (require 'display-line-numbers)
 (global-display-line-numbers-mode 1)                        ; display line numbers
@@ -439,6 +443,29 @@
                   '(:time "30m" :period "5m" :duration 600 :actions -notify)))
 
 ;; org-pomodoro
+(defun my/pomodoro-finished-alert ()
+  (alert (format-time-string "%H:%M")
+         :severity 'high
+         :title "Pomodoro session finished!"
+         :category 'org-pomodoro
+         :style 'notifications
+         :persistent t))
+
+(defun my/pomodoro-break-finished-alert ()
+  (alert (format-time-string "%H:%M")
+         :severity 'high
+         :title "Pomodoro break finished!"
+         :category 'org-pomodoro
+         :style 'notifications
+         :persistent t))
+
+(use-package org-pomodoro
+  :ensure t
+  :hook ((org-pomodoro-finished . my/pomodoro-finished-alert)
+         (org-pomodoro-break-finished . my/pomodoro-break-finished-alert))
+  :custom
+  (org-pomodoro-format . ("%s"))
+  (org-clock-clocked-in-display . nil))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; hydra ----------------------------------------------------------------------- ;;
@@ -457,6 +484,7 @@
   _e_: eat
   _k_: kill emacs (and save buffers)
   _m_: mu4e
+  _p_: pomodoro
   _q_: go away
   _s_: search org files
   _t_: tasks
@@ -468,6 +496,7 @@
   ("e" eat :color blue)
   ("k" save-buffers-kill-emacs :color blue)
   ("m" mu4e :color blue)
+  ("p" org-pomodoro :color blue)
   ("q" nil :color blue)
   ("r" restart-emacs :color blue)
   ("s" my/org-search :color blue)
@@ -1253,12 +1282,20 @@ T - tag prefix
 ;; terminal ;;
 ;;;;;;;;;;;;;;
 
+(defun my/toggle-eat ()
+  "If eat is current buffer, use popper-toggle to dismiss.
+Otherwise, call eat."
+  (interactive)
+  (if (string= (buffer-name) "*eat*")
+      (popper-toggle)
+    (eat)))
+
 ;; eat
 (use-package eat
   :ensure t
-  :bind (("C-M-] e" . eat)
+  :bind (("C-M-<delete>" . my/toggle-eat)
          ("C-c e p" . eat-project))
-  :custom
+  :custom 
   (eat-kill-buffer-on-exit t)
   (setq eat-term-name "kitty"))
 
