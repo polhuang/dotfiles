@@ -169,6 +169,10 @@
 ;; (setq dired-omit-verbose nil)                              ; disable dired omit messsages
 (global-prettify-symbols-mode 1)                             ; prettify-symbols
 
+;; notifications
+(require 'alert)
+(setq alert-default-style "notifications")
+
 ;; display line numbers
 (require 'display-line-numbers)
 (global-display-line-numbers-mode 1)                        ; display line numbers
@@ -355,6 +359,7 @@
    '((lisp . t)
      (python . t)
      (js . t)
+     (rust . t)
      (shell . t)
      (jupyter . t)))
   (setq org-confirm-babel-evaluate nil)
@@ -438,9 +443,30 @@
                           :actions -notify)
                   '(:time "30m" :period "5m" :duration 600 :actions -notify)))
 
-;; org-mime
-(use-package org-mime
-  :ensure t)
+;; org-pomodoro
+(defun my/pomodoro-finished-alert ()
+  (alert (format-time-string "%H:%M")
+         :severity 'high
+         :title "Pomodoro session finished!"
+         :category 'org-pomodoro
+         :style 'notifications
+         :persistent t))
+
+(defun my/pomodoro-break-finished-alert ()
+  (alert (format-time-string "%H:%M")
+         :severity 'high
+         :title "Pomodoro break finished!"
+         :category 'org-pomodoro
+         :style 'notifications
+         :persistent t))
+
+(use-package org-pomodoro
+  :ensure t
+  :hook ((org-pomodoro-finished . my/pomodoro-finished-alert)
+         (org-pomodoro-break-finished . my/pomodoro-break-finished-alert))
+  :custom
+  (org-pomodoro-format . ("%s"))
+  (org-clock-clocked-in-display . nil))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; hydra ----------------------------------------------------------------------- ;;
@@ -459,6 +485,7 @@
   _e_: eat
   _k_: kill emacs (and save buffers)
   _m_: mu4e
+  _p_: pomodoro
   _q_: go away
   _s_: search org files
   _t_: tasks
@@ -470,6 +497,7 @@
   ("e" eat :color blue)
   ("k" save-buffers-kill-emacs :color blue)
   ("m" mu4e :color blue)
+  ("p" org-pomodoro :color blue)
   ("q" nil :color blue)
   ("r" restart-emacs :color blue)
   ("s" my/org-search :color blue)
@@ -712,11 +740,13 @@ T - tag prefix
 ;; buffers / windows / frames  ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;; kill-this-buffer
+;; kill this buffer
 (defun my/kill-this-buffer ()
   (interactive)
   (unless (string= (buffer-name) "*scratch*")
-    (kill-this-buffer)))
+    (if (> (count-windows) 1)
+        (kill-buffer-and-window)
+      (kill-this-buffer))))
 
 (global-set-key (kbd "C-M-] k") 'my/kill-this-buffer)
 
@@ -1252,12 +1282,20 @@ T - tag prefix
 ;; terminal ;;
 ;;;;;;;;;;;;;;
 
+(defun my/toggle-eat ()
+  "If eat is current buffer, use popper-toggle to dismiss.
+Otherwise, call eat."
+  (interactive)
+  (if (string= (buffer-name) "*eat*")
+      (popper-toggle)
+    (eat)))
+
 ;; eat
 (use-package eat
   :ensure t
-  :bind (("C-M-] e" . eat)
+  :bind (("C-M-<delete>" . my/toggle-eat)
          ("C-c e p" . eat-project))
-  :custom
+  :custom 
   (eat-kill-buffer-on-exit t)
   (setq eat-term-name "kitty"))
 
@@ -1298,6 +1336,7 @@ T - tag prefix
 	 (typescript-ts-mode . lsp-deferred)
          (js-ts-mode . lsp-deferred)
          (c-ts-mode . lsp-deferred)
+         (rust-ts-mode . lsp-deferred)
          (tsx-ts-mode . lsp-deferred)
          (css-ts-mode . lsp-deferred)
 	 ;; (python-ts-mode . lsp-deferred)
@@ -1337,6 +1376,7 @@ T - tag prefix
         (lua "https://github.com/MunifTanjim/tree-sitter-lua")
         (markdown "https://github.com/ikatyang/tree-sitter-markdown")
         (python "https://github.com/tree-sitter/tree-sitter-python")
+        (rust "https://github.com/tree-sitter/tree-sitter-rust")
         (toml "https://github.com/tree-sitter/tree-sitter-toml")
         (tsx "https://github.com/tree-sitter/tree-sitter-typescript" "master" "tsx/src")
         (typescript "https://github.com/tree-sitter/tree-sitter-typescript" "master" "typescript/src")
@@ -1400,6 +1440,11 @@ T - tag prefix
   :config
   (define-key emmet-mode-keymap (kbd "<C-return>") nil))
 
+;; cargo
+(use-package cargo
+  :ensure t
+  :hook (rust-mode . cargo-minor-mode))
+
 ;;;;;;;;;;;
 ;; latex ;;
 ;;;;;;;;;;;
@@ -1440,10 +1485,107 @@ T - tag prefix
 (load (expand-file-name "~/.quicklisp/slime-helper.el"))
 (setq inferior-lisp-program "sbcl")
 
+;;;;;;;;;;;
+;; email ;;
+;;;;;;;;;;;
+
+;; mu4e
+(use-package mu4e
+  :ensure nil
+  :load-path "/usr/local/share/emacs/site-lisp/mu4e/"
+  :custom
+  (mu4e-use-fancy-chars t)
+  (mu4e-bookmarks
+     '(( :name  "Unread messages"
+      :query "flag:unread AND NOT flag:trashed AND NOT \"maildir:/All Mail\""
+      :key ?u)
+    ( :name "Today's messages"
+      :query "date:today..now"
+      :key ?t)
+    ( :name "Last 7 days"
+      :query "date:7d..now"
+      :hide-unread t
+      :key ?w)
+    ( :name "Messages with images"
+      :query "mime:image/*"
+      :key ?p)))
+  :preface
+  (setq mail-user-agent 'mu4e-user-agent)
+  (setq user-mail-address "paulleehuang@proton.me")
+  (setq smtpmail-smtp-server "localhost")
+  :config
+  ;; refresh mail using isync every 5 minutes
+  (setq mu4e-update-interval (* 5 60))
+  (setq mu4e-get-mail-command "mbsync -a")
+  (setq mu4e-root-maildir "~/mail")
+
+
+  ;; setup dynamic folders
+  (setq mu4e-drafts-folder "/Drafts"
+        mu4e-sent-folder   "/Sent"
+        mu4e-refile-folder "/Archive"
+        mu4e-trash-folder  "/Trash")
+
+  (setq mu4e-maildir-shortcuts
+        '((:maildir "/inbox"     :key ?i)
+          (:maildir "/Sent"      :key ?s)
+          (:maildir "/Starred"   :key ?S)
+          (:maildir "/Trash"     :key ?t)
+          (:maildir "/Drafts"    :key ?d)
+          (:maildir "/Archive"   :key ?A)
+          (:maildir "/All Mail"  :key ?a)))
+  
+  ;; setup smtp
+  (setq message-send-mail-function 'smtpmail-send-it
+      auth-sources '("~/.authinfo")
+      smtpmail-smtp-server "127.0.0.1"
+      smtpmail-smtp-service 1025)
+  
+  
+  :config
+  ;; signature
+  (setq message-signature "<#multipart type=alternative>
+<#part type=text/plain>
+[[https://linkedin.com/in/paulleehuang][LinkedIn]] | [[https://github.com/polhuang][Github]]
+
+Sent using [[https://google.com][mu4e]]
+<#/part>
+
+<#part type=text/html>
+<p>
+<a href=\"https://linkedin.com/in/paulleehuang\">LinkedIn</a> | <a href=\"https://github.com/polhuang\">Github</a>
+</p>
+
+<p>
+Sent from <a href=\"https://www.djcbsoftware.nl/code/mu/\">mu</a>
+</p>
+<#/part>
+")
+  ;; fancy header marks
+  (setq mu4e-headers-draft-mark     '("D" . "💈")
+        mu4e-headers-flagged-mark   '("F" . "📍")
+        mu4e-headers-new-mark       '("N" . "🔥")
+        mu4e-headers-passed-mark    '("P" . "❯")
+        mu4e-headers-replied-mark   '("R" . "❮")
+        mu4e-headers-seen-mark      '("S" . "☑")
+        mu4e-headers-trashed-mark   '("d" . "💀")
+        mu4e-headers-attach-mark    '("a" . "📎")
+        mu4e-headers-encrypted-mark '("x" . "🔒")
+        mu4e-headers-signed-mark    '("s" . "🔑")
+        mu4e-headers-unread-mark    '("u" . "⎕")
+        mu4e-headers-list-mark      '("l" . "🔈")
+        mu4e-headers-personal-mark  '("p" . "👨")
+        mu4e-headers-calendar-mark  '("c" . "📅"))
+  (mu4e))
+
+;; org-mime
+(use-package org-mime
+  :ensure t
+  :hook (message-send . org-mime-htmlize))
+
 ;;;;;;;;;;;;;;;;;;;
 ;; miscellaneous ;;
 ;;;;;;;;;;;;;;;;;;;
-
 
 ;; pdf-tools
 (use-package pdf-tools
@@ -1472,10 +1614,9 @@ T - tag prefix
 
 ;; zone-mode
 (use-package zone
-  :ensure nilz
+  :ensure nil
   :config
   (zone-when-idle 600))
-
 
 ;; dashboard
 (use-package dashboard
@@ -1487,7 +1628,7 @@ T - tag prefix
   (setq dashboard-agenda-prefix-format "%-10:c %-12s")
   (setq dashboard-agenda-time-string-format "%m-%d %H:%M")
   :config
-  ;;(setq dashboard-agenda-prefix-format " %-10:c %-12s ")
+  ;; (setq dashboard-agenda-prefix-format " %-10:c %-12s ")
   (setq dashboard-items '((recents  . 5)
 			  (bookmarks . 5)
 			  (projects . 5)
@@ -1614,96 +1755,6 @@ T - tag prefix
 ;;                                 :dateTime))))
 ;;   (unless (org-entry-get nil "DEADLINE")
 ;;     (org-deadline nil (format-time-string "[%Y-%m-%d %a]" (current-time)))))
-
-
-;; mu4e
-(use-package mu4e
-  :ensure nil
-  :load-path "/usr/local/share/emacs/site-lisp/mu4e/"
-  :custom
-  (mu4e-use-fancy-chars t)
-  (mu4e-bookmarks
-     '(( :name  "Unread messages"
-      :query "flag:unread AND NOT flag:trashed AND NOT \"maildir:/All Mail\""
-      :key ?u)
-    ( :name "Today's messages"
-      :query "date:today..now"
-      :key ?t)
-    ( :name "Last 7 days"
-      :query "date:7d..now"
-      :hide-unread t
-      :key ?w)
-    ( :name "Messages with images"
-      :query "mime:image/*"
-      :key ?p)))
-  :preface
-  (setq mail-user-agent 'mu4e-user-agent)
-  (setq user-mail-address "paulleehuang@proton.me")
-  (setq smtpmail-smtp-server "localhost")
-  :config
-  ;; refresh mail using isync every 5 minutes
-  (setq mu4e-update-interval (* 5 60))
-  (setq mu4e-get-mail-command "mbsync -a")
-  (setq mu4e-root-maildir "~/mail")
-
-
-  ;; setup dynamic folders
-  (setq mu4e-drafts-folder "/Drafts"
-        mu4e-sent-folder   "/Sent"
-        mu4e-refile-folder "/Archive"
-        mu4e-trash-folder  "/Trash")
-
-  (setq mu4e-maildir-shortcuts
-        '((:maildir "/inbox"     :key ?i)
-          (:maildir "/Sent"      :key ?s)
-          (:maildir "/Starred"   :key ?S)
-          (:maildir "/Trash"     :key ?t)
-          (:maildir "/Drafts"    :key ?d)
-          (:maildir "/Archive"   :key ?A)
-          (:maildir "/All Mail"  :key ?a)))
-  
-  ;; setup smtp
-  (setq message-send-mail-function 'smtpmail-send-it
-      auth-sources '("~/.authinfo")
-      smtpmail-smtp-server "127.0.0.1"
-      smtpmail-smtp-service 1025)
-  
-  
-  :config
-  ;; signature
-  (setq message-signature "<#multipart type=alternative>
-<#part type=text/plain>
-[[https://linkedin.com/in/paulleehuang][LinkedIn]] | [[https://github.com/polhuang][Github]]
-
-Sent using [[https://google.com][mu4e]]
-<#/part>
-
-<#part type=text/html>
-<p>
-<a href=\"https://linkedin.com/in/paulleehuang\">LinkedIn</a> | <a href=\"https://github.com/polhuang\">Github</a>
-</p>
-
-<p>
-Sent from <a href=\"https://www.djcbsoftware.nl/code/mu/\">mu</a>
-</p>
-<#/part>
-")
-  ;; fancy header marks
-  (setq mu4e-headers-draft-mark     '("D" . "💈")
-        mu4e-headers-flagged-mark   '("F" . "📍")
-        mu4e-headers-new-mark       '("N" . "🔥")
-        mu4e-headers-passed-mark    '("P" . "❯")
-        mu4e-headers-replied-mark   '("R" . "❮")
-        mu4e-headers-seen-mark      '("S" . "☑")
-        mu4e-headers-trashed-mark   '("d" . "💀")
-        mu4e-headers-attach-mark    '("a" . "📎")
-        mu4e-headers-encrypted-mark '("x" . "🔒")
-        mu4e-headers-signed-mark    '("s" . "🔑")
-        mu4e-headers-unread-mark    '("u" . "⎕")
-        mu4e-headers-list-mark      '("l" . "🔈")
-        mu4e-headers-personal-mark  '("p" . "👨")
-        mu4e-headers-calendar-mark  '("c" . "📅"))
-  (mu4e))
 
 ;; copilot. saving for end, since it seems to break if loaded earlier
 (use-package copilot
