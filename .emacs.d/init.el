@@ -359,6 +359,7 @@
    '((lisp . t)
      (python . t)
      (js . t)
+     (rust . t)
      (shell . t)
      (jupyter . t)))
   (setq org-confirm-babel-evaluate nil)
@@ -746,7 +747,6 @@ T - tag prefix
     (if (> (count-windows) 1)
         (kill-buffer-and-window)
       (kill-this-buffer))))
-
 
 (global-set-key (kbd "C-M-] k") 'my/kill-this-buffer)
 
@@ -1439,6 +1439,11 @@ Otherwise, call eat."
   (tsx-ts-mode . emmet-mode)
   :config
   (define-key emmet-mode-keymap (kbd "<C-return>") nil))
+
+;; cargo
+(use-package cargo
+  :ensure t
+  :hook (rust-mode . cargo-minor-mode))
 
 ;;;;;;;;;;;
 ;; latex ;;
