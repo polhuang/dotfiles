@@ -177,7 +177,7 @@
 (require 'display-line-numbers)
 (global-display-line-numbers-mode 1)                        ; display line numbers
 (setq display-line-numbers-width-start t)
-(defun dzisplay-line-numbers--turn-on ()
+(defun display-line-numbers--turn-on ()
   "Turn on `display-line-numbers-mode.`"
   (unless (or (minibufferp) (eq major-mode 'pdf-view-mode))
     (display-line-numbers-mode)))
@@ -315,6 +315,7 @@
                  (direction . right)
                  (window-width . 0.33)
                  (window-height . fit-window-to-buffer)))
+  (display-line-numbers-mode 1)
   :config
   (setq org-indent-mode-turns-off-org-adapt-indentation nil)
   (setq org-startup-with-inline-images t)
@@ -359,7 +360,6 @@
    '((lisp . t)
      (python . t)
      (js . t)
-     (rust . t)
      (shell . t)
      (jupyter . t)))
   (setq org-confirm-babel-evaluate nil)
@@ -465,8 +465,9 @@
   :hook ((org-pomodoro-finished . my/pomodoro-finished-alert)
          (org-pomodoro-break-finished . my/pomodoro-break-finished-alert))
   :custom
-  (org-pomodoro-format . ("%s"))
-  (org-clock-clocked-in-display . nil))
+  (org-pomodoro-keep-killed-pomodoro-time t)
+  (org-pomodoro-format "%s")
+  (org-clock-clocked-in-display nil))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; hydra ----------------------------------------------------------------------- ;;
@@ -475,6 +476,8 @@
 (use-package hydra
   :ensure t
   :bind (("C-M-G" . hydra-colossa/body)))
+
+
 
 ;; hydra-colossa (my personal global hydra)
 (defhydra hydra-colossa (:color amaranth :hint nil)
@@ -1391,6 +1394,7 @@ Otherwise, call eat."
         (js2-mode . tsx-ts-mode)
         (js-jsx-mode . tsx-ts-mode)
         (rjsx-mode . tsx-ts-mode)
+        (rust-mode . rust-ts-mode)
         (typescript-mode . tsx-ts-mode)
         (json-mode . json-ts-mode)
         (shell-mode . bash-ts-mode)
@@ -1735,7 +1739,7 @@ Sent from <a href=\"https://www.djcbsoftware.nl/code/mu/\">mu</a>
                            :dateTime)))
     (let ((deadline (org-entry-get (point) "DEADLINE")))
       (message "need to set deadline")
-      (org-deadline nil stime)
+      (org-deadline nil (iso8601-parse stime))
       (org-todo "TODO"))))
 
 ;; (defun my-org-gcal-format (_calendar-id event _update-mode)
@@ -1812,6 +1816,11 @@ Sent from <a href=\"https://www.djcbsoftware.nl/code/mu/\">mu</a>
    '("/home/polhuang/org/tasks.org" "/home/polhuang/org/schedule.org" "/home/polhuang/org/backmatter-tasks.org"))
  '(package-selected-packages `(add-hook 'web-mode-hook #'lsp-deferred))
  '(register-preview-delay 0.0)
+ '(safe-local-variable-values
+   '((eval org-columns)
+     (eval outline-next-heading)
+     (eval goto-char
+           (point-min))))
  '(tool-bar-mode nil)
  '(treesit-font-lock-level 4)
  '(typescript-auto-indent-flag t)
