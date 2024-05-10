@@ -226,6 +226,9 @@
 ;; scrolling
 (defvar my/default-scroll-lines 15)
 
+;; keep cursor in same position
+(setq scroll-preserve-screen-position t)
+
 (defun my/scroll-up (orig-func &optional arg)
   "Redefine scroll-up distance. Uses prefix argument if possible, otherwise use default"
   (apply orig-func (list (or arg my/default-scroll-lines)))) 
@@ -317,6 +320,9 @@
                  (window-height . fit-window-to-buffer)))
   (display-line-numbers-mode 1)
   :config
+  (require 'org-habit)
+  (add-to-list 'org-modules 'org-habit)
+  (setq org-habit-graph-column 60)
   (setq org-indent-mode-turns-off-org-adapt-indentation nil)
   (setq org-startup-with-inline-images t)
   (setq org-ellipsis " ▾")
@@ -326,7 +332,8 @@
   (setq org-startup-with-latex-preview t)
   (setq org-preview-latex-default-process 'dvipng)
   (setq org-todo-keywords
-          '((sequence "TODO" "IN PROGRESS" "DONE")))
+        '((sequence "TODO" "IN PROGRESS" "|" "DONE")
+          (sequence "TABLED" "TODO" "IN PROGRESS" "|" "DONE")))
   (org-clock-persistence-insinuate)
   (setq org-agenda-start-with-log-mode t)
   (setq org-log-done 'time)
@@ -349,10 +356,10 @@
 	   "* %? [[%:link][%:description]] \nCaptured On: %U")
           ("s")
           ("t" "Task" entry
-           (file+headline ,(concat org-directory "/tasks.org") "Inbox")
-           "* TODO %?\nSCHEDULED: <%(org-read-date nil nil)>\n"
+           (file+headline ,(concat org-directory "/tasks.org") "Daily inbox")
+           "* TODO %?\nSCHEDULED: <%(org-read-date nil nil)>"
            :empty-lines-before 1
-           :empty-lines-after 1)))
+           :empty-lines-after 2)))
   
   ;; org-babel
   (org-babel-do-load-languages
@@ -467,7 +474,8 @@
   :custom
   (org-pomodoro-keep-killed-pomodoro-time t)
   (org-pomodoro-format "%s")
-  (org-clock-clocked-in-display nil))
+  (org-clock-clocked-in-display nil)
+  (setq org-pomodoro-ticking-sound t))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; hydra ----------------------------------------------------------------------- ;;
@@ -476,8 +484,6 @@
 (use-package hydra
   :ensure t
   :bind (("C-M-G" . hydra-colossa/body)))
-
-
 
 ;; hydra-colossa (my personal global hydra)
 (defhydra hydra-colossa (:color amaranth :hint nil)
@@ -1548,23 +1554,24 @@ Otherwise, call eat."
   
   :config
   ;; signature
-  (setq message-signature "<#multipart type=alternative>
-<#part type=text/plain>
-[[https://linkedin.com/in/paulleehuang][LinkedIn]] | [[https://github.com/polhuang][Github]]
+;;   (setq message-signature "<#multipart type=alternative>
+;; <#part type=text/plain>
+;; [[https://linkedin.com/in/paulleehuang][LinkedIn]] | [[https://github.com/polhuang][Github]]
 
-Sent using [[https://google.com][mu4e]]
-<#/part>
+;; Sent using [[https://google.com][mu4e]]
+;; <#/part>
 
-<#part type=text/html>
-<p>
-<a href=\"https://linkedin.com/in/paulleehuang\">LinkedIn</a> | <a href=\"https://github.com/polhuang\">Github</a>
-</p>
+;; <#part type=text/html>
+;; <p>
+;; <a href=\"https://linkedin.com/in/paulleehuang\">LinkedIn</a> | <a href=\"https://github.com/polhuang\">Github</a>
+;; </p>
 
-<p>
-Sent from <a href=\"https://www.djcbsoftware.nl/code/mu/\">mu</a>
-</p>
-<#/part>
-")
+;; <p>
+;; Sent from <a href=\"https://www.djcbsoftware.nl/code/mu/\">mu</a>
+;; </p>
+;; <#/part>
+;; <#/multipart>
+;; ")
   ;; fancy header marks
   (setq mu4e-headers-draft-mark     '("D" . "💈")
         mu4e-headers-flagged-mark   '("F" . "📍")
@@ -1584,8 +1591,7 @@ Sent from <a href=\"https://www.djcbsoftware.nl/code/mu/\">mu</a>
 
 ;; org-mime
 (use-package org-mime
-  :ensure t
-  :hook (message-send . org-mime-htmlize))
+  :ensure t)
 
 ;;;;;;;;;;;;;;;;;;;
 ;; miscellaneous ;;
@@ -1735,30 +1741,16 @@ Sent from <a href=\"https://www.djcbsoftware.nl/code/mu/\">mu</a>
   (run-with-timer my-org-gcal-sync-delay nil 'my-org-gcal-sync))
 
 (defun my-org-gcal-format (_calendar-id event _update-mode)
-  (when-let* ((stime (plist-get (plist-get event :start)
-                           :dateTime)))
-    (let ((deadline (org-entry-get (point) "DEADLINE")))
-      (message "need to set deadline")
-      (org-deadline nil (iso8601-parse stime))
-      (org-todo "TODO"))))
+  (org-todo "UPCOMING"))
+  ;; (when-let* ((stime (plist-get (plist-get event :start)
+  ;;                          :dateTime)))
+  ;;   (let ((deadline (org-entry-get (point) "DEADLINE")))
+;;     (org-todo "UPCOMING"))))
 
-;; (defun my-org-gcal-format (_calendar-id event _update-mode)
-;;   (when-let* ((stime (plist-get (plist-get event :start)
-;;                            :dateTime)))
-;;     (let ((deadline (org-entry-get (point) "DEADLINE")))
-;;       (unless deadline
-;;         (message "need to set deadline")
-;;         (org-deadline nil stime)
-;;         (org-todo "TODO")))))
+
 
 (add-hook 'org-gcal-after-update-entry-functions #'my-org-gcal-format)
 
-;; (defun my-org-gcal-set-deadline (_calendar-id event _update-mode)
-;;   "Set DEADLINE property to current time if not already set."
-;;   (when-let* ((stime (plist-get (plist-get event :start)
-;;                                 :dateTime))))
-;;   (unless (org-entry-get nil "DEADLINE")
-;;     (org-deadline nil (format-time-string "[%Y-%m-%d %a]" (current-time)))))
 
 ;; copilot. saving for end, since it seems to break if loaded earlier
 (use-package copilot
@@ -1813,11 +1805,17 @@ Sent from <a href=\"https://www.djcbsoftware.nl/code/mu/\">mu</a>
  '(lsp-enable-links nil)
  '(menu-bar-mode nil)
  '(org-agenda-files
-   '("/home/polhuang/org/tasks.org" "/home/polhuang/org/schedule.org" "/home/polhuang/org/backmatter-tasks.org"))
+   '("/home/polhuang/org/tasks.org" "/home/polhuang/org/schedule.org" "/home/polhuang/org/backmatter-tasks.org" "/home/polhuang/org/habits.org"))
  '(package-selected-packages `(add-hook 'web-mode-hook #'lsp-deferred))
  '(register-preview-delay 0.0)
  '(safe-local-variable-values
-   '((eval org-columns)
+   '((eval save-excursion
+           (goto-char
+            (point-min))
+           (while
+               (re-search-forward "^\\(<\\([^>]+\\)>\\)" nil t)
+             (replace-match "SCHEDULED: \\1")))
+     (eval org-columns)
      (eval outline-next-heading)
      (eval goto-char
            (point-min))))
