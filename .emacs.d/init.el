@@ -304,8 +304,7 @@
    ("C-c o s" . org-save-all-org-buffers)
    ("C-M-] c" . org-capture)
    :map org-mode-map
-   ("C-c \\" . puni-mark-sexp-around-point)
-   ("C-c C-s" . avy-goto-line))
+   ("C-c \\" . puni-mark-sexp-around-point))
   :hook
   (org-mode . org-indent-mode)
   (org-mode . turn-on-org-cdlatex)
@@ -1747,10 +1746,7 @@ Otherwise, call eat."
   ;;   (let ((deadline (org-entry-get (point) "DEADLINE")))
 ;;     (org-todo "UPCOMING"))))
 
-
-
 (add-hook 'org-gcal-after-update-entry-functions #'my-org-gcal-format)
-
 
 ;; copilot. saving for end, since it seems to break if loaded earlier
 (use-package copilot
