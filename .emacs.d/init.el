@@ -368,9 +368,11 @@
         ("d" "Daily" entry
            (file+headline ,(concat org-directory "/daily-tracker.org") ,(format-time-string "%Y-%m" (current-time)))
            "* %<%Y-%m-%d>
+:PROPERTIES:
 :ad: 0
-:xa: 0"
-        ))))
+:xa: 0
+:END:"
+        )))
   
   ;; org-babel
   (org-babel-do-load-languages
