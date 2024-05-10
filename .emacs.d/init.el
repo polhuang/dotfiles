@@ -304,8 +304,7 @@
    ("C-c o s" . org-save-all-org-buffers)
    ("C-M-] c" . org-capture)
    :map org-mode-map
-   ("C-c \\" . puni-mark-sexp-around-point)
-   ("C-c C-s" . avy-goto-line))
+   ("C-c \\" . puni-mark-sexp-around-point))
   :hook
   (org-mode . org-indent-mode)
   (org-mode . turn-on-org-cdlatex)
@@ -335,6 +334,8 @@
         '((sequence "TODO" "IN PROGRESS" "|" "DONE")
           (sequence "TABLED" "TODO" "IN PROGRESS" "|" "DONE")))
   (org-clock-persistence-insinuate)
+  (setq org-agenda-sorting-strategy '(time-up))
+  (setq org-habit-show-all-today t)
   (setq org-agenda-start-with-log-mode t)
   (setq org-log-done 'time)
   (setq org-log-into-drawer t)
@@ -357,9 +358,21 @@
           ("s")
           ("t" "Task" entry
            (file+headline ,(concat org-directory "/tasks.org") "Daily inbox")
-           "* TODO %?\nSCHEDULED: <%(org-read-date nil nil)>"
+           "* TODO %?\nSCHEDULED: <%(org-read-date nil nil)>
+:PROPERTIES:
+:notify: nil
+:END:
+"
            :empty-lines-before 1
-           :empty-lines-after 2)))
+           :empty-lines-after 2)
+        ("d" "Daily" entry
+           (file+headline ,(concat org-directory "/daily-tracker.org") ,(format-time-string "%Y-%m" (current-time)))
+           "* %<%Y-%m-%d>
+:PROPERTIES:
+:ad: 0
+:xa: 0
+:END:"
+        )))
   
   ;; org-babel
   (org-babel-do-load-languages
@@ -435,10 +448,10 @@
 (use-package org-notify
   :ensure t
   :after org
-  :custom (org-notify-timestamp-types '(:deadline))
+  :custom
+  (org-notify-timestamp-types '(:deadline :scheduled))
   :config
   (org-notify-start)
-
   (org-notify-add 'default
                   '(:time "-1s" :period "20s" :duration 10
                           :actions (-notify -ding))
@@ -1747,10 +1760,7 @@ Otherwise, call eat."
   ;;   (let ((deadline (org-entry-get (point) "DEADLINE")))
 ;;     (org-todo "UPCOMING"))))
 
-
-
 (add-hook 'org-gcal-after-update-entry-functions #'my-org-gcal-format)
-
 
 ;; copilot. saving for end, since it seems to break if loaded earlier
 (use-package copilot
