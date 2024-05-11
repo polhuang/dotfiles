@@ -66,6 +66,8 @@
 (use-package no-littering
   :ensure t)
 
+;; exclude from recentf
+(setq recentf-exclude '("schedule.org" "tasks.org" "habits.org" "init.el"))
 ;;;;;;;;;;;;;;;;;
 ;; ui settings ;;
 ;;;;;;;;;;;;;;;;;
@@ -168,8 +170,18 @@
 (setq use-dialog-box nil)                                    ; disable ui dialog prompts
 ;; (setq dired-omit-verbose nil)                              ; disable dired omit messsages
 (global-prettify-symbols-mode 1)                             ; prettify-symbols
+(add-to-list 'default-frame-alist '(alpha-background . 60))
 
-;; notifications
+;; transparency
+(defun my/transparent-frame ()
+  (interactive)
+  (set-frame-parameter nil 'alpha-background 60))
+
+(defun my/untransparent-frame ()
+  (interactive)
+  (set-frame-parameter nil 'alpha-background 100))
+
+;; NOTIFICATIONS
 (require 'alert)
 (setq alert-default-style "notifications")
 
@@ -333,6 +345,10 @@
   (setq org-todo-keywords
         '((sequence "TODO" "IN PROGRESS" "|" "DONE")
           (sequence "TABLED" "TODO" "IN PROGRESS" "|" "DONE")))
+  (setq org-todo-keyword-faces
+        '(("IN PROGRESS" . (:foreground "#ffce76" :distant-foreground "e6dfb8" :weight bold))
+          ("UPCOMING" . (:foreground "#cddbf9" :weight bold))
+          ("HABIT" . (:foreground "#f6bbe7" :weight bold))))
   (org-clock-persistence-insinuate)
   (setq org-agenda-sorting-strategy '(time-up))
   (setq org-habit-show-all-today t)
@@ -371,6 +387,7 @@
 :PROPERTIES:
 :ad: 0
 :xa: 0
+:bu: 0
 :END:"
         )))
   
@@ -1658,6 +1675,8 @@ Otherwise, call eat."
 			  (agenda . 15)
 			  (registers . 5)))
   (setq dashboard-agenda-sort-strategy '(time-up))
+  (setq dashboard-match-agenda-entry
+      "TODO=\"TODO\"|TODO=\"IN PROGRESS\"|TODO=\"UPCOMING\"")
   (setq initial-buffer-choice (lambda () (get-buffer-create "*dashboard*")))
   (dashboard-setup-startup-hook))
 
@@ -1815,7 +1834,7 @@ Otherwise, call eat."
  '(lsp-enable-links nil)
  '(menu-bar-mode nil)
  '(org-agenda-files
-   '("/home/polhuang/org/tasks.org" "/home/polhuang/org/schedule.org" "/home/polhuang/org/backmatter-tasks.org" "/home/polhuang/org/habits.org"))
+   '("/home/polhuang/org/tasks.org" "/home/polhuang/org/schedule.org" "/home/polhuang/org/habits.org"))
  '(package-selected-packages `(add-hook 'web-mode-hook #'lsp-deferred))
  '(register-preview-delay 0.0)
  '(safe-local-variable-values
