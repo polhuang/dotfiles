@@ -67,7 +67,8 @@
   :ensure t)
 
 ;; exclude from recentf
-(setq recentf-exclude '("schedule.org" "tasks.org" "habits.org" "init.el"))
+(setq recentf-exclude '("schedule.org" "tasks.org" "habits.org" "init.el" "COMMIT_EDITMSG", "oauth2-auto.plist"))
+
 ;;;;;;;;;;;;;;;;;
 ;; ui settings ;;
 ;;;;;;;;;;;;;;;;;
@@ -170,9 +171,11 @@
 (setq use-dialog-box nil)                                    ; disable ui dialog prompts
 ;; (setq dired-omit-verbose nil)                              ; disable dired omit messsages
 (global-prettify-symbols-mode 1)                             ; prettify-symbols
-(add-to-list 'default-frame-alist '(alpha-background . 60))
+
 
 ;; transparency
+(add-to-list 'default-frame-alist '(alpha-background . 60))
+
 (defun my/transparent-frame ()
   (interactive)
   (set-frame-parameter nil 'alpha-background 60))
