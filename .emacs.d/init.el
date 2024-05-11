@@ -242,7 +242,7 @@
 (defvar my/default-scroll-lines 15)
 
 ;; keep cursor in same position
-(setq scroll-preserve-screen-position t)
+(setq scroll-preserve-screen-position nil)
 
 (defun my/scroll-up (orig-func &optional arg)
   "Redefine scroll-up distance. Uses prefix argument if possible, otherwise use default"
@@ -254,6 +254,8 @@
 
 (advice-add 'scroll-up :around 'my/scroll-up)
 (advice-add 'scroll-down :around 'my/scroll-down)
+
+(setq scroll-margin 10)
 
 ;; tab jump out
 (use-package tab-jump-out
@@ -1647,6 +1649,7 @@ Otherwise, call eat."
   (consult-customize consult--source-buffer :hidden t :default nil)
   (add-to-list 'consult-buffer-sources persp-consult-source)
   (persp-mode-prefix-key (kbd "C-c M-p"))
+  (persp-modestring-short t)
   :init
   (persp-mode))
 
