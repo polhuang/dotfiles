@@ -77,7 +77,7 @@
 ;; (use-package seoul256-theme
 ;;   :ensure t)
 
-(setq cherry-seoul256-background 235)
+(setq cherry-seoul256-background 233)
 (load "~/projects/cherry-seoul256/cherry-seoul256-theme.el")
 (add-to-list 'custom-theme-load-path "~/projects/cherry-seoul256")
 (load-theme 'cherry-seoul256 t)
@@ -262,9 +262,10 @@
   (tab-jump-out-global-mode t))
 
 ;; registers
-(set-register ?e (cons 'file "~/.emacs.d/init.el"))
 (set-register ?a (cons 'file "~/.config/awesome/rc.lua"))
-(set-register ?s (cons 'file "~/.config/starship.toml"))
+(set-register ?e (cons 'file "~/.emacs.d/init.el"))
+(set-register ?h (cons 'file "~/org/habits.org"))
+(set-register ?s (cons 'file "~/projects/cherry-seoul256/cherry-seoul256-theme.el"))
 (set-register ?z (cons 'file "~/.zshrc"))
 (set-register ?t (cons 'file "~/org/tasks.org"))
 
