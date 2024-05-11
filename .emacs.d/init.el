@@ -66,6 +66,9 @@
 (use-package no-littering
   :ensure t)
 
+;; exclude from recentf
+(setq recentf-exclude '("schedule.org" "tasks.org" "habits.org" "init.el" "COMMIT_EDITMSG", "oauth2-auto.plist"))
+
 ;;;;;;;;;;;;;;;;;
 ;; ui settings ;;
 ;;;;;;;;;;;;;;;;;
@@ -74,7 +77,7 @@
 ;; (use-package seoul256-theme
 ;;   :ensure t)
 
-(setq cherry-seoul256-background 235)
+(setq cherry-seoul256-background 233)
 (load "~/projects/cherry-seoul256/cherry-seoul256-theme.el")
 (add-to-list 'custom-theme-load-path "~/projects/cherry-seoul256")
 (load-theme 'cherry-seoul256 t)
@@ -169,7 +172,19 @@
 ;; (setq dired-omit-verbose nil)                              ; disable dired omit messsages
 (global-prettify-symbols-mode 1)                             ; prettify-symbols
 
-;; notifications
+
+;; transparency
+(add-to-list 'default-frame-alist '(alpha-background . 60))
+
+(defun my/transparent-frame ()
+  (interactive)
+  (set-frame-parameter nil 'alpha-background 60))
+
+(defun my/untransparent-frame ()
+  (interactive)
+  (set-frame-parameter nil 'alpha-background 100))
+
+;; NOTIFICATIONS
 (require 'alert)
 (setq alert-default-style "notifications")
 
@@ -227,7 +242,7 @@
 (defvar my/default-scroll-lines 15)
 
 ;; keep cursor in same position
-(setq scroll-preserve-screen-position t)
+(setq scroll-preserve-screen-position nil)
 
 (defun my/scroll-up (orig-func &optional arg)
   "Redefine scroll-up distance. Uses prefix argument if possible, otherwise use default"
@@ -240,6 +255,8 @@
 (advice-add 'scroll-up :around 'my/scroll-up)
 (advice-add 'scroll-down :around 'my/scroll-down)
 
+(setq scroll-margin 10)
+
 ;; tab jump out
 (use-package tab-jump-out
   :ensure t
@@ -247,9 +264,10 @@
   (tab-jump-out-global-mode t))
 
 ;; registers
-(set-register ?e (cons 'file "~/.emacs.d/init.el"))
 (set-register ?a (cons 'file "~/.config/awesome/rc.lua"))
-(set-register ?s (cons 'file "~/.config/starship.toml"))
+(set-register ?e (cons 'file "~/.emacs.d/init.el"))
+(set-register ?h (cons 'file "~/org/habits.org"))
+(set-register ?s (cons 'file "~/projects/cherry-seoul256/cherry-seoul256-theme.el"))
 (set-register ?z (cons 'file "~/.zshrc"))
 (set-register ?t (cons 'file "~/org/tasks.org"))
 
@@ -333,6 +351,10 @@
   (setq org-todo-keywords
         '((sequence "TODO" "IN PROGRESS" "|" "DONE")
           (sequence "TABLED" "TODO" "IN PROGRESS" "|" "DONE")))
+  (setq org-todo-keyword-faces
+        '(("IN PROGRESS" . (:foreground "#ffce76" :distant-foreground "e6dfb8" :weight bold))
+          ("UPCOMING" . (:foreground "#cddbf9" :weight bold))
+          ("HABIT" . (:foreground "#f6bbe7" :weight bold))))
   (org-clock-persistence-insinuate)
   (setq org-agenda-sorting-strategy '(time-up))
   (setq org-habit-show-all-today t)
@@ -371,6 +393,7 @@
 :PROPERTIES:
 :ad: 0
 :xa: 0
+:bu: 0
 :END:"
         )))
   
@@ -1626,6 +1649,7 @@ Otherwise, call eat."
   (consult-customize consult--source-buffer :hidden t :default nil)
   (add-to-list 'consult-buffer-sources persp-consult-source)
   (persp-mode-prefix-key (kbd "C-c M-p"))
+  (persp-modestring-short t)
   :init
   (persp-mode))
 
@@ -1658,6 +1682,8 @@ Otherwise, call eat."
 			  (agenda . 15)
 			  (registers . 5)))
   (setq dashboard-agenda-sort-strategy '(time-up))
+  (setq dashboard-match-agenda-entry
+      "TODO=\"TODO\"|TODO=\"IN PROGRESS\"|TODO=\"UPCOMING\"")
   (setq initial-buffer-choice (lambda () (get-buffer-create "*dashboard*")))
   (dashboard-setup-startup-hook))
 
@@ -1815,7 +1841,7 @@ Otherwise, call eat."
  '(lsp-enable-links nil)
  '(menu-bar-mode nil)
  '(org-agenda-files
-   '("/home/polhuang/org/tasks.org" "/home/polhuang/org/schedule.org" "/home/polhuang/org/backmatter-tasks.org" "/home/polhuang/org/habits.org"))
+   '("/home/polhuang/org/tasks.org" "/home/polhuang/org/schedule.org" "/home/polhuang/org/habits.org"))
  '(package-selected-packages `(add-hook 'web-mode-hook #'lsp-deferred))
  '(register-preview-delay 0.0)
  '(safe-local-variable-values
