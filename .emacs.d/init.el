@@ -118,7 +118,6 @@
 ;;           ("DONE" . (:foreground "#a7f3d0" :weight bold)))))
 
 ;; ansi colors
-
 ;; (set-face-attribute 'ansi-color-black nil :foreground "#1b1b23" :background (face-attribute 'default :background))
 ;; (set-face-attribute 'ansi-color-red nil :foreground "#ebb9b9" :background "#ebb9b9")
 ;; (set-face-attribute 'ansi-color-green nil :foreground "#caf6bb" :background "#caf6bb")
@@ -363,6 +362,8 @@
   (setq org-log-into-drawer t)
   (setq org-id-link-to-org-use-id 'create-if-interactive)
   (setq org-startup-folded 'content)
+  (set-face-attribute 'org-column nil :background nil)
+  (set-face-attribute 'org-column-title nil :background nil)
   (defun my/org-syntax-table-modify ()
     "Modify `org-mode-syntax-table' to treat < and > characters as punctuation."
     (modify-syntax-entry ?< "." org-mode-syntax-table)
@@ -1644,12 +1645,11 @@ Otherwise, call eat."
 
 ;; perspective
 (use-package perspective
-  :bind
   :custom
   (consult-customize consult--source-buffer :hidden t :default nil)
   (add-to-list 'consult-buffer-sources persp-consult-source)
   (persp-mode-prefix-key (kbd "C-c M-p"))
-  (persp-modestring-short t)
+  (persp-state-default-file (expand-file-name "perspectives/default" user-emacs-directory))
   :init
   (persp-mode))
 
@@ -1765,8 +1765,6 @@ Otherwise, call eat."
        :port "6667"))
 
 ;; gcal
-(load "~/.emacs.d/gcal.el")
-
 ;; load the org-gcal library if it's not already loaded
 (when (require 'org-gcal nil t)
   ;; define a function to run org-gcal-sync
