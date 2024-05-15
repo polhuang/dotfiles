@@ -118,7 +118,6 @@
 ;;           ("DONE" . (:foreground "#a7f3d0" :weight bold)))))
 
 ;; ansi colors
-
 ;; (set-face-attribute 'ansi-color-black nil :foreground "#1b1b23" :background (face-attribute 'default :background))
 ;; (set-face-attribute 'ansi-color-red nil :foreground "#ebb9b9" :background "#ebb9b9")
 ;; (set-face-attribute 'ansi-color-green nil :foreground "#caf6bb" :background "#caf6bb")
@@ -357,12 +356,13 @@
           ("HABIT" . (:foreground "#f6bbe7" :weight bold))))
   (org-clock-persistence-insinuate)
   (setq org-agenda-sorting-strategy '(time-up))
-  (setq org-habit-show-all-today t)
   (setq org-agenda-start-with-log-mode t)
   (setq org-log-done 'time)
   (setq org-log-into-drawer t)
   (setq org-id-link-to-org-use-id 'create-if-interactive)
   (setq org-startup-folded 'content)
+  (set-face-attribute 'org-column nil :background nil)
+  (set-face-attribute 'org-column-title nil :background nil)
   (defun my/org-syntax-table-modify ()
     "Modify `org-mode-syntax-table' to treat < and > characters as punctuation."
     (modify-syntax-entry ?< "." org-mode-syntax-table)
@@ -1644,12 +1644,11 @@ Otherwise, call eat."
 
 ;; perspective
 (use-package perspective
-  :bind
   :custom
   (consult-customize consult--source-buffer :hidden t :default nil)
   (add-to-list 'consult-buffer-sources persp-consult-source)
   (persp-mode-prefix-key (kbd "C-c M-p"))
-  (persp-modestring-short t)
+  (persp-state-default-file (expand-file-name "perspectives/default" user-emacs-directory))
   :init
   (persp-mode))
 
@@ -1788,15 +1787,15 @@ Otherwise, call eat."
 
 (add-hook 'org-gcal-after-update-entry-functions #'my-org-gcal-format)
 
-;; copilot. saving for end, since it seems to break if loaded earlier
-(use-package copilot
-  :straight (:host github :repo "zerolfx/copilot.el" :files ("dist" "*.el"))
-  :ensure t
-  :bind (
-         :map copilot-completion-map
-         ("C-c TAB" . 'copilot-accept-completion))
-  :config
-  (set-face-attribute 'copilot-overlay-face nil :foreground "grey30"))
+;; copilot. saving for end, since it seems to break if loaded earlier (obsolete - no longer using copilot)
+;; (use-package copilot
+;;   :straight (:host github :repo "zerolfx/copilot.el" :files ("dist" "*.el"))
+;;   :ensure t
+;;   :bind (
+;;          :map copilot-completion-map
+;;          ("C-c TAB" . 'copilot-accept-completion))
+;;   :config
+;;   (set-face-attribute 'copilot-overlay-face nil :foreground "grey30"))
 
 ;; codeium
 (use-package codeium
