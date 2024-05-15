@@ -356,7 +356,6 @@
           ("HABIT" . (:foreground "#f6bbe7" :weight bold))))
   (org-clock-persistence-insinuate)
   (setq org-agenda-sorting-strategy '(time-up))
-  (setq org-habit-show-all-today t)
   (setq org-agenda-start-with-log-mode t)
   (setq org-log-done 'time)
   (setq org-log-into-drawer t)
@@ -1765,6 +1764,8 @@ Otherwise, call eat."
        :port "6667"))
 
 ;; gcal
+(load "~/.emacs.d/gcal.el")
+
 ;; load the org-gcal library if it's not already loaded
 (when (require 'org-gcal nil t)
   ;; define a function to run org-gcal-sync
@@ -1786,15 +1787,15 @@ Otherwise, call eat."
 
 (add-hook 'org-gcal-after-update-entry-functions #'my-org-gcal-format)
 
-;; copilot. saving for end, since it seems to break if loaded earlier
-(use-package copilot
-  :straight (:host github :repo "zerolfx/copilot.el" :files ("dist" "*.el"))
-  :ensure t
-  :bind (
-         :map copilot-completion-map
-         ("C-c TAB" . 'copilot-accept-completion))
-  :config
-  (set-face-attribute 'copilot-overlay-face nil :foreground "grey30"))
+;; copilot. saving for end, since it seems to break if loaded earlier (obsolete - no longer using copilot)
+;; (use-package copilot
+;;   :straight (:host github :repo "zerolfx/copilot.el" :files ("dist" "*.el"))
+;;   :ensure t
+;;   :bind (
+;;          :map copilot-completion-map
+;;          ("C-c TAB" . 'copilot-accept-completion))
+;;   :config
+;;   (set-face-attribute 'copilot-overlay-face nil :foreground "grey30"))
 
 ;; codeium
 (use-package codeium
