@@ -338,6 +338,7 @@
   :config
   (require 'org-habit)
   (add-to-list 'org-modules 'org-habit)
+  (setq org-blank-before-new-entry '((heading . t)))
   (setq org-habit-graph-column 60)
   (setq org-indent-mode-turns-off-org-adapt-indentation nil)
   (setq org-startup-with-inline-images t)
@@ -1801,7 +1802,7 @@ Otherwise, call eat."
 (use-package codeium
     :straight '(:host github :repo "Exafunction/codeium.el")
     :init
-    (setq codeium-api-enabled
+g    (setq codeium-api-enabled
         (lambda (api)
             (memq api '(GetCompletions Heartbeat CancelRequest GetAuthToken RegisterUser auth-redirect AcceptCompletion))))
 
