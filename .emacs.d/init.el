@@ -67,7 +67,7 @@
   :ensure t)
 
 ;; exclude from recentf
-(setq recentf-exclude '("schedule.org" "tasks.org" "habits.org" "init.el" "COMMIT_EDITMSG", "oauth2-auto.plist"))
+(setq recentf-exclude '("schedule.org" "tasks.org" "init.el" "COMMIT_EDITMSG", "oauth2-auto.plist"))
 
 ;;;;;;;;;;;;;;;;;
 ;; ui settings ;;
@@ -147,6 +147,12 @@
 ;; fontify-face
 (use-package fontify-face                                    ; fontify symbols representing faces
   :ensure t)
+
+;; define non-breaking space
+(defface my/non-breaking-space
+  '((t :inherit default))
+  "My non-breaking space face.")
+(font-lock-add-keywords 'org-mode '(("\u00a0" . 'my/non-breaking-space)))
 
 ;; rainbow mode
 (use-package rainbow-mode                                    ; colorize strings representing colors
@@ -265,7 +271,6 @@
 ;; registers
 (set-register ?a (cons 'file "~/.config/awesome/rc.lua"))
 (set-register ?e (cons 'file "~/.emacs.d/init.el"))
-(set-register ?h (cons 'file "~/org/habits.org"))
 (set-register ?s (cons 'file "~/projects/cherry-seoul256/cherry-seoul256-theme.el"))
 (set-register ?z (cons 'file "~/.zshrc"))
 (set-register ?t (cons 'file "~/org/tasks.org"))
@@ -327,6 +332,8 @@
   (org-mode . turn-on-org-cdlatex)
   (org-mode . my/org-syntax-table-modify)
   (org-mode . my/org-add-electric-pairs)
+  (org-agenda-mode . (lambda () (setq-local nobreak-char-display nil)))
+  (org-mode . (lambda () (setq-local nobreak-char-display nil)))
   :init
   (add-to-list 'display-buffer-alist
                '("\\*org-roam\\*"
@@ -350,7 +357,8 @@
   (setq org-preview-latex-default-process 'dvipng)
   (setq org-todo-keywords
         '((sequence "TODO" "IN PROGRESS" "|" "DONE")
-          (sequence "TABLED" "TODO" "IN PROGRESS" "|" "DONE")))
+          (sequence "TABLED" "TODO" "IN PROGRESS" "|" "DONE")
+          (sequence "SCHEDULED" "|" "DONE")))
   (setq org-todo-keyword-faces
         '(("IN PROGRESS" . (:foreground "#ffce76" :distant-foreground "e6dfb8" :weight bold))
           ("UPCOMING" . (:foreground "#cddbf9" :weight bold))
@@ -468,7 +476,7 @@
                          (eq major-mode 'org-mode)
                        (org-roam-link-replace-all))))
 
-;; org-notify - only works for deadlines, not scheduled tasks
+;; org-notify
 (use-package org-notify
   :ensure t
   :after org
@@ -579,10 +587,13 @@
 
 (defhydra hydra-cheat (:color pink :hint nil)
   "
-  but cheating is bad lol
+-----------------------------------------------------------------
+  C-c C-x C-w  -  org-cut-special (kill heading)
+  C-x C-o  -  delete blank lines after point (delete-blank-lines)
+  Ctrl = /  Alt = ,
+-----------------------------------------------------------------
 "
-  ("?" nil "go away" :color blue)
-  )
+  ("q" nil "go away" :color blue))
 
 ;; hydra for ibuffer
 (defhydra hydra-ibuffer-main (:color pink :hint nil)
@@ -1780,8 +1791,17 @@ Otherwise, call eat."
   (run-with-timer my-org-gcal-sync-delay nil 'my-org-gcal-sync))
 
 (defun my-org-gcal-format (_calendar-id event _update-mode)
-  (org-todo "UPCOMING"))
-  ;; (when-let* ((stime (plist-get (plist-get event :start)
+  (when-let* ((stime (plist-get (plist-get event :start) :dateTime))
+              (etime (plist-get (plist-get event :end) :dateTime))
+              (start-time (date-to-time stime))
+              (end-time (date-to-time etime))
+              (formatted-stime (format-time-string "%Y-%m-%d %a %H:%M" start-time))
+              (formatted-etime (format-time-string "%H:%M" end-time)))
+    (org-todo "UPCOMING")
+    (org-schedule nil (format "<%s-%s>" formatted-stime formatted-etime))))
+
+
+;; (when-let* ((stime (plist-get (plist-get event :start)
   ;;                          :dateTime)))
   ;;   (let ((deadline (org-entry-get (point) "DEADLINE")))
 ;;     (org-todo "UPCOMING"))))
@@ -1802,7 +1822,7 @@ Otherwise, call eat."
 (use-package codeium
     :straight '(:host github :repo "Exafunction/codeium.el")
     :init
-g    (setq codeium-api-enabled
+    (setq codeium-api-enabled
         (lambda (api)
             (memq api '(GetCompletions Heartbeat CancelRequest GetAuthToken RegisterUser auth-redirect AcceptCompletion))))
 
@@ -1841,7 +1861,7 @@ g    (setq codeium-api-enabled
  '(lsp-enable-links nil)
  '(menu-bar-mode nil)
  '(org-agenda-files
-   '("/home/polhuang/org/tasks.org" "/home/polhuang/org/schedule.org" "/home/polhuang/org/habits.org"))
+   '("/home/polhuang/org/tasks.org" "/home/polhuang/org/schedule.org"))
  '(package-selected-packages `(add-hook 'web-mode-hook #'lsp-deferred))
  '(register-preview-delay 0.0)
  '(safe-local-variable-values
