@@ -189,7 +189,7 @@
   (interactive)
   (set-frame-parameter nil 'alpha-background 100))
 
-;; NOTIFICATIONS
+;; notifications
 (require 'alert)
 (setq alert-default-style "notifications")
 
@@ -262,6 +262,10 @@
 
 (setq scroll-margin 10)
 
+;; bind scroll-one-line
+(global-set-key (kbd "C-n") 'scroll-up-line)
+(global-set-key (kbd "C-p") 'scroll-down-line)
+
 ;; tab jump out
 (use-package tab-jump-out
   :ensure t
@@ -271,7 +275,8 @@
 ;; registers
 (set-register ?a (cons 'file "~/.config/awesome/rc.lua"))
 (set-register ?e (cons 'file "~/.emacs.d/init.el"))
-(set-register ?s (cons 'file "~/projects/cherry-seoul256/cherry-seoul256-theme.el"))
+(set-register ?s (cons 'file "~/org/schedule.org"))
+(set-register ?S (cons 'file "~/projects/cherry-seoul256/cherry-seoul256-theme.el"))
 (set-register ?z (cons 'file "~/.zshrc"))
 (set-register ?t (cons 'file "~/org/tasks.org"))
 
@@ -309,6 +314,8 @@
           eat-mode))
   (popper-mode +1)
   (popper-echo-mode +1))
+
+
 
 ;;;;;;;;;;;;;;
 ;; org mode ;;
@@ -588,9 +595,13 @@
 (defhydra hydra-cheat (:color pink :hint nil)
   "
 -----------------------------------------------------------------
+  C-S-backspace or C-delete is kill-whole-line
   C-c C-x C-w  -  org-cut-special (kill heading)
   C-x C-o  -  delete blank lines after point (delete-blank-lines)
   Ctrl = /  Alt = ,
+  C-M-v  - scroll other window (or M-<page down>)
+  Scroll one line  -  C-n/p
+  
 -----------------------------------------------------------------
 "
   ("q" nil "go away" :color blue))
@@ -1798,14 +1809,11 @@ Otherwise, call eat."
               (formatted-stime (format-time-string "%Y-%m-%d %a %H:%M" start-time))
               (formatted-etime (format-time-string "%H:%M" end-time)))
     (org-todo "UPCOMING")
-    (org-schedule nil (format "<%s-%s>" formatted-stime formatted-etime))))
-
-
-;; (when-let* ((stime (plist-get (plist-get event :start)
-  ;;                          :dateTime)))
-  ;;   (let ((deadline (org-entry-get (point) "DEADLINE")))
-;;     (org-todo "UPCOMING"))))
-
+    (org-schedule nil (format "<%s-%s>" formatted-stime formatted-etime)))
+  (when-let* ((stime (plist-get (plist-get event :start) :date)))
+    (org-todo "UPCOMING")
+    (org-schedule nil (format "<%s>" stime))))
+  
 (add-hook 'org-gcal-after-update-entry-functions #'my-org-gcal-format)
 
 ;; copilot. saving for end, since it seems to break if loaded earlier (obsolete - no longer using copilot)
