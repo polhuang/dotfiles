@@ -1802,18 +1802,30 @@ Otherwise, call eat."
   (run-with-timer my-org-gcal-sync-delay nil 'my-org-gcal-sync))
 
 (defun my-org-gcal-format (_calendar-id event _update-mode)
-  (when-let* ((stime (plist-get (plist-get event :start) :dateTime))
-              (etime (plist-get (plist-get event :end) :dateTime))
-              (start-time (date-to-time stime))
-              (end-time (date-to-time etime))
-              (formatted-stime (format-time-string "%Y-%m-%d %a %H:%M" start-time))
-              (formatted-etime (format-time-string "%H:%M" end-time)))
-    (org-todo "UPCOMING")
-    (org-schedule nil (format "<%s-%s>" formatted-stime formatted-etime)))
-  (when-let* ((stime (plist-get (plist-get event :start) :date)))
-    (org-todo "UPCOMING")
-    (org-schedule nil (format "<%s>" stime))))
+  (if (eq _update-mode 'newly-fetched)
+      (progn
+        (when-let* ((stime (plist-get (plist-get event :start) :dateTime))
+                    (etime (plist-get (plist-get event :end) :dateTime))
+                    (start-time (date-to-time stime))
+                    (end-time (date-to-time etime))
+                    (formatted-stime (format-time-string "%Y-%m-%d %a %H:%M" start-time))
+                    (formatted-etime (format-time-string "%H:%M" end-time)))
+          (org-todo "UPCOMING")
+          (org-schedule nil (format "<%s-%s>" formatted-stime formatted-etime)))
+        (when-let* ((stime (plist-get (plist-get event :start) :date)))
+          (if (string= _calendar-id "997d9ee06bb6de8790f30e0fe0e8a52e60a15bf1301173490f0e92247a2eb4ad@group.calendar.google.com")
+              (org-todo "TODO")
+            (org-todo "UPCOMING"))
+          (org-schedule nil (format "<%s>" stime))))))
+
+
+
+
   
+  
+
+
+
 (add-hook 'org-gcal-after-update-entry-functions #'my-org-gcal-format)
 
 ;; copilot. saving for end, since it seems to break if loaded earlier (obsolete - no longer using copilot)
