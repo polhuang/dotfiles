@@ -913,9 +913,17 @@ T - tag prefix
 
 (use-package puni
   :ensure t
-  :bind (("C-c \\" . 'puni-mark-sexp-around-point))
+  :bind (("C-c \\" . puni-mark-sexp-around-point)
+         ("C-," . puni-expand-region))
+  :hook (term-mode . puni-disable-puni-mode)
   :config
-  (puni-global-mode t))
+  (puni-global-mode t)
+  (define-key puni-mode-map (kbd "M-DEL") 'nil)
+  (define-key puni-mode-map (kbd "C-M-a") 'nil)
+  (define-key puni-mode-map (kbd "C-M-e") 'nil)
+  (define-key puni-mode-map (kbd "C-c C-M-a") 'puni-beginning-of-sexp)
+  (define-key puni-mode-map (kbd "C-c C-M-e") 'puni-end-of-sexp)
+  (define-key puni-mode-map (kbd "C-c <delete>") 'puni-force-delete))
 
 (use-package tempel
   :bind (("C-c t t" . tempel-complete)
@@ -1306,18 +1314,13 @@ T - tag prefix
                      ("[" . puni-slurp-backward)
                      ("}" . puni-barf-forward)
                      ("{" . puni-barf-backward)
-                     ("," . er/expand-region)))
+                     ("," . puni-expand-region)))
       (define-key map (kbd k) f))
     map))
 
 (map-keymap
  (lambda (_ cmd)
    (put cmd 'repeat-map 'structural-navigation-map)) structural-navigation-map)
-
-;; expand-region
-(use-package expand-region
-  :bind ("C-," . er/expand-region)
-  )
 
 ;; persistent scratch
 (use-package persistent-scratch
