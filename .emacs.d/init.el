@@ -315,8 +315,6 @@
   (popper-mode +1)
   (popper-echo-mode +1))
 
-
-
 ;;;;;;;;;;;;;;
 ;; org mode ;;
 ;;;;;;;;;;;;;;
@@ -352,7 +350,6 @@
   :config
   (require 'org-habit)
   (add-to-list 'org-modules 'org-habit)
-  (setq org-blank-before-new-entry '((heading . t)))
   (setq org-habit-graph-column 60)
   (setq org-indent-mode-turns-off-org-adapt-indentation nil)
   (setq org-startup-with-inline-images t)
@@ -809,14 +806,15 @@ T - tag prefix
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;; kill this buffer
-(defun my/kill-this-buffer ()
+(defun my/kill-this-window ()
   (interactive)
   (unless (string= (buffer-name) "*scratch*")
     (if (> (count-windows) 1)
         (kill-buffer-and-window)
       (kill-this-buffer))))
 
-(global-set-key (kbd "C-M-] k") 'my/kill-this-buffer)
+(global-set-key (kbd "C-M-] k") 'my/kill-this-window)
+(global-set-key (kbd "C-M-] <delete>") 'kill-this-buffer)
 
 ;; disable recursive minibuffers
 (setq enable-recursive-minibuffers nil)
@@ -908,7 +906,6 @@ T - tag prefix
 
 ;; electric pair
 (electric-pair-mode 1)
-
 (defvar org-electric-pairs '((?$ . ?$))) ; add custom pairs
 (defun my/org-add-electric-pairs ()
   (setq-local electric-pair-pairs (append electric-pair-pairs org-electric-pairs))
@@ -921,12 +918,11 @@ T - tag prefix
   (puni-global-mode t))
 
 (use-package tempel
-  :bind (("M-+" . tempel-complete)
-         ("M-*" . tempel-insert))
+  :bind (("C-c t t" . tempel-complete)
+         ("C-c t i" . tempel-insert))
   :preface
   :init
-  (make-directory (expand-file-name "templates/" org-directory) t)
-  (setq tempel-path (expand-file-name "templates/*.eld" org-directory))
+  (setq tempel-path (expand-file-name "templates" user-emacs-directory))
   
   (defun tempel-setup-capf ()
     (setq-local completion-at-point-functions
@@ -939,7 +935,6 @@ T - tag prefix
   (global-tempel-abbrev-mode)
   
   ;; tempel keys
-  (tempel-key "C-c t f" fun emacs-lisp-mode-map)
   (tempel-key "C-c t d" (format-time-string "%m-%d-%Y"))
   
   :custom
@@ -1792,16 +1787,16 @@ Otherwise, call eat."
 ;; load the org-gcal library if it's not already loaded
 (when (require 'org-gcal nil t)
   ;; define a function to run org-gcal-sync
-  (defun my-org-gcal-sync ()
+  (defun my/org-gcal-sync ()
     (org-gcal-sync))
 
   ;; set the delay time in seconds (30 seconds in this case)
-  (defvar my-org-gcal-sync-delay 30)
+  (defvar my/org-gcal-sync-delay 30)
 
   ;; run org-gcal-sync after the specified delay
-  (run-with-timer my-org-gcal-sync-delay nil 'my-org-gcal-sync))
+  (run-with-timer my/org-gcal-sync-delay nil 'my/org-gcal-sync))
 
-(defun my-org-gcal-format (_calendar-id event _update-mode)
+(defun my/org-gcal-format (_calendar-id event _update-mode)
   (if (eq _update-mode 'newly-fetched)
       (progn
         (when-let* ((stime (plist-get (plist-get event :start) :dateTime))
@@ -1818,15 +1813,21 @@ Otherwise, call eat."
             (org-todo "UPCOMING"))
           (org-schedule nil (format "<%s>" stime))))))
 
+(defun my/clear-gcal-drawer ()
+  "Removes all text in org-gcal binder"
+  (when (string-equal (buffer-file-name) (concat org-directory "/schedule.org"))
+    (save-excursion
+        (goto-char (point-min))
+        (while (re-search-forward ":org-gcal:" nil t)
+          (let ((start (point)))
+            (when (re-search-forward ":end:" nil t)
+              (let ((end (match-beginning 0)))
+                (delete-region start end)
+                (goto-char start)
+                (insert "\n"))))))))
 
-
-
-  
-  
-
-
-
-(add-hook 'org-gcal-after-update-entry-functions #'my-org-gcal-format)
+(add-hook 'find-file-hook 'my/clear-gcal-drawer)
+(add-hook 'org-gcal-after-update-entry-functions #'my/org-gcal-format)
 
 ;; copilot. saving for end, since it seems to break if loaded earlier (obsolete - no longer using copilot)
 ;; (use-package copilot
