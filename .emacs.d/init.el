@@ -358,6 +358,7 @@
   :config
   (require 'org-habit)
   (add-to-list 'org-modules 'org-habit)
+  (setq org-clock-idle-time 10)
   (setq org-habit-graph-column 60)
   (setq org-indent-mode-turns-off-org-adapt-indentation nil)
   (setq org-startup-with-inline-images t)
@@ -367,16 +368,41 @@
   (setq org-format-latex-options (plist-put org-format-latex-options :scale 1.5))
   (setq org-startup-with-latex-preview t)
   (setq org-preview-latex-default-process 'dvipng)
-  (setq org-todo-keywords
-        '((sequence "TODO" "IN PROGRESS" "|" "DONE")
-          (sequence "TABLED" "TODO" "IN PROGRESS" "|" "DONE")
-          (sequence "SCHEDULED" "|" "DONE")))
+  ;; (setq org-todo-keywords
+  ;;       '((sequence "TODO" "IN PROGRESS" "|" "DONE")
+  ;;         (sequence "TABLED" "TODO" "IN PROGRESS" "|" "DONE")
+  ;;         (sequence "SCHEDULED" "|" "DONE")
+  ;;         (sequence "HABIT" "|" "DONE")))
   (setq org-todo-keyword-faces
-        '(("IN PROGRESS" . (:foreground "#ffce76" :distant-foreground "e6dfb8" :weight bold))
+        '(("IN PROGRESS" . (:foreground "#F1C40F" :distant-foreground "e6dfb8" :weight bold))
           ("UPCOMING" . (:foreground "#cddbf9" :weight bold))
-          ("HABIT" . (:foreground "#f6bbe7" :weight bold))))
+          ("HABIT" . (:foreground "#f6bbe7" :weight bold))
+          ("TABLED" . (:foreground "#ffd700" :distant-foreground "#171717" :weight bold))))
   (org-clock-persistence-insinuate)
   (setq org-agenda-sorting-strategy '(time-up))
+  (setq org-agenda-custom-commands 
+      '(("d" "Daily view (grouped)" agenda ""
+         ((org-agenda-span 1)
+          (org-habit-show-all-today t)
+          (org-super-agenda-groups
+         '((:name "Tasks"
+                  :and (:todo ("TODO" "IN PROGRESS")))
+           (:name "Schedule"  ; Optionally specify section name
+                  :and (:todo ("TODO" "UPCOMING") :time-grid t))
+           (:order-multi (2 (:name "Habits (complete)"
+                                   :and (:habit t :scheduled future))
+                            (:name "Habits (remaining)"
+                                   :habit t)
+                            (:name "Shopping"
+                                   :tag "shopping")))
+         (:priority<= "B"
+                      ;; Show this section after "Today" and "Important", because
+                      ;; their order is unspecified, defaulting to 0. Sections
+                      ;; are displayed lowest-number-first.
+                      :order 1)
+         ;; After the last group, the agenda will display items that didn't
+         ;; match any of these groups, with the default order position of 99
+         ))))))
   (setq org-agenda-start-with-log-mode t)
   (setq org-log-done 'time)
   (setq org-log-into-drawer t)
@@ -435,6 +461,7 @@
   (add-to-list 'org-structure-template-alist '("py" . "src python :results output"))
   (add-to-list 'org-structure-template-alist '("jp" . "src jupyter-python :session py")))
 
+
 ;; org search
 (defun my/org-search ()
   "Search through org files ."
@@ -490,6 +517,17 @@
                          (eq major-mode 'org-mode)
                        (org-roam-link-replace-all))))
 
+(use-package org-super-agenda
+  :ensure t
+  :config
+  (org-super-agenda-mode))
+
+
+;; org-habit-stats
+(use-package org-habit-stats
+  :ensure t
+  :hook (org-after-todo-state-change-hook 'org-habit-stats-update-properties))
+
 ;; org-notify
 (use-package org-notify
   :ensure t
@@ -522,6 +560,14 @@
          :style 'notifications
          :persistent t))
 
+(use-package org-clock-reminder
+  :ensure t
+  :config
+  (setq org-clock-reminder-inactive-notifications-p t)
+  (setq org-clock-reminder-interval 10)
+  :after
+  (org-clock-reminder-mode))
+  
 (defun my/pomodoro-break-finished-alert ()
   (alert (format-time-string "%H:%M")
          :severity 'high
@@ -1278,20 +1324,6 @@ T - tag prefix
 	 ("C-<delete>" . crux-kill-whole-line)
 	 ("C-S-<return>" . crux-smart-open-line-above)
 	 ("C-<return>" . crux-smart-open-line)))
-
-;; yasnippet
-(use-package yasnippet
-  :ensure t
-  :init
-  (yas-global-mode 1)
-  :bind
-  ("C-c y" . yas-expand))
-
-;; yasnippet-capf
-(use-package yasnippet-capf
-  :ensure t
-  :init
-  (add-to-list 'completion-at-point-functions #'yasnippet-capf))
 
 ;;;;;;;;;;;;;;;
 ;; utilities ;;
