@@ -1,7 +1,6 @@
-;;; load config org file
-;; (org-babel-load-file "~/.emacs.d/configuration.org")
-
-;;;; emacs settings
+;;;;;;;;;;;;;;;;;;;;
+;; emacs settings ;;
+;;;;;;;;;;;;;;;;;;;;
 
 ;;;; set gc threshold for startup performance
 (setq gc-cons-threshold (* 50 1000 1000))
@@ -57,8 +56,9 @@
 ;; store autosaves in separate directory
 (make-directory (expand-file-name "temp/autosaves/" user-emacs-directory) t)
 
-(setq auto-save-list-file-prefix (expand-file-name "temp/autosaves/sessions/" user-emacs-directory)
-      auto-save-file-name-transforms `((".*" ,(expand-file-name "temp/autosaves/" user-emacs-directory) t)))
+(setq auto-save-default nil)
+;; (setq auto-save-list-file-prefix (expand-file-name "temp/autosaves/sessions/" user-emacs-directory)
+;;       auto-save-file-name-transforms `((".*" ,(expand-file-name "temp/autosaves/" user-emacs-directory) t)))
 
 ;; backup-by-copying. prevents lsp from auto-importing backup files
 (setq backup-by-copying t)
@@ -68,6 +68,13 @@
 
 ;; exclude from recentf
 (setq recentf-exclude '("schedule.org" "tasks.org" "init.el" "COMMIT_EDITMSG", "oauth2-auto.plist"))
+
+;; super-save
+(use-package super-save
+  :ensure t
+  :config
+  (setq super-save-auto-save-when-idle t)
+  (super-save-mode +1))
 
 ;;;;;;;;;;;;;;;;;
 ;; ui settings ;;
@@ -274,11 +281,12 @@
 
 ;; registers
 (set-register ?a (cons 'file "~/.config/awesome/rc.lua"))
+(set-register ?d (cons 'file "~/org/daily-tracker.org"))
 (set-register ?e (cons 'file "~/.emacs.d/init.el"))
 (set-register ?s (cons 'file "~/org/schedule.org"))
 (set-register ?S (cons 'file "~/projects/cherry-seoul256/cherry-seoul256-theme.el"))
-(set-register ?z (cons 'file "~/.zshrc"))
 (set-register ?t (cons 'file "~/org/tasks.org"))
+(set-register ?z (cons 'file "~/.zshrc"))
 
 ;; use ibuffer
 (global-set-key (kbd "C-x C-b") 'ibuffer)
@@ -380,6 +388,9 @@
     "Modify `org-mode-syntax-table' to treat < and > characters as punctuation."
     (modify-syntax-entry ?< "." org-mode-syntax-table)
     (modify-syntax-entry ?> "." org-mode-syntax-table))
+  (defun my/org-add-electric-pairs ()
+    (setq-local electric-pair-pairs (append electric-pair-pairs org-electric-pairs))
+    (setq-local electric-pair-text-pairs electric-pair-pairs))
 
   ;; org-capture
   (require 'org-protocol)
@@ -416,8 +427,7 @@
    '((lisp . t)
      (python . t)
      (js . t)
-     (shell . t)
-     (jupyter . t)))
+     (shell . t)))
   (setq org-confirm-babel-evaluate nil)
   (setq org-src-tab-acts-natively t)
   (setq org-babel-python-command "python3")
@@ -497,7 +507,11 @@
                           :actions (-notify))
                   '(:time "15m" :period "2m" :duration 600
                           :actions -notify)
-                  '(:time "30m" :period "5m" :duration 600 :actions -notify)))
+                  '(:time "30m" :period "5m" :duration 600 :actions -notify))
+  
+  (org-notify-add 'habit
+                  '(:time "-1s" :period "30m" :duration 15
+                          :actions (-notify -ding))))
 
 ;; org-pomodoro
 (defun my/pomodoro-finished-alert ()
@@ -907,9 +921,6 @@ T - tag prefix
 ;; electric pair
 (electric-pair-mode 1)
 (defvar org-electric-pairs '((?$ . ?$))) ; add custom pairs
-(defun my/org-add-electric-pairs ()
-  (setq-local electric-pair-pairs (append electric-pair-pairs org-electric-pairs))
-  (setq-local electric-pair-text-pairs electric-pair-pairs))
 
 (use-package puni
   :ensure t
@@ -1541,7 +1552,10 @@ Otherwise, call eat."
   :config
   (venv-initialize-interactive-shells)
   (venv-initialize-eshell)
-  (setq venv-location "~/.venv/"))
+  (setq venv-location "~/.venv/")
+  (venv-with-virtualenv "org-babel" (org-babel-do-load-languages
+                                     'org-babel-load-languages
+                                     ' ((jupyter . t)))))
 
 ;; jupyter
 (use-package jupyter
@@ -1735,7 +1749,7 @@ Otherwise, call eat."
   :bind
   (("C-c c" . gptel-menu))
   :init
-  (setq gptel-model "gpt-3.5-turbo")
+  (setq gptel-model "gpt-4o")
   :config
   (setq gptel-default-mode 'org-mode)
   (setq gptel-directives
