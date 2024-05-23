@@ -359,7 +359,8 @@
   (require 'org-habit)
   (add-to-list 'org-modules 'org-habit)
   (setq org-clock-idle-time 10)
-  (setq org-habit-graph-column 60)
+  (setq org-clock-persist t)
+  (setq org-habit-graph-column 100)
   (setq org-indent-mode-turns-off-org-adapt-indentation nil)
   (setq org-startup-with-inline-images t)
   (setq org-ellipsis " ▾")
@@ -526,7 +527,18 @@
 ;; org-habit-stats
 (use-package org-habit-stats
   :ensure t
-  :hook (org-after-todo-state-change-hook 'org-habit-stats-update-properties))
+  :hook (org-after-todo-state-change-hook . org-habit-stats-update-properties)
+  :config
+  (setq org-habit-stats-stat-functions-alist
+  '((org-habit-stats-streak . "Current Streak")
+    (org-habit-stats-exp-smoothing-list-today . "Habit Strength")
+    (org-habit-stats-record-streak-days . "Record Streak")
+    (org-habit-stats-record-streak-date . "Record Date")
+    (org-habit-stats-unstreak . "Unstreak")
+    (org-habit-stats-30-day-total . "Monthly total")
+    (org-habit-stats-30-day-percentage . "Monthly percentage")
+    (org-habit-stats-alltime-total . "Total Completions")
+    (org-habit-stats-alltime-percentage . "Total Percentage"))))
 
 ;; org-notify
 (use-package org-notify
@@ -551,6 +563,10 @@
                   '(:time "-1s" :period "30m" :duration 15
                           :actions (-notify -ding))))
 
+(add-hook 'org-after-todo-state-change-hook
+          (lambda ()
+            (run-at-time "1 sec" nil 'org-habit-stats-update-properties)))
+
 ;; org-pomodoro
 (defun my/pomodoro-finished-alert ()
   (alert (format-time-string "%H:%M")
@@ -563,11 +579,34 @@
 (use-package org-clock-reminder
   :ensure t
   :config
+
+  ;; replace function to configure urgency
+  (defun org-clock-reminder-notify (title message)
+    (let ((icon-path (org-clock-reminder--icon)))
+      (notifications-notify :title title
+                            :body message
+                            :app-icon icon-path
+                            :timeout 600000
+                            :urgency 'critical)))
+
+  ;; define duration based on time since latest clock-in, not total clocked time
+  ;; add current
+  (setq org-clock-reminder-formatters
+        '((?c . (org-duration-from-minutes (floor (org-time-convert-to-integer
+		                                   (time-since org-clock-start-time))
+		                                  60)))
+          (?h . org-clock-heading)
+          (?t . (format-time-string "%H:%M" (current-time)))))
+
+  (setq org-clock-reminder-inactive-title "Big Brother says:")
+  (setq org-clock-reminder-active-title "Big Brother says:")
+  (setq org-clock-reminder-inactive-text "%t: You're not clocked in.")
+  (setq org-clock-reminder-active-text "%t: You've been working for %c on <br/>%h.")
   (setq org-clock-reminder-inactive-notifications-p t)
-  (setq org-clock-reminder-interval 10)
-  :after
-  (org-clock-reminder-mode))
-  
+  (setq org-clock-reminder-interval 15)
+  (org-clock-reminder-mode)
+  (run-with-idle-timer nil 900 (org-clock-reminder-mode nil)))
+
 (defun my/pomodoro-break-finished-alert ()
   (alert (format-time-string "%H:%M")
          :severity 'high
@@ -1833,6 +1872,8 @@ Otherwise, call eat."
 ;; gcal
 (load "~/.emacs.d/gcal.el")
 
+(setq org-gcal-up-days 30)
+
 ;; load the org-gcal library if it's not already loaded
 (when (require 'org-gcal nil t)
   ;; define a function to run org-gcal-sync
@@ -1840,10 +1881,10 @@ Otherwise, call eat."
     (org-gcal-sync))
 
   ;; set the delay time in seconds (30 seconds in this case)
-  (defvar my/org-gcal-sync-delay 30)
+  (defvar my/org-gcal-sync-delay 
 
   ;; run org-gcal-sync after the specified delay
-  (run-with-timer my/org-gcal-sync-delay nil 'my/org-gcal-sync))
+  (run-with-timer my/org-gcal-sync-delay 43200 'my/org-gcal-sync))
 
 (defun my/org-gcal-format (_calendar-id event _update-mode)
   (if (eq _update-mode 'newly-fetched)
