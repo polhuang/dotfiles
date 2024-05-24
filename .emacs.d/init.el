@@ -246,6 +246,21 @@
   :hook
   (ibuffer-mode . nerd-icons-ibuffer-mode))
 
+;; (defun my/alarm (length &rest _)
+;;   "Plays a generic alarm"'
+;;   (start-process-shell-command "org" nil
+;;                                (concat "aplay "
+;;                                        (expand-file-name "sounds/bell.wav" user-emacs-directory))))
+
+(defun my/alarm (&optional length &rest _)
+  "Plays a generic alarm. If LENGTH is 'long', play 'sounds/bell_multiple.wav'. 
+Otherwise, plays 'sounds/bell.wav'."
+  (let ((file (expand-file-name (if (equal length "long")
+                                    "sounds/bell_multiple.wav"
+                                  "sounds/bell.wav")
+                                user-emacs-directory)))
+    (start-process-shell-command "org" nil (concat "aplay " file))))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; navigation settings ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -366,6 +381,7 @@
   (setq org-ellipsis " ▾")
   (set-face-attribute 'org-ellipsis nil :underline nil)
   (setq org-clock-persist 'history)
+  (org-clock-persistence-insinuate)
   (setq org-format-latex-options (plist-put org-format-latex-options :scale 1.5))
   (setq org-startup-with-latex-preview t)
   (setq org-preview-latex-default-process 'dvipng)
@@ -379,7 +395,6 @@
           ("UPCOMING" . (:foreground "#cddbf9" :weight bold))
           ("HABIT" . (:foreground "#f6bbe7" :weight bold))
           ("TABLED" . (:foreground "#ffd700" :distant-foreground "#171717" :weight bold))))
-  (org-clock-persistence-insinuate)
   (setq org-agenda-sorting-strategy '(time-up))
   (setq org-agenda-custom-commands 
       '(("d" "Daily view (grouped)" agenda ""
@@ -548,20 +563,25 @@
   (org-notify-timestamp-types '(:deadline :scheduled))
   :config
   (org-notify-start)
+
+  ;; wrapper function for alarm to fit :actions list below
+  (defun my/alarm-long (&rest _)
+    (my/alarm "long"))
+  
   (org-notify-add 'default
-                  '(:time "-1s" :period "20s" :duration 10
-                          :actions (-notify -ding))
-		  '(:time "1m" :period "20s" :duration 60
-                          :actions (-notify -ding))
-                  '(:time "5m" :period "1m" :duration 240
+                  '(:time "5s" :period "1m" :duration 50 :urgency critical
+                          :actions (my/alarm-long org-notify-action-notify org-notify-action-ding))
+		  '(:time "1m" :duration 55
+                          :actions (my/alarm org-notify-action-notify org-nortify-action-ding))
+                  '(:time "5m" :duration 240
                           :actions (-notify))
-                  '(:time "15m" :period "2m" :duration 600
+                  '(:time "15m" :duration 600
                           :actions -notify)
-                  '(:time "30m" :period "5m" :duration 600 :actions -notify))
+                  '(:time "30m" :duration 600 :actions -notify))
   
   (org-notify-add 'habit
                   '(:time "-1s" :period "30m" :duration 15
-                          :actions (-notify -ding))))
+                          :actions (-notify))))
 
 (add-hook 'org-after-todo-state-change-hook
           (lambda ()
@@ -576,6 +596,26 @@
          :style 'notifications
          :persistent t))
 
+(defun my/pomodoro-break-finished-alert ()
+  (alert (format-time-string "%H:%M")
+         :severity 'high
+         :title "Pomodoro break finished!"
+         :category 'org-pomodoro
+         :style 'notifications
+         :persistent t))
+
+(use-package org-pomodoro
+  :ensure t
+  :hook ((org-pomodoro-finished . my/pomodoro-finished-alert)
+         (org-pomodoro-break-finished . my/pomodoro-break-finished-alert))
+  :custom
+  (org-pomodoro-keep-killed-pomodoro-time t)
+  (org-notify-max-notifications-per-run 10)
+  (org-pomodoro-format "%s")
+  (org-clock-clocked-in-display nil)
+  (setq org-pomodoro-ticking-sound t))
+
+;; remind me to clock in/out
 (use-package org-clock-reminder
   :ensure t
   :config
@@ -603,27 +643,9 @@
   (setq org-clock-reminder-inactive-text "%t: You're not clocked in.")
   (setq org-clock-reminder-active-text "%t: You've been working for %c on <br/>%h.")
   (setq org-clock-reminder-inactive-notifications-p t)
-  (setq org-clock-reminder-interval 15)
+  (setq org-clock-reminder-interval (cons 10 15))
   (org-clock-reminder-mode)
   (run-with-idle-timer nil 900 (org-clock-reminder-mode nil)))
-
-(defun my/pomodoro-break-finished-alert ()
-  (alert (format-time-string "%H:%M")
-         :severity 'high
-         :title "Pomodoro break finished!"
-         :category 'org-pomodoro
-         :style 'notifications
-         :persistent t))
-
-(use-package org-pomodoro
-  :ensure t
-  :hook ((org-pomodoro-finished . my/pomodoro-finished-alert)
-         (org-pomodoro-break-finished . my/pomodoro-break-finished-alert))
-  :custom
-  (org-pomodoro-keep-killed-pomodoro-time t)
-  (org-pomodoro-format "%s")
-  (org-clock-clocked-in-display nil)
-  (setq org-pomodoro-ticking-sound t))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; hydra ----------------------------------------------------------------------- ;;
@@ -1881,7 +1903,7 @@ Otherwise, call eat."
     (org-gcal-sync))
 
   ;; set the delay time in seconds (30 seconds in this case)
-  (defvar my/org-gcal-sync-delay 
+  (defvar my/org-gcal-sync-delay 30)
 
   ;; run org-gcal-sync after the specified delay
   (run-with-timer my/org-gcal-sync-delay 43200 'my/org-gcal-sync))
