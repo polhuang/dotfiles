@@ -150,7 +150,7 @@ awful.util.tagnames = { " 一  sh ", " 二  key ", " 三  msg ", " 四  www ", "
 awful.layout.layouts = {
     --awful.layout.suit.floating,
     awful.layout.suit.tile,
-    awful.layout.suit.tile.left,
+    --awful.layout.suit.tile.left,
     --awful.layout.suit.tile.bottom,
     --awful.layout.suit.tile.top,
     --awful.layout.suit.fair,
