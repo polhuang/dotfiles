@@ -274,8 +274,6 @@
   (ibuffer-mode . nerd-icons-ibuffer-mode))
 
 (defun my/alarm (&optional length &rest _)
-  "Plays a generic alarm. If LENGTH is 'long', play 'sounds/bell_multiple.wav'. 
-Otherwise, plays 'sounds/bell.wav'."
   (let ((file (expand-file-name (if (equal length "long")
                                     "sounds/bell_multiple.wav"
                                   "sounds/bell.wav")
@@ -556,7 +554,7 @@ Otherwise, plays 'sounds/bell.wav'."
   ;; org-habit-stats
   (use-package org-habit-stats
     :ensure t
-    :hook (org-after-todo-state-change-hook . org-habit-stats-update-properties)
+    :hook (org-after-todo-state-change . (lambda () (run-at-time "1 sec" nil 'org-habit-stats-update-properties)))
     :custom
     (org-habit-stats-stat-functions-alist
      '((org-habit-stats-streak . "Current Streak")
@@ -569,9 +567,11 @@ Otherwise, plays 'sounds/bell.wav'."
        (org-habit-stats-alltime-total . "Total Completions")
        (org-habit-stats-alltime-percentage . "Total Percentage")))
     :config
-    (add-hook 'org-after-todo-state-change-hook
-              (lambda ()
-                (run-at-time "1 sec" nil 'org-habit-stats-update-properties))))
+    )
+
+  ;; (add-hook 'org-after-todo-state-change-hook
+  ;;             (lambda ()
+  ;;               (run-at-time "1 sec" nil 'org-habit-stats-update-properties)))
 
   ;; org-notify
   (use-package org-notify
@@ -581,6 +581,7 @@ Otherwise, plays 'sounds/bell.wav'."
     :custom
     (org-notify-timestamp-types '(:deadline :scheduled))
     :config
+    (org-notify-max-notifications-per-run 10)
     (org-notify-start)
 
     (defun my/alarm-long (&rest _)
@@ -604,6 +605,7 @@ Otherwise, plays 'sounds/bell.wav'."
 
   ;; org-pomodoro
   (defun my/pomodoro-finished-alert ()
+    (my/alarm)
     (alert (format-time-string "%H:%M")
            :severity 'high
            :title "Pomodoro session finished!"
@@ -612,6 +614,7 @@ Otherwise, plays 'sounds/bell.wav'."
            :persistent t))
 
   (defun my/pomodoro-break-finished-alert ()
+    (my/alarm)
     (alert (format-time-string "%H:%M")
            :severity 'high
            :title "Pomodoro break finished!"
@@ -625,7 +628,6 @@ Otherwise, plays 'sounds/bell.wav'."
            (org-pomodoro-break-finished . my/pomodoro-break-finished-alert))
     :custom
     (org-pomodoro-keep-killed-pomodoro-time t)
-    (org-notify-max-notifications-per-run 10)
     (org-pomodoro-format "%s")
     (org-clock-clocked-in-display nil)
     (setq org-pomodoro-ticking-sound t))
@@ -658,8 +660,7 @@ Otherwise, plays 'sounds/bell.wav'."
 
     ;; define duration based on time since latest clock-in, not total clocked time
     ;; add current
-    (org-clock-reminder-mode)
-    (run-with-idle-timer nil 900 (org-clock-reminder-mode nil)))
+    (org-clock-reminder-mode))
 
   (use-package org-ai
     :ensure t
@@ -1574,25 +1575,25 @@ Otherwise, call eat."
   (treesit-auto-add-to-auto-mode-alist 'all)
   (global-treesit-auto-mode))
 
-;; combobulate
-(quelpa '(combobulate :fetcher github :repo mickeynp/combobulate))
-(use-package combobulate
-  :preface
-  ;; You can customize Combobulate's key prefix here.
-  ;; Note that you may have to restart Emacs for this to take effect!
-  (setq combobulate-key-prefix "C-c o")
-  :hook
-  ((python-ts-mode . combobulate-mode)
-   (js-ts-mode . combobulate-mode)
-   (html-ts-mode . combobulate-mode)
-   (css-ts-mode . combobulate-mode)
-   (yaml-ts-mode . combobulate-mode)
-   (typescript-ts-mode . combobulate-mode)
-   (json-ts-mode . combobulate-mode)
-   (tsx-ts-mode . combobulate-mode))
-  ;; Amend this to the directory where you keep Combobulate's source
-  ;; code.
-  :load-path ("path-to-git-checkout-of-combobulate"))
+;; combobulate - commenting out due to apparent navigation bug
+;; (quelpa '(combobulate :fetcher github :repo mickeynp/combobulate))
+;; (use-package combobulate
+;;   :preface
+;;   ;; You can customize Combobulate's key prefix here.
+;;   ;; Note that you may have to restart Emacs for this to take effect!
+;;   (setq combobulate-key-prefix "C-c o")
+;;   :hook
+;;   ((python-ts-mode . combobulate-mode)
+;;    (js-ts-mode . combobulate-mode)
+;;    (html-ts-mode . combobulate-mode)
+;;    (css-ts-mode . combobulate-mode)
+;;    (yaml-ts-mode . combobulate-mode)
+;;    (typescript-ts-mode . combobulate-mode)
+;;    (json-ts-mode . combobulate-mode)
+;;    (tsx-ts-mode . combobulate-mode))
+;;   ;; Amend this to the directory where you keep Combobulate's source
+;;   ;; code.
+;;   :load-path ("path-to-git-checkout-of-combobulate"))
   
   ;; emmet
 (use-package emmet-mode
