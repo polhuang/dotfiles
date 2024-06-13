@@ -580,8 +580,8 @@
     :after org
     :custom
     (org-notify-timestamp-types '(:deadline :scheduled))
-    :config
     (org-notify-max-notifications-per-run 10)
+    :config
     (org-notify-start)
 
     (defun my/alarm-long (&rest _)
@@ -1892,7 +1892,8 @@ Otherwise, call eat."
 ;; gcal
 (load "~/.emacs.d/gcal.el")
 
-(setq org-gcal-up-days 30)
+(setq org-gcal-up-days 0
+      org-gcal-down-days 30)
 
 ;; load the org-gcal library if it's not already loaded
 (when (require 'org-gcal nil t)
