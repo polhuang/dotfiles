@@ -150,7 +150,7 @@ awful.util.tagnames = { " 一  sh ", " 二  key ", " 三  msg ", " 四  www ", "
 awful.layout.layouts = {
     --awful.layout.suit.floating,
     awful.layout.suit.tile,
-    awful.layout.suit.tile.left,
+    --awful.layout.suit.tile.left,
     --awful.layout.suit.tile.bottom,
     --awful.layout.suit.tile.top,
     --awful.layout.suit.fair,
@@ -289,7 +289,7 @@ end)
 -- For the emacs tab, default to centerwork layout
 awful.screen.connect_for_each_screen(function(s)
       beautiful.at_screen_connect(s)
-      awful.layout.set(awful.layout.layouts[4], s.tags[5])
+      awful.layout.set(awful.layout.layouts[3], s.tags[5])
 end)
 
 

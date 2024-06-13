@@ -9,6 +9,29 @@
 (defvar my-map (make-sparse-keymap))
 (define-key global-map (kbd "C-M-]") my-map)
 
+(use-package emacs
+  :init
+  ;; add prompt indicator to `completing-read-multiple'.
+  ;; display [CRM<separator>], e.g., [CRM,] if the separator is a comma.
+  (defun crm-indicator (args)
+    (cons (format "[CRM%s] %s"
+		  (replace-regexp-in-string
+		   "\\`\\[.*?]\\*\\|\\[.*?]\\*\\'" ""
+		   crm-separator)
+		  (car args))
+	  (cdr args)))
+  (advice-add #'completing-read-multiple :filter-args #'crm-indicator)
+
+  ;; do not allow the cursor in the minibuffer prompt
+  (setq minibuffer-prompt-properties
+	'(read-only t cursor-intangible t face minibuffer-prompt))
+  (add-hook 'minibuffer-setup-hook #'cursor-intangible-mode)
+
+  ;; hide commands in m-x which do not work in the current mode
+  ;; vertico commands are hidden in normal buffers.
+  (setq read-extended-command-predicate
+        #'command-completion-default-include-p))
+
 ;;;;;;;;;;;;;;;;;;;;;;
 ;; package settings ;;
 ;;;;;;;;;;;;;;;;;;;;;;
@@ -72,8 +95,9 @@
 ;; super-save
 (use-package super-save
   :ensure t
+  :custom
+  (super-save-auto-save-when-idle t)
   :config
-  (setq super-save-auto-save-when-idle t)
   (super-save-mode +1))
 
 ;;;;;;;;;;;;;;;;;
@@ -143,7 +167,8 @@
 ;; (set-face-attribute 'ansi-color-bright-cyan nil :foreground "#4eb3cd" :background "#4eb3cd")
 
 (use-package autothemer
-  :ensure t)
+  :ensure t
+  :defer t)
 
 (with-eval-after-load 'marginalia
   (set-face-attribute 'marginalia-documentation nil :inherit 'doom-mode-line :slant 'italic))
@@ -153,7 +178,8 @@
 
 ;; fontify-face
 (use-package fontify-face                                    ; fontify symbols representing faces
-  :ensure t)
+  :ensure t
+  :defer t)
 
 ;; define non-breaking space
 (defface my/non-breaking-space
@@ -163,7 +189,8 @@
 
 ;; rainbow mode
 (use-package rainbow-mode                                    ; colorize strings representing colors
-  :ensure t)
+  :ensure t
+  :defer t)
 
 ;; modeline
 (use-package doom-modeline
@@ -228,7 +255,7 @@
 ;; icons
 (use-package nerd-icons-corfu
   :ensure t
-  :after (corfu)
+  :after corfu
   :config
   (add-to-list 'corfu-margin-formatters #'nerd-icons-corfu-formatter))
 
@@ -246,6 +273,13 @@
   :hook
   (ibuffer-mode . nerd-icons-ibuffer-mode))
 
+(defun my/alarm (&optional length &rest _)
+  (let ((file (expand-file-name (if (equal length "long")
+                                    "sounds/bell_multiple.wav"
+                                  "sounds/bell.wav")
+                                user-emacs-directory)))
+    (start-process-shell-command "org" nil (concat "aplay " file))))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; navigation settings ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -257,11 +291,11 @@
 (setq scroll-preserve-screen-position nil)
 
 (defun my/scroll-up (orig-func &optional arg)
-  "Redefine scroll-up distance. Uses prefix argument if possible, otherwise use default"
+  "Redefine upward scroll distance. Use prefix argument if possible, otherwise use default."
   (apply orig-func (list (or arg my/default-scroll-lines)))) 
 
 (defun my/scroll-down (orig-func &optional arg)
-  "Redefine scroll lines distance. Uses prefix argument if possible, otherwise use default"
+  "Redefine downward scroll distance. Use prefix argument if possible, otherwise use default."
   (apply orig-func (list (or arg my/default-scroll-lines))))
 
 (advice-add 'scroll-up :around 'my/scroll-up)
@@ -328,11 +362,9 @@
 ;;;;;;;;;;;;;;
 
 ;; org mode
-(setq org-directory "~/org")
-
-(setq org-agenda-files '("/home/polhuang/org/tasks.org" "/home/polhuang/org/schedule.org" "/home/polhuang/org/backmatter-tasks.org"))
-
 (use-package org
+  :straight (:type built-in)
+  :ensure t
   :bind
   (("C-c n C-i" . org-id-get-create)
    ("C-c a" . org-agenda)
@@ -355,46 +387,53 @@
                  (window-width . 0.33)
                  (window-height . fit-window-to-buffer)))
   (display-line-numbers-mode 1)
-  :config
-  (require 'org-habit)
-  (add-to-list 'org-modules 'org-habit)
-  (setq org-habit-graph-column 60)
-  (setq org-indent-mode-turns-off-org-adapt-indentation nil)
-  (setq org-startup-with-inline-images t)
-  (setq org-ellipsis " ▾")
-  (set-face-attribute 'org-ellipsis nil :underline nil)
-  (setq org-clock-persist 'history)
-  (setq org-format-latex-options (plist-put org-format-latex-options :scale 1.5))
-  (setq org-startup-with-latex-preview t)
-  (setq org-preview-latex-default-process 'dvipng)
-  (setq org-todo-keywords
-        '((sequence "TODO" "IN PROGRESS" "|" "DONE")
-          (sequence "TABLED" "TODO" "IN PROGRESS" "|" "DONE")
-          (sequence "SCHEDULED" "|" "DONE")))
-  (setq org-todo-keyword-faces
-        '(("IN PROGRESS" . (:foreground "#ffce76" :distant-foreground "e6dfb8" :weight bold))
+  :custom
+  (org-directory "~/org")
+  (org-agenda-files '("/home/polhuang/org/tasks.org" "/home/polhuang/org/schedule.org" "/home/polhuang/org/backmatter-tasks.org"))
+  (org-clock-idle-time 10)
+  (org-clock-persist t)
+  (org-habit-graph-column 100)
+  (org-indent-mode-turns-off-org-adapt-indentation nil)
+  (org-startup-with-inline-images t)
+  (org-ellipsis " ▾")
+  (org-clock-persist 'history)
+  (org-startup-with-latex-preview t)
+  (org-preview-latex-default-process 'dvipng)
+  (org-agenda-custom-commands 
+      '(("d" "Daily view (grouped)" agenda ""
+         ((org-agenda-span 1)
+          (org-habit-show-all-today t)
+          (org-super-agenda-groups
+         '((:name "Tasks"
+                  :and (:todo ("TODO" "IN PROGRESS")))
+           (:name "Schedule"  ; Optionally specify section name
+                  :and (:todo ("TODO" "UPCOMING") :time-grid t))
+           (:order-multi (2 (:name "Habits (complete)"
+                                   :and (:habit t :scheduled future))
+                            (:name "Habits (remaining)"
+                                   :habit t)
+                            (:name "Shopping"
+                                   :tag "shopping")))
+         (:priority<= "B"
+                      ;; Show this section after "Today" and "Important", because
+                      ;; their order is unspecified, defaulting to 0. Sections
+                      ;; are displayed lowest-number-first.
+                      :order 1)
+         ;; After the last group, the agenda will display items that didn't
+         ;; match any of these groups, with the default order position of 99
+         ))))))
+  (org-agenda-sorting-strategy '(time-up))
+  (org-todo-keyword-faces
+        '(("IN PROGRESS" . (:foreground "#F1C40F" :distant-foreground "e6dfb8" :weight bold))
           ("UPCOMING" . (:foreground "#cddbf9" :weight bold))
-          ("HABIT" . (:foreground "#f6bbe7" :weight bold))))
-  (org-clock-persistence-insinuate)
-  (setq org-agenda-sorting-strategy '(time-up))
-  (setq org-agenda-start-with-log-mode t)
-  (setq org-log-done 'time)
-  (setq org-log-into-drawer t)
-  (setq org-id-link-to-org-use-id 'create-if-interactive)
-  (setq org-startup-folded 'content)
-  (set-face-attribute 'org-column nil :background nil)
-  (set-face-attribute 'org-column-title nil :background nil)
-  (defun my/org-syntax-table-modify ()
-    "Modify `org-mode-syntax-table' to treat < and > characters as punctuation."
-    (modify-syntax-entry ?< "." org-mode-syntax-table)
-    (modify-syntax-entry ?> "." org-mode-syntax-table))
-  (defun my/org-add-electric-pairs ()
-    (setq-local electric-pair-pairs (append electric-pair-pairs org-electric-pairs))
-    (setq-local electric-pair-text-pairs electric-pair-pairs))
-
-  ;; org-capture
-  (require 'org-protocol)
-  (setq org-capture-templates
+          ("HABIT" . (:foreground "#f6bbe7" :weight bold))
+          ("TABLED" . (:foreground "#ffd700" :distant-foreground "#171717" :weight bold))))
+  (org-agenda-start-with-log-mode t)
+  (org-log-done 'time)
+  (org-log-into-drawer t)
+  (org-id-link-to-org-use-id 'create-if-interactive)
+  (org-startup-folded 'content)
+  (org-capture-templates
         `(("p" "Protocol Text" entry
            (file+headline ,(concat org-directory "/roam/captures.org") "Captures")
 	   "* %^{Title}\nSource: %u, %c\n #+BEGIN_QUOTE\n%i\n#+END_QUOTE\n\n\n")
@@ -419,126 +458,219 @@
 :xa: 0
 :bu: 0
 :END:"
-        )))
-  
-  ;; org-babel
+           )))
+  (org-confirm-babel-evaluate nil)
+  (org-src-tab-acts-natively t)
+  (org-babel-python-command "python3")
+  :config
+  (plist-put org-format-latex-options :scale 1.5)
+  (set-face-attribute 'org-ellipsis nil :underline nil)
+  (org-clock-persistence-insinuate)
+  (set-face-attribute 'org-column nil :background nil)
+  (set-face-attribute 'org-column-title nil :background nil)
   (org-babel-do-load-languages
-   'org-babel-load-languages
-   '((lisp . t)
-     (python . t)
-     (js . t)
-     (shell . t)))
-  (setq org-confirm-babel-evaluate nil)
-  (setq org-src-tab-acts-natively t)
-  (setq org-babel-python-command "python3")
-  (add-to-list 'org-structure-template-alist '("el" . "src emacs-lisp"))
-  (add-to-list 'org-structure-template-alist '("py" . "src python :results output"))
-  (add-to-list 'org-structure-template-alist '("jp" . "src jupyter-python :session py")))
+     'org-babel-load-languages
+     '((lisp . t)
+       (python . t)
+       (js . t)
+       (shell . t)))
+    (add-to-list 'org-structure-template-alist '("el" . "src emacs-lisp"))
+    (add-to-list 'org-structure-template-alist '("py" . "src python :results output"))
+    (add-to-list 'org-structure-template-alist '("jp" . "src jupyter-python :session py"))
 
-;; org search
-(defun my/org-search ()
-  "Search through org files ."
-  (interactive)
-  (consult-ripgrep "~/org"))
+  (defun my/org-syntax-table-modify ()
+    "Modify `org-mode-syntax-table' to treat < and > characters as punctuation."
+    (modify-syntax-entry ?< "." org-mode-syntax-table)
+    (modify-syntax-entry ?> "." org-mode-syntax-table))
 
-;; org-roam
-(use-package org-roam
-  :ensure t
-  :init
-  (setq org-roam-v2-ack t)
-  (setq org-roam-directory (file-truename "~/org/roam/"))
-  :custom
-  (org-roam-completion-everywhere t)
-  :bind (("C-c n l" . org-roam-buffer-toggle)
-	 ("C-c n f" . org-roam-node-find)
-	 ("C-c n i" . org-roam-node-insert)
-	 ("C-c n c" . org-roam-capture)
-	 ("C-c n g" . org-roam-graph)
-         ("C-c n t" . org-roam-tag-add)
-	 ("C-c n I" . org-roam-node-insert-immediate)
-	 :map org-mode-map
-	 (("C-M-i" . completion-at-point)))
-  :bind-keymap
-  ("C-c n d" . org-roam-dailies-map)
-  :config
-  (require 'org-roam-dailies)
-  (org-roam-db-autosync-mode)
-  (setq org-roam-node-display-template
-        (concat "${title:*} "
-                (propertize "${tags:20}" 'face 'org-tag)))
-  (setq org-roam-mode-sections
-        (list #'org-roam-backlinks-section
-	      #'org-roam-reflinks-section
-	      ;; #'org-roam-unlinked-references-section
-	      ))
-  (setq org-roam-dailies-capture-templates
-        '(("d" "default" entry "* %<%I:%M %p> \n%?"
-	   :if-new (file+head "%<%Y-%m-%d>.org" "#+title: %<%Y-%m-%d>\n"))))
-  (defun org-roam-node-insert-immediate (arg &rest args)
-    (interactive "P")
-    (let ((args (cons arg args))
-	  (org-roam-capture-templates (list (append (car org-roam-capture-templates)
-						    '(:immediate-finish t)))))
-      (apply #'org-roam-node-insert args)))
+  (defun my/org-add-electric-pairs ()
+    (setq-local electric-pair-pairs (append electric-pair-pairs org-electric-pairs))
+    (setq-local electric-pair-text-pairs electric-pair-pairs))
 
-  ;; update org roam ids
-  (org-roam-update-org-id-locations))
+  (use-package org-habit
+    :init
+    (add-to-list 'org-modules 'org-habit))
 
-(advice-add #'corfu-insert
-            :after (lambda ()
-                     (when
-                         (eq major-mode 'org-mode)
-                       (org-roam-link-replace-all))))
-
-;; org-notify
-(use-package org-notify
-  :ensure t
-  :after org
-  :custom
-  (org-notify-timestamp-types '(:deadline :scheduled))
-  :config
-  (org-notify-start)
-  (org-notify-add 'default
-                  '(:time "-1s" :period "20s" :duration 10
-                          :actions (-notify -ding))
-		  '(:time "1m" :period "20s" :duration 60
-                          :actions (-notify -ding))
-                  '(:time "5m" :period "1m" :duration 240
-                          :actions (-notify))
-                  '(:time "15m" :period "2m" :duration 600
-                          :actions -notify)
-                  '(:time "30m" :period "5m" :duration 600 :actions -notify))
+  (use-package org-protocol
+    :init
+    (add-to-list 'org-modules 'org-protocol))
   
-  (org-notify-add 'habit
-                  '(:time "-1s" :period "30m" :duration 15
-                          :actions (-notify -ding))))
+  (use-package org-roam
+    :ensure t
+    :bind (("C-c n l" . org-roam-buffer-toggle)
+	   ("C-c n f" . org-roam-node-find)
+	   ("C-c n i" . org-roam-node-insert)
+	   ("C-c n c" . org-roam-capture)
+	   ("C-c n g" . org-roam-graph)
+           ("C-c n t" . org-roam-tag-add)
+	   ("C-c n I" . org-roam-node-insert-immediate)
+	   :map org-mode-map
+	   (("C-M-i" . completion-at-point)))
+    :bind-keymap
+    ("C-c n d" . org-roam-dailies-map)
+    :custom
+    (org-roam-v2-ack t)
+    (org-roam-directory (file-truename "~/org/roam/"))
+    (org-roam-completion-everywhere t)
+    (org-roam-node-display-template
+     (concat "${title:*} "
+             (propertize "${tags:20}" 'face 'org-tag)))
+    (org-roam-mode-sections
+     (list #'org-roam-backlinks-section
+	   #'org-roam-reflinks-section))
+    (org-roam-dailies-capture-templates
+     '(("d" "default" entry "* %<%I:%M %p> \n%?"
+	:if-new (file+head "%<%Y-%m-%d>.org" "#+title: %<%Y-%m-%d>\n"))))
+    :config
+    (require 'org-roam-dailies)
+    (org-roam-db-autosync-mode)
+    
+    (defun org-roam-node-insert-immediate (arg &rest args)
+      (interactive "P")
+      (let ((args (cons arg args))
+	    (org-roam-capture-templates (list (append (car org-roam-capture-templates)
+						      '(:immediate-finish t)))))
+        (apply #'org-roam-node-insert args)))
 
-;; org-pomodoro
-(defun my/pomodoro-finished-alert ()
-  (alert (format-time-string "%H:%M")
-         :severity 'high
-         :title "Pomodoro session finished!"
-         :category 'org-pomodoro
-         :style 'notifications
-         :persistent t))
+    ;; update org roam ids
+    (org-roam-update-org-id-locations)
 
-(defun my/pomodoro-break-finished-alert ()
-  (alert (format-time-string "%H:%M")
-         :severity 'high
-         :title "Pomodoro break finished!"
-         :category 'org-pomodoro
-         :style 'notifications
-         :persistent t))
+    (advice-add #'corfu-insert
+                :after (lambda ()
+                         (when
+                             (eq major-mode 'org-mode)
+                           (org-roam-link-replace-all)))))
+  
+  (use-package org-super-agenda
+    :ensure t
+    :config
+    (org-super-agenda-mode))
 
-(use-package org-pomodoro
-  :ensure t
-  :hook ((org-pomodoro-finished . my/pomodoro-finished-alert)
-         (org-pomodoro-break-finished . my/pomodoro-break-finished-alert))
-  :custom
-  (org-pomodoro-keep-killed-pomodoro-time t)
-  (org-pomodoro-format "%s")
-  (org-clock-clocked-in-display nil)
-  (setq org-pomodoro-ticking-sound t))
+  (defun my/org-search ()
+    "Search through org files ."
+    (interactive)
+    (consult-ripgrep "~/org"))
+
+  ;; org-habit-stats
+  (use-package org-habit-stats
+    :ensure t
+    :hook (org-after-todo-state-change . (lambda () (run-at-time "1 sec" nil 'org-habit-stats-update-properties)))
+    :custom
+    (org-habit-stats-stat-functions-alist
+     '((org-habit-stats-streak . "Current Streak")
+       (org-habit-stats-exp-smoothing-list-today . "Habit Strength")
+       (org-habit-stats-record-streak-days . "Record Streak")
+       (org-habit-stats-record-streak-date . "Record Date")
+       (org-habit-stats-unstreak . "Unstreak")
+       (org-habit-stats-30-day-total . "Monthly total")
+       (org-habit-stats-30-day-percentage . "Monthly percentage")
+       (org-habit-stats-alltime-total . "Total Completions")
+       (org-habit-stats-alltime-percentage . "Total Percentage")))
+    :config
+    )
+
+  ;; (add-hook 'org-after-todo-state-change-hook
+  ;;             (lambda ()
+  ;;               (run-at-time "1 sec" nil 'org-habit-stats-update-properties)))
+
+  ;; org-notify
+  (use-package org-notify
+    :commands (org-notify-start)
+    :ensure t
+    :after org
+    :custom
+    (org-notify-timestamp-types '(:deadline :scheduled))
+    (org-notify-max-notifications-per-run 10)
+    :config
+    (org-notify-start)
+
+    (defun my/alarm-long (&rest _)
+      "Wrapper function for alarm to fit :actions list below"
+      (my/alarm "long"))
+
+    (org-notify-add 'default
+                  '(:time "5s" :period "1m" :duration 50 :urgency critical
+                          :actions (my/alarm-long org-notify-action-notify org-notify-action-ding))
+		  '(:time "1m" :duration 55
+                          :actions (my/alarm org-notify-action-notify org-nortify-action-ding))
+                  '(:time "5m" :duration 240
+                          :actions (-notify))
+                  '(:time "15m" :duration 600
+                          :actions -notify)
+                  '(:time "30m" :duration 600 :actions -notify))
+    
+    (org-notify-add 'habit
+                    '(:time "-1s" :period "30m" :duration 15
+                            :actions (-notify))))
+
+  ;; org-pomodoro
+  (defun my/pomodoro-finished-alert ()
+    (my/alarm)
+    (alert (format-time-string "%H:%M")
+           :severity 'high
+           :title "Pomodoro session finished!"
+           :category 'org-pomodoro
+           :style 'notifications
+           :persistent t))
+
+  (defun my/pomodoro-break-finished-alert ()
+    (my/alarm)
+    (alert (format-time-string "%H:%M")
+           :severity 'high
+           :title "Pomodoro break finished!"
+           :category 'org-pomodoro
+           :style 'notifications
+           :persistent t))
+
+  (use-package org-pomodoro
+    :ensure t
+    :hook ((org-pomodoro-finished . my/pomodoro-finished-alert)
+           (org-pomodoro-break-finished . my/pomodoro-break-finished-alert))
+    :custom
+    (org-pomodoro-keep-killed-pomodoro-time t)
+    (org-pomodoro-format "%s")
+    (org-clock-clocked-in-display nil)
+    (setq org-pomodoro-ticking-sound t))
+
+  ;; remind me to clock in/out
+  (use-package org-clock-reminder
+    :ensure t
+    :custom
+    (org-clock-reminder-formatters
+     '((?c . (org-duration-from-minutes (floor (org-time-convert-to-integer
+		                                (time-since org-clock-start-time))
+		                               60)))
+       (?h . org-clock-heading)
+       (?t . (format-time-string "%H:%M" (current-time)))))
+
+    (org-clock-reminder-inactive-title "Big Brother says:")
+    (org-clock-reminder-active-title "Big Brother says:")
+    (org-clock-reminder-inactive-text "%t: You're not clocked in.")
+    (org-clock-reminder-active-text "%t: You've been working for %c on <br/>%h.")
+    (org-clock-reminder-inactive-notifications-p t)
+    (org-clock-reminder-interval (cons 10 15))
+    :config
+    ;; replace function to configure urgency
+    (defun org-clock-reminder-notify (title message)
+      (let ((icon-path (org-clock-reminder--icon)))
+        (notifications-notify :title title
+                              :body message
+                              :timeout 540000
+                              :urgency 'critical)))
+
+    ;; define duration based on time since latest clock-in, not total clocked time
+    ;; add current
+    (org-clock-reminder-mode))
+
+  (use-package org-ai
+    :ensure t
+    :commands (org-ai-mode
+               org-ai-global-mode)
+    :hook (org-mode . org-ai-mode)
+    :init (org-ai-global-mode)
+    :custom (org-ai-default-chat-model "gpt-4o")))
+
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; hydra ----------------------------------------------------------------------- ;;
@@ -596,7 +728,7 @@
    (("C-M-b" puni-backward-sexp "Backward sexp")
     ("C-M-f" puni-forward-sexp "Forward sexp")
     ("C-M-u" backward-up-list "Backward up hierarchy")
-    ("C-M-d" forward-down-list "Forward down hierarchy")
+    ("C-M-d" down-list "Forward down hierarchy")
     ("C-M-p" backward-list "Backward list")
     ("C-M-n" forward-list "Forward list"))
    "Text selection"
@@ -847,8 +979,8 @@ T - tag prefix
 (use-package ace-window
   :ensure t
   :bind (("M-o" . ace-window))
-  :config
-  (setq aw-keys '(?a ?s ?d ?f)))
+  :custom
+  (aw-keys '(?a ?s ?d ?f)))
 
 ;; toggle vertical/horizontal split
 (defun my/toggle-window-split ()
@@ -886,8 +1018,8 @@ T - tag prefix
 ;; tramp
 (use-package tramp
   :ensure t
-  :config
-  (setq tramp-default-method "ssh"))
+  :custom
+  (tramp-default-method "ssh"))
 
 ;;;;;;;;;;;;;
 ;; editing ;;
@@ -923,12 +1055,13 @@ T - tag prefix
 (defvar org-electric-pairs '((?$ . ?$))) ; add custom pairs
 
 (use-package puni
+  :defer t
   :ensure t
   :bind (("C-c \\" . puni-mark-sexp-around-point)
          ("C-," . puni-expand-region))
   :hook (term-mode . puni-disable-puni-mode)
+  :init (puni-global-mode)
   :config
-  (puni-global-mode t)
   (define-key puni-mode-map (kbd "M-DEL") 'nil)
   (define-key puni-mode-map (kbd "C-M-a") 'nil)
   (define-key puni-mode-map (kbd "C-M-e") 'nil)
@@ -939,25 +1072,21 @@ T - tag prefix
 (use-package tempel
   :bind (("C-c t t" . tempel-complete)
          ("C-c t i" . tempel-insert))
-  :preface
+  :hook
+  (prog-mode . tempel-setup-capf)
+  (text-mode . tempel-setup-capf)
+  (org-mode-hook . tempel-setup-capf)
+  :custom
+  (tempel-path (expand-file-name "templates" user-emacs-directory))
+  (tempel-trigger-prefix "<")
   :init
-  (setq tempel-path (expand-file-name "templates" user-emacs-directory))
-  
   (defun tempel-setup-capf ()
+    "Adds the tempel capf to completion-at-point-functions"
     (setq-local completion-at-point-functions
                 (cons #'tempel-complete
                       completion-at-point-functions)))
   
-  (add-hook 'prog-mode-hook 'tempel-setup-capf)
-  (add-hook 'text-mode-hook 'tempel-setup-capf)
-  (add-hook 'org-mode-hook 'tempel-setup-capf)
-  (global-tempel-abbrev-mode)
-  
-  ;; tempel keys
-  (tempel-key "C-c t d" (format-time-string "%m-%d-%Y"))
-  
-  :custom
-  (tempel-trigger-prefix "<"))
+  (global-tempel-abbrev-mode))
 
 ;;;;;;;;;;;;;;;;;;;;;;;
 ;; completion system ;;
@@ -979,39 +1108,14 @@ T - tag prefix
   :ensure t
   :init
   (vertico-mode)
-  (setq vertico-cycle t)
-  :config
-  ;; enable completion-at-point / completion-in-region
-  (setq completion-in-region-function
+  :custom
+  (vertico-cycle t)
+  (completion-in-region-function
         (lambda (&rest args)
 	  (apply (if vertico-mode
 		     #'consult-completion-in-region
 		   #'completion--in-region)
 	         args))))
-
-(use-package emacs
-  :init
-  ;; Add prompt indicator to `completing-read-multiple'.
-  ;; We display [CRM<separator>], e.g., [CRM,] if the separator is a comma.
-  (defun crm-indicator (args)
-    (cons (format "[CRM%s] %s"
-		  (replace-regexp-in-string
-		   "\\`\\[.*?]\\*\\|\\[.*?]\\*\\'" ""
-		   crm-separator)
-		  (car args))
-	  (cdr args)))
-  (advice-add #'completing-read-multiple :filter-args #'crm-indicator)
-
-  ;; do not allow the cursor in the minibuffer prompt
-  (setq minibuffer-prompt-properties
-	'(read-only t cursor-intangible t face minibuffer-prompt))
-  (add-hook 'minibuffer-setup-hook #'cursor-intangible-mode)
-
-  ;; emacs 28: Hide commands in M-x which do not work in the current mode.
-  ;; vertico commands are hidden in normal buffers.
-  (setq read-extended-command-predicate
-        #'command-completion-default-include-p))
-
 
 ;; marginalia
 (use-package marginalia
@@ -1279,20 +1383,6 @@ T - tag prefix
 	 ("C-S-<return>" . crux-smart-open-line-above)
 	 ("C-<return>" . crux-smart-open-line)))
 
-;; yasnippet
-(use-package yasnippet
-  :ensure t
-  :init
-  (yas-global-mode 1)
-  :bind
-  ("C-c y" . yas-expand))
-
-;; yasnippet-capf
-(use-package yasnippet-capf
-  :ensure t
-  :init
-  (add-to-list 'completion-at-point-functions #'yasnippet-capf))
-
 ;;;;;;;;;;;;;;;
 ;; utilities ;;
 ;;;;;;;;;;;;;;;
@@ -1374,7 +1464,7 @@ Otherwise, call eat."
          ("C-c e p" . eat-project))
   :custom 
   (eat-kill-buffer-on-exit t)
-  (setq eat-term-name "kitty"))
+  (eat-term-name "kitty"))
 
 ;;;;;;;;;;;;
 ;; coding ;;
@@ -1389,8 +1479,9 @@ Otherwise, call eat."
 (use-package projectile
   :ensure t
   :bind-keymap ("C-x p" . projectile-command-map)
-  :config
+  :custom
   (setq projectile-project-search-path '("~/projects/"))
+  :config
   (define-key projectile-command-map (kbd "e") #'eat-project)
   (define-key projectile-command-map (kbd "b") #'consult-project-buffer)
   (projectile-mode +1))
@@ -1398,18 +1489,17 @@ Otherwise, call eat."
 ;; lsp
 (use-package lsp-mode
   :ensure t
+  :bind (:map lsp-key-)
   :custom
+  (lsp-keymap-prefix "C-c l")
   (lsp-completion-provider :none)
   (lsp-enable-snippet nil)
   (lsp-enable-symbol-highlighting 1)
   :init
-  ;; set prefix for lsp-command-keymap (few alternatives - "C-l", "C-c l")
-  (setq lsp-keymap-prefix "C-c l")
   (defun my/lsp-mode-setup-completion ()
     (setf (alist-get 'styles (alist-get 'lsp-capf completion-category-defaults))
 	  '(orderless))) ;; Configure orderless
-  :hook (;; replace XXX-mode with concrete major-mode(e. g. python-mode)
-	 (lsp-completion-mode . my/lsp-mode-setup-completion)
+  :hook ((lsp-completion-mode . my/lsp-mode-setup-completion)
 	 (typescript-ts-mode . lsp-deferred)
          (js-ts-mode . lsp-deferred)
          (c-ts-mode . lsp-deferred)
@@ -1418,7 +1508,6 @@ Otherwise, call eat."
          (css-ts-mode . lsp-deferred)
 	 ;; (python-ts-mode . lsp-deferred)
 	 (lua-mode . lsp-deferred)
-         ;; if you want which-key integration
 	 (lsp-mode . lsp-enable-which-key-integration)
          (lsp-mode . lsp-semantic-tokens-mode))
   :commands lsp lsp-deferred)
@@ -1478,6 +1567,7 @@ Otherwise, call eat."
 
 ;; treesit-auto
 (use-package treesit-auto
+  :commands (treesit-auto-add-to-auto-mode-alist global-treesit-auto-mode)
   :ensure t
   :custom
   (treesit-auto-install 'prompt)
@@ -1485,25 +1575,25 @@ Otherwise, call eat."
   (treesit-auto-add-to-auto-mode-alist 'all)
   (global-treesit-auto-mode))
 
-;; combobulate
-(quelpa '(combobulate :fetcher github :repo mickeynp/combobulate))
-(use-package combobulate
-  :preface
-  ;; You can customize Combobulate's key prefix here.
-  ;; Note that you may have to restart Emacs for this to take effect!
-  (setq combobulate-key-prefix "C-c o")
-  :hook
-  ((python-ts-mode . combobulate-mode)
-   (js-ts-mode . combobulate-mode)
-   (html-ts-mode . combobulate-mode)
-   (css-ts-mode . combobulate-mode)
-   (yaml-ts-mode . combobulate-mode)
-   (typescript-ts-mode . combobulate-mode)
-   (json-ts-mode . combobulate-mode)
-   (tsx-ts-mode . combobulate-mode))
-  ;; Amend this to the directory where you keep Combobulate's source
-  ;; code.
-  :load-path ("path-to-git-checkout-of-combobulate"))
+;; combobulate - commenting out due to apparent navigation bug
+;; (quelpa '(combobulate :fetcher github :repo mickeynp/combobulate))
+;; (use-package combobulate
+;;   :preface
+;;   ;; You can customize Combobulate's key prefix here.
+;;   ;; Note that you may have to restart Emacs for this to take effect!
+;;   (setq combobulate-key-prefix "C-c o")
+;;   :hook
+;;   ((python-ts-mode . combobulate-mode)
+;;    (js-ts-mode . combobulate-mode)
+;;    (html-ts-mode . combobulate-mode)
+;;    (css-ts-mode . combobulate-mode)
+;;    (yaml-ts-mode . combobulate-mode)
+;;    (typescript-ts-mode . combobulate-mode)
+;;    (json-ts-mode . combobulate-mode)
+;;    (tsx-ts-mode . combobulate-mode))
+;;   ;; Amend this to the directory where you keep Combobulate's source
+;;   ;; code.
+;;   :load-path ("path-to-git-checkout-of-combobulate"))
   
   ;; emmet
 (use-package emmet-mode
@@ -1514,9 +1604,7 @@ Otherwise, call eat."
   (html-mode . emmet-mode)
   (js-ts-mode . emmet-mode)
   (typescript-ts-mode . emmet-mode)
-  (tsx-ts-mode . emmet-mode)
-  :config
-  (define-key emmet-mode-keymap (kbd "<C-return>") nil))
+  (tsx-ts-mode . emmet-mode))
 
 ;; cargo
 (use-package cargo
@@ -1563,8 +1651,11 @@ Otherwise, call eat."
   :defer t)
 
 ;; slime (the superior lisp interaction mode for emacs)
-(load (expand-file-name "~/.quicklisp/slime-helper.el"))
-(setq inferior-lisp-program "sbcl")
+(use-package slime
+  :init
+  (load (expand-file-name "~/.quicklisp/slime-helper.el"))
+  :custom
+  (setq inferior-lisp-program "sbcl"))
 
 ;;;;;;;;;;;
 ;; email ;;
@@ -1801,6 +1892,9 @@ Otherwise, call eat."
 ;; gcal
 (load "~/.emacs.d/gcal.el")
 
+(setq org-gcal-up-days 0
+      org-gcal-down-days 30)
+
 ;; load the org-gcal library if it's not already loaded
 (when (require 'org-gcal nil t)
   ;; define a function to run org-gcal-sync
@@ -1811,7 +1905,7 @@ Otherwise, call eat."
   (defvar my/org-gcal-sync-delay 30)
 
   ;; run org-gcal-sync after the specified delay
-  (run-with-timer my/org-gcal-sync-delay nil 'my/org-gcal-sync))
+  (run-with-timer my/org-gcal-sync-delay 43200 'my/org-gcal-sync))
 
 (defun my/org-gcal-format (_calendar-id event _update-mode)
   (if (eq _update-mode 'newly-fetched)
@@ -1830,20 +1924,14 @@ Otherwise, call eat."
             (org-todo "UPCOMING"))
           (org-schedule nil (format "<%s>" stime))))))
 
-(defun my/clear-gcal-drawer ()
-  "Removes all text in org-gcal binder"
-  (when (string-equal (buffer-file-name) (concat org-directory "/schedule.org"))
-    (save-excursion
-        (goto-char (point-min))
-        (while (re-search-forward ":org-gcal:" nil t)
-          (let ((start (point)))
-            (when (re-search-forward ":end:" nil t)
-              (let ((end (match-beginning 0)))
-                (delete-region start end)
-                (goto-char start)
-                (insert "\n"))))))))
+(defun my/clear-extra-gcal-timestamps ()
+  "Remove all lines in the current buffer that start with the character '<'."
+  (interactive)
+  (goto-char (point-min))
+  (while (re-search-forward "^<.*$" nil t)
+    (replace-match "")))
 
-(add-hook 'find-file-hook 'my/clear-gcal-drawer)
+(add-hook 'find-file-hook 'my/clear-extra-gcal-timestamps)
 (add-hook 'org-gcal-after-update-entry-functions #'my/org-gcal-format)
 
 ;; copilot. saving for end, since it seems to break if loaded earlier (obsolete - no longer using copilot)
@@ -1858,28 +1946,29 @@ Otherwise, call eat."
 
 ;; codeium
 (use-package codeium
-    :straight '(:host github :repo "Exafunction/codeium.el")
-    :init
-    (setq codeium-api-enabled
+  :straight '(:host github :repo "Exafunction/codeium.el")
+  :defer t
+  :init
+  (setq codeium-api-enabled
         (lambda (api)
-            (memq api '(GetCompletions Heartbeat CancelRequest GetAuthToken RegisterUser auth-redirect AcceptCompletion))))
-
-    (defun my-codeium/document/text ()
-        (buffer-substring-no-properties (max (- (point) 3000) (point-min)) (min (+ (point) 1000) (point-max))))
+          (memq api '(GetCompletions Heartbeat CancelRequest GetAuthToken RegisterUser auth-redirect AcceptCompletion))))
+  
+  (defun my-codeium/document/text ()
+    (buffer-substring-no-properties (max (- (point) 3000) (point-min)) (min (+ (point) 1000) (point-max))))
     ;; if you change the text, you should also change the cursor_offset
     ;; warning: this is measured by UTF-8 encoded bytes
-    (defun my-codeium/document/cursor_offset ()
-        (codeium-utf8-byte-length
-            (buffer-substring-no-properties (max (- (point) 3000) (point-min)) (point))))
-    (setq codeium/document/text 'my-codeium/document/text)
-    (setq codeium/document/cursor_offset 'my-codeium/document/cursor_offset)
-
-    ;; decouple codeium from other completions
-    (defun my/codeium (&optional interactive)
-      "Decouple codeium from other completions"
-      (interactive (list t))
-      (when interactive
-        (cape-interactive #'codeium-completion-at-point))))
+  (defun my-codeium/document/cursor_offset ()
+    (codeium-utf8-byte-length
+     (buffer-substring-no-properties (max (- (point) 3000) (point-min)) (point))))
+  (setq codeium/document/text 'my-codeium/document/text)
+  (setq codeium/document/cursor_offset 'my-codeium/document/cursor_offset)
+  
+  ;; decouple codeium from other completions
+  (defun my/codeium (&optional interactive)
+    "Decouple codeium from other completions"
+    (interactive (list t))
+    (when interactive
+      (cape-interactive #'codeium-completion-at-point))))
 
 (load "~/projects/scratchpad/scratchpad.el")
 
