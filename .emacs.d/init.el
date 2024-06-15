@@ -393,6 +393,8 @@
   (org-clock-idle-time 10)
   (org-clock-persist t)
   (org-habit-graph-column 100)
+  (org-habit-preceding-days 28)
+  (org-habit-following-days 1)
   (org-indent-mode-turns-off-org-adapt-indentation nil)
   (org-startup-with-inline-images t)
   (org-ellipsis " ▾")
@@ -565,29 +567,20 @@
        (org-habit-stats-30-day-total . "Monthly total")
        (org-habit-stats-30-day-percentage . "Monthly percentage")
        (org-habit-stats-alltime-total . "Total Completions")
-       (org-habit-stats-alltime-percentage . "Total Percentage")))
-    :config
-    )
+       (org-habit-stats-alltime-percentage . "Total Percentage"))))
 
-  ;; (add-hook 'org-after-todo-state-change-hook
-  ;;             (lambda ()
-  ;;               (run-at-time "1 sec" nil 'org-habit-stats-update-properties)))
-
-  ;; org-notify
+    ;; org-notify
   (use-package org-notify
-    :commands (org-notify-start)
     :ensure t
-    :after org
     :custom
     (org-notify-timestamp-types '(:deadline :scheduled))
     (org-notify-max-notifications-per-run 10)
     :config
-    (org-notify-start)
-
+    (message "hello")
     (defun my/alarm-long (&rest _)
       "Wrapper function for alarm to fit :actions list below"
       (my/alarm "long"))
-
+    (org-notify-start)
     (org-notify-add 'default
                   '(:time "5s" :period "1m" :duration 50 :urgency critical
                           :actions (my/alarm-long org-notify-action-notify org-notify-action-ding))
@@ -601,7 +594,9 @@
     
     (org-notify-add 'habit
                     '(:time "-1s" :period "30m" :duration 15
-                            :actions (-notify))))
+                            :actions (-notify)))
+
+    )
 
   ;; org-pomodoro
   (defun my/pomodoro-finished-alert ()
@@ -687,6 +682,7 @@
   _C_: copilot
   _d_: codeium
   _e_: eat
+  _E_: erc
   _k_: kill emacs (and save buffers)
   _m_: mu4e
   _p_: pomodoro
@@ -699,6 +695,7 @@
   ("C" copilot-mode :color blue)
   ("d" my/codeium :color blue)
   ("e" eat :color blue)
+  ("E" erc-switch-to-buffer :color blue)
   ("k" save-buffers-kill-emacs :color blue)
   ("m" mu4e :color blue)
   ("p" org-pomodoro :color blue)
@@ -737,15 +734,13 @@
 
 (defhydra hydra-cheat (:color pink :hint nil)
   "
------------------------------------------------------------------
-  C-S-backspace or C-delete is kill-whole-line
-  C-c C-x C-w  -  org-cut-special (kill heading)
-  C-x C-o  -  delete blank lines after point (delete-blank-lines)
-  Ctrl = /  Alt = ,
-  C-M-v  - scroll other window (or M-<page down>)
-  Scroll one line  -  C-n/p
-  
------------------------------------------------------------------
+---------------------------------------------------------------------------------------------
+  C-S-backspace or C-del is kill-whole-line                       |  Ctrl-D is exit in zsh
+  C-c C-x C-w  -  org-cut-special (kill heading)                  |
+  C-x C-o  -  delete blank lines after point (delete-blank-lines) |
+  M-<pg-up/down - scroll other window                             |
+  Scroll one line  -  C-n/p                                       |
+---------------------------------------------------------------------------------------------
 "
   ("q" nil "go away" :color blue))
 
@@ -1841,9 +1836,9 @@ Otherwise, call eat."
   (("C-c c" . gptel-menu))
   :init
   (setq gptel-model "gpt-4o")
-  :config
-  (setq gptel-default-mode 'org-mode)
-  (setq gptel-directives
+  :custom
+  (gptel-default-mode 'org-mode)
+  (gptel-directives
         '(
           (default . "You are a large language model living in Emacs. You are a helpful assistant. Provide concise answers.")
           (detailed . "You are a large language model living in Emacs. You are a helpful assistant but also a thorough researcher. Provide thorough answers in outline form and section headers.")
@@ -1866,9 +1861,10 @@ Otherwise, call eat."
 (use-package parrot
   :ensure t
   :hook (emacs-startup . parrot-mode)
+  :custom
+  (parrot-num-rotations nil)
   :config
-  (parrot-set-parrot-type 'emacs)
-  (setq parrot-num-rotations nil))
+  (parrot-set-parrot-type 'emacs))
 
 ;; elcord
 (use-package elcord
@@ -1878,16 +1874,17 @@ Otherwise, call eat."
 
 ;; erc (irc)
 (use-package erc
-  :config
-  (setq erc-nick "polhuang"
-      erc-user-full-name "pol huang"
-      erc-autojoin-channels-alist
-      '(("#emacs" "#systemcrafters"))))
-
-(defun my/connect-to-irc
+  :init
+  (defun my/connect-to-erc ()
     (interactive)
-  (erc :server "irc.libera.com"
-       :port "6667"))
+    (erc :server "irc.libera.chat"
+         :port "6667"))
+  :custom
+  (erc-nick "polhuang")
+  (erc-user-full-name "pol huang")
+  (erc-autojoin-channels-alist '((".*" "#systemcrafters")))
+  :config
+  (my/connect-to-erc))
 
 ;; gcal
 (load "~/.emacs.d/gcal.el")
