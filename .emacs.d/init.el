@@ -1834,9 +1834,8 @@ Otherwise, call eat."
   :ensure t
   :bind
   (("C-c c" . gptel-menu))
-  :init
-  (setq gptel-model "gpt-4o")
   :custom
+  (gptel-model "gpt-4o")
   (gptel-default-mode 'org-mode)
   (gptel-directives
         '(
@@ -1860,6 +1859,7 @@ Otherwise, call eat."
 ;; parrot
 (use-package parrot
   :ensure t
+  :commands parrot-set-parrot-type
   :hook (emacs-startup . parrot-mode)
   :custom
   (parrot-num-rotations nil)
@@ -1874,19 +1874,21 @@ Otherwise, call eat."
 
 ;; erc (irc)
 (use-package erc
-  :init
-  (defun my/connect-to-erc ()
-    (interactive)
-    (erc :server "irc.libera.chat"
-         :port "6667"))
   :custom
   (erc-nick "polhuang")
   (erc-user-full-name "pol huang")
   (erc-autojoin-channels-alist '((".*" "#systemcrafters")))
+  (erc-hide-list '("JOIN" "PART" "QUIT"))
+  :functions my/connect-to-erc
   :config
+  (defun my/connect-to-erc ()
+    (interactive)
+    (erc :server "irc.libera.chat"
+         :port "6667"))
   (my/connect-to-erc))
 
 ;; gcal
+;; migrate to use-package later
 (load "~/.emacs.d/gcal.el")
 
 (setq org-gcal-up-days 0
