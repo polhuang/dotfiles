@@ -289,7 +289,7 @@ end)
 -- For the emacs tab, default to centerwork layout
 awful.screen.connect_for_each_screen(function(s)
       beautiful.at_screen_connect(s)
-      awful.layout.set(awful.layout.layouts[4], s.tags[5])
+      awful.layout.set(awful.layout.layouts[3], s.tags[5])
 end)
 
 

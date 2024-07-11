@@ -394,7 +394,7 @@
   (org-clock-persist t)
   (org-habit-graph-column 100)
   (org-habit-preceding-days 28)
-  (org-habit-following-days 1)
+  (org-habit-following-days 0)
   (org-indent-mode-turns-off-org-adapt-indentation nil)
   (org-startup-with-inline-images t)
   (org-ellipsis " ▾")
@@ -583,9 +583,9 @@
     (org-notify-start)
     (org-notify-add 'default
                   '(:time "5s" :period "1m" :duration 50 :urgency critical
-                          :actions (my/alarm-long org-notify-action-notify org-notify-action-ding))
+                          :actions (my/alarm-long -notify))
 		  '(:time "1m" :duration 55
-                          :actions (my/alarm org-notify-action-notify org-nortify-action-ding))
+                          :actions (my/alarm -notify))
                   '(:time "5m" :duration 240
                           :actions (-notify))
                   '(:time "15m" :duration 600
@@ -593,10 +593,8 @@
                   '(:time "30m" :duration 600 :actions -notify))
     
     (org-notify-add 'habit
-                    '(:time "-1s" :period "30m" :duration 15
-                            :actions (-notify)))
-
-    )
+                    '(:time "-1s" :duration 600
+                            :actions (-notify))))
 
   ;; org-pomodoro
   (defun my/pomodoro-finished-alert ()
@@ -619,8 +617,8 @@
 
   (use-package org-pomodoro
     :ensure t
-    :hook ((org-pomodoro-finished . my/pomodoro-finished-alert)
-           (org-pomodoro-break-finished . my/pomodoro-break-finished-alert))
+    :hook ((org-pomodoro-finished . (lambda () my/pomodoro-finished-alert))
+           (org-pomodoro-break-finished . (lambda () my/pomodoro-break-finished-alert)))
     :custom
     (org-pomodoro-keep-killed-pomodoro-time t)
     (org-pomodoro-format "%s")
@@ -640,7 +638,7 @@
 
     (org-clock-reminder-inactive-title "Big Brother says:")
     (org-clock-reminder-active-title "Big Brother says:")
-    (org-clock-reminder-inactive-text "%t: You're not clocked in.")
+    (org-clock-reminder-inactive-text "%t: You're not clocked in, bro")
     (org-clock-reminder-active-text "%t: You've been working for %c on <br/>%h.")
     (org-clock-reminder-inactive-notifications-p t)
     (org-clock-reminder-interval (cons 10 15))
@@ -1315,6 +1313,7 @@ T - tag prefix
 
 ;; prescient
 (use-package prescient
+  :commands (prescient-persist-mode)
   :ensure t
   :config
   (vertico-prescient-mode)
@@ -1484,6 +1483,7 @@ Otherwise, call eat."
 ;; lsp
 (use-package lsp-mode
   :ensure t
+  :commands (lsp lsp-deferred)
   :bind (:map lsp-key-)
   :custom
   (lsp-keymap-prefix "C-c l")
@@ -1504,8 +1504,7 @@ Otherwise, call eat."
 	 ;; (python-ts-mode . lsp-deferred)
 	 (lua-mode . lsp-deferred)
 	 (lsp-mode . lsp-enable-which-key-integration)
-         (lsp-mode . lsp-semantic-tokens-mode))
-  :commands lsp lsp-deferred)
+         (lsp-mode . lsp-semantic-tokens-mode)))
 
 (use-package lsp-ui
   :ensure t
@@ -1593,7 +1592,9 @@ Otherwise, call eat."
   ;; emmet
 (use-package emmet-mode
   :ensure t
-  :bind (("C-j" . emmet-expand-lineg))
+  :bind (("C-j" . emmet-expand-line))
+  :init
+  (setq emmet-mode-keymap nil)
   :hook
   (css-ts-mode . emmet-mode)
   (html-mode . emmet-mode)
