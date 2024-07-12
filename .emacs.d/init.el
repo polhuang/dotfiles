@@ -1,11 +1,12 @@
+
 ;;;;;;;;;;;;;;;;;;;;
 ;; emacs settings ;;
 ;;;;;;;;;;;;;;;;;;;;
 
-;;;; set gc threshold for startup performance
+;; set gc threshold for startup performance
 (setq gc-cons-threshold (* 50 1000 1000))
 
-;;;;;;;; define new prefix
+;; define new prefix
 (defvar my-map (make-sparse-keymap))
 (define-key global-map (kbd "C-M-]") my-map)
 
@@ -30,7 +31,18 @@
   ;; hide commands in m-x which do not work in the current mode
   ;; vertico commands are hidden in normal buffers.
   (setq read-extended-command-predicate
-        #'command-completion-default-include-p))
+        #'command-completion-default-include-p)
+
+  (setq completion-cycle-threshold 3))
+
+;; emacs alarm
+(defun my/alarm (&optional length &rest _)
+  "My Emacs alarm. If optional parameter LENGTH is `long`, plays the longer alarm."
+  (let ((file (expand-file-name (if (equal length "long")
+                                    "sounds/bell_multiple.wav"
+                                  "sounds/bell.wav")
+                                user-emacs-directory)))
+    (start-process-shell-command "org" nil (concat "aplay " file))))
 
 ;;;;;;;;;;;;;;;;;;;;;;
 ;; package settings ;;
@@ -90,6 +102,7 @@
   :ensure t)
 
 ;; exclude from recentf
+(require 'recentf)
 (setq recentf-exclude '("schedule.org" "tasks.org" "init.el" "COMMIT_EDITMSG", "oauth2-auto.plist"))
 
 ;; super-save
@@ -104,14 +117,12 @@
 ;; ui settings ;;
 ;;;;;;;;;;;;;;;;;
 
-
-;; (use-package seoul256-theme
-;;   :ensure t)
-
-(setq cherry-seoul256-background 233)
-(load "~/projects/cherry-seoul256/cherry-seoul256-theme.el")
-(add-to-list 'custom-theme-load-path "~/projects/cherry-seoul256")
-(load-theme 'cherry-seoul256 t)
+(use-package cherry-seoul256-theme
+  :load-path "~/projects/cherry-seoul256"
+  :custom
+  (cherry-seoul256-background 233)
+  :config
+  (load-theme 'cherry-seoul256 t))
 
 ;; theme
 ;; (use-package seoul256-theme
@@ -167,7 +178,6 @@
 ;; (set-face-attribute 'ansi-color-bright-cyan nil :foreground "#4eb3cd" :background "#4eb3cd")
 
 (use-package autothemer
-  :ensure t
   :defer t)
 
 (with-eval-after-load 'marginalia
@@ -178,7 +188,6 @@
 
 ;; fontify-face
 (use-package fontify-face                                    ; fontify symbols representing faces
-  :ensure t
   :defer t)
 
 ;; define non-breaking space
@@ -188,8 +197,7 @@
 (font-lock-add-keywords 'org-mode '(("\u00a0" . 'my/non-breaking-space)))
 
 ;; rainbow mode
-(use-package rainbow-mode                                    ; colorize strings representing colors
-  :ensure t
+(use-package rainbow-mode
   :defer t)
 
 ;; modeline
@@ -208,18 +216,18 @@
 (global-visual-line-mode 1)                                  ; visual line mode (word wrap)
 (column-number-mode)                                         ; display column number display in mode line
 (setq use-dialog-box nil)                                    ; disable ui dialog prompts
-;; (setq dired-omit-verbose nil)                              ; disable dired omit messsages
 (global-prettify-symbols-mode 1)                             ; prettify-symbols
-
 
 ;; transparency
 (add-to-list 'default-frame-alist '(alpha-background . 60))
 
 (defun my/transparent-frame ()
+  "Make frame transparent."
   (interactive)
   (set-frame-parameter nil 'alpha-background 60))
 
 (defun my/untransparent-frame ()
+  "Make frame opaque."
   (interactive)
   (set-frame-parameter nil 'alpha-background 100))
 
@@ -230,9 +238,9 @@
 ;; display line numbers
 (require 'display-line-numbers)
 (global-display-line-numbers-mode 1)                        ; display line numbers
-(setq display-line-numbers-width-start t)
-(defun display-line-numbers--turn-on ()
-  "Turn on `display-line-numbers-mode.`"
+(setq display-line-numbers-width-start t)                   ; uses width necessary to display all line numbers
+(defun display-line-numbers--turn-on ()                     ; do not display in pdf-mode or in minibuffer
+  "Turn on `display-line-numbers-mode`."
   (unless (or (minibufferp) (eq major-mode 'pdf-view-mode))
     (display-line-numbers-mode)))
 
@@ -241,13 +249,13 @@
   '((t :family "Noto Sans CJK TC"))
   "Face for Chinese characters.")
 
-;; Add the new face to the `face-font-family-alternatives` variable
+;; add the new face to the `face-font-family-alternatives` variable
 (setq face-font-family-alternatives
       '(("Noto Sans CJK TC" "han" "cjk")
         ("my-chinese-face" "cjk")
         ("Sans Serif" "latin")))
 
-;; Apply the new face to Chinese characters
+;; apply the new face to Chinese characters
 (set-fontset-font "fontset-default"
                   (cons (decode-char 'ucs #x4E00) (decode-char 'ucs #x9FFF))
                   "my-chinese-face")
@@ -255,9 +263,8 @@
 ;; icons
 (use-package nerd-icons-corfu
   :ensure t
-  :after corfu
-  :config
-  (add-to-list 'corfu-margin-formatters #'nerd-icons-corfu-formatter))
+  ;; nerd-icons-corfu-formatter added to corfu-margin-formatters in corfu section
+  )
 
 (use-package nerd-icons-dired
   :ensure t
@@ -273,35 +280,36 @@
   :hook
   (ibuffer-mode . nerd-icons-ibuffer-mode))
 
-(defun my/alarm (&optional length &rest _)
-  (let ((file (expand-file-name (if (equal length "long")
-                                    "sounds/bell_multiple.wav"
-                                  "sounds/bell.wav")
-                                user-emacs-directory)))
-    (start-process-shell-command "org" nil (concat "aplay " file))))
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; navigation settings ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;; scrolling
+
 (defvar my/default-scroll-lines 15)
+(setq scroll-conservatively 5)
 
 ;; keep cursor in same position
-(setq scroll-preserve-screen-position nil)
+(setq scroll-preserve-screen-position t)
 
-(defun my/scroll-up (orig-func &optional arg)
-  "Redefine upward scroll distance. Use prefix argument if possible, otherwise use default."
-  (apply orig-func (list (or arg my/default-scroll-lines)))) 
+(defun my/scroll (orig-func direction &optional arg)
+  "Redefine upward scroll distance.
+ORIG-FUNC is the original function passed by `advice-add`.
+DIRECTION IS \\='up or \\='down.
+Use prefix argument ARG for number of lines, otherwise use default."
+  ;; (apply orig-func (list (or arg my/default-scroll-lines)))
+  (funcall orig-func (or arg my/default-scroll-lines)))
 
-(defun my/scroll-down (orig-func &optional arg)
-  "Redefine downward scroll distance. Use prefix argument if possible, otherwise use default."
-  (apply orig-func (list (or arg my/default-scroll-lines))))
+(advice-add 'scroll-up :around (lambda (orig-func &optional arg)
+                                 (my/scroll orig-func 'up arg)))
+(advice-add 'scroll-down :around (lambda (orig-func &optional arg)
+                                   (my/scroll orig-func 'down arg)))
 
-(advice-add 'scroll-up :around 'my/scroll-up)
-(advice-add 'scroll-down :around 'my/scroll-down)
-
-(setq scroll-margin 10)
+(use-package sublimity
+  :ensure t
+  :custom
+  (sublimity-scroll-weight 15)
+  (sublimity-scroll-vertical-frame-delay 0.004))
 
 ;; bind scroll-one-line
 (global-set-key (kbd "C-n") 'scroll-up-line)
@@ -347,15 +355,16 @@
   :bind (("M-'"   . popper-cycle)
          ("C-M-'" . popper-toggle-type)) ; turns a popup buffer into a regular window or vice-versa.
   :init
-  (setq popper-reference-buffers
+  (popper-mode +1)
+  (popper-echo-mode +1)
+  :custom
+  (popper-reference-buffers
         '("\\*Messages\\*"
           "Output\\*$"
           "\\*Async Shell Command\\*"
           help-mode
           compilation-mode
-          eat-mode))
-  (popper-mode +1)
-  (popper-echo-mode +1))
+          eat-mode)))
 
 ;;;;;;;;;;;;;;
 ;; org mode ;;
@@ -661,51 +670,28 @@
                org-ai-global-mode)
     :hook (org-mode . org-ai-mode)
     :init (org-ai-global-mode)
-    :custom (org-ai-default-chat-model "gpt-4o")))
+    :custom (org-ai-default-chat-model "gpt-4o"))
 
-
+  (major-mode-hydra-define org-mode nil
+    ("TODO"
+q     (("t" my/to-do-complete "Cycle TODO")
+      ("d" org-deadline "Deadline")
+      ("s" org-schedule "Schedule")
+      ("i" org-clock-in "Clock in")
+      ("o" org-clock-out "Clock out")
+      ("a" org-archive-subtree-default "Archive")
+      ("A" org-agenda-file-to-front "Add as agenda file"))
+     "Org"
+     (("h" consult-org-heading "Headings")))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; hydra ----------------------------------------------------------------------- ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (use-package hydra
-  :ensure t
-  :bind (("C-M-G" . hydra-colossa/body)))
+  :ensure t)
 
-;; hydra-colossa (my personal global hydra)
-(defhydra hydra-colossa (:color amaranth :hint nil)
-  "
-  _c_: cheat
-  _C_: copilot
-  _d_: codeium
-  _e_: eat
-  _E_: erc
-  _k_: kill emacs (and save buffers)
-  _m_: mu4e
-  _p_: pomodoro
-  _q_: go away
-  _s_: search org files
-  _t_: tasks
-  _w_: windows + frames
-"
-  ("c" hydra-cheat/body :color blue)
-  ("C" copilot-mode :color blue)
-  ("d" my/codeium :color blue)
-  ("e" eat :color blue)
-  ("E" erc-switch-to-buffer :color blue)
-  ("k" save-buffers-kill-emacs :color blue)
-  ("m" mu4e :color blue)
-  ("p" org-pomodoro :color blue)
-  ("q" nil :color blue)
-  ("r" restart-emacs :color blue)
-  ("s" my/org-search :color blue)
-  ("t" consult-org-agenda :color blue)
-  ("w" hydra-windows/body :color blue)
-  ("." nil :color blue)
-  ("C-M-G" nil :color blue))
-
-(defhydra hydra-windows (:color amaranth :hint nil)
+(defhydra hydra-windows (:color pink :hint nil)
   "
   _t_: transpose
   _s_: toggle vertical/horizontal split
@@ -730,19 +716,10 @@
    (("C-c \\" puni-mark-sexp-around-point "Mark around sexp")
     ("M-h" mark-paragraph "Mark paragraph"))))
 
-(defhydra hydra-cheat (:color pink :hint nil)
-  "
----------------------------------------------------------------------------------------------
-  C-S-backspace or C-del is kill-whole-line                       |  Ctrl-D is exit in zsh
-  C-c C-x C-w  -  org-cut-special (kill heading)                  |
-  C-x C-o  -  delete blank lines after point (delete-blank-lines) |
-  M-<pg-up/down - scroll other window                             |
-  Scroll one line  -  C-n/p                                       |
----------------------------------------------------------------------------------------------
-"
-  ("q" nil "go away" :color blue))
-
 ;; hydra for ibuffer
+(require 'ibuffer)
+(require 'ibuf-ext)
+
 (defhydra hydra-ibuffer-main (:color pink :hint nil)
   "
  ^Navigation^ | ^Mark^        | ^Actions^        | ^View^
@@ -755,22 +732,18 @@
   ("j" ibuffer-forward-line)
   ("RET" ibuffer-visit-buffer :color blue)
   ("k" ibuffer-backward-line)
-
   ("m" ibuffer-mark-forward)
   ("u" ibuffer-unmark-forward)
   ("*" hydra-ibuffer-mark/body :color blue)
-
   ("D" ibuffer-do-delete)
   ("S" ibuffer-do-save)
   ("a" hydra-ibuffer-action/body :color blue)
-
   ("g" ibuffer-update)
   ("s" hydra-ibuffer-sort/body :color blue)
   ("/" hydra-ibuffer-filter/body :color blue)
-
-  ("o" ibuffer-visit-buffer-other-window "other window" :color blue)
-  ("q" quit-window "quit ibuffer" :color blue)
-  ("." nil "toggle hydra" :color blue))
+  ("o" ibuffer-visit-buffer-other-window "d" :color blue)
+  ("q" quit-window "s" :color blue)
+  ("." nil "s" :color blue))
 
 (defhydra hydra-ibuffer-mark (:color teal :columns 5
 			             :after-exit (hydra-ibuffer-main/body))
@@ -837,6 +810,9 @@
   (define-key ibuffer-mode-map "." 'hydra-ibuffer-main/body))
 
 ;; hydra for dired
+(require 'dired)
+(require 'dired-x)
+(require 'dired-aux)
 (defhydra hydra-dired (:hint nil :color pink)
   "
 _+_ mkdir          _v_iew           _m_ark             _(_ details        _i_nsert-subdir    wdired
@@ -851,19 +827,15 @@ _Z_ compress       _Q_ repl regexp
 
 T - tag prefix
 "
-  ("\\" dired-do-ispell)
   ("(" dired-hide-details-mode)
   (")" dired-omit-mode)
   ("+" dired-create-directory)
-  ("=" diredp-ediff)         ;; smart diff
   ("?" dired-summary)
-  ("$" diredp-hide-subdir-nomove)
-  ("A" dired-do-find-regexp)
-  ("C" dired-do-copy)        ;; Copy all marked files
-  ("D" dired-do-delete)
-  ("E" dired-mark-extension)
-  ("e" dired-ediff-files)
-  ("F" dired-do-find-marked-files)
+  ("a" dired-do-find-regexp)
+  ("c" dired-do-copy)        ;; Copy all marked files
+  ("d" dired-do-delete)
+  ("e" dired-mark-extension)
+  ("f" dired-do-find-marked-files)
   ("G" dired-do-chgrp)
   ("g" revert-buffer)        ;; read all directories again (refresh)
   ("i" dired-maybe-insert-subdir)
@@ -874,7 +846,6 @@ T - tag prefix
   ("o" dired-find-file-other-window)
   ("Q" dired-do-find-regexp-and-replace)
   ("R" dired-do-rename)
-  ("r" dired-do-rsynch)
   ("S" dired-do-symlink)
   ("s" dired-sort-toggle-or-edit)
   ("t" dired-toggle-marks)
@@ -882,9 +853,8 @@ T - tag prefix
   ("u" dired-unmark)
   ("v" dired-view-file)      ;; q to exit, s to search, = gets line #
   ("w" dired-kill-subdir)
-  ("Y" dired-do-relsymlink)
-  ("z" diredp-compress-this-file)
-  ("Z" dired-do-compress)
+  ("y" dired-do-relsymlink)
+  ("z" dired-do-compress)
   ("q" nil)
   ("." nil :color blue))
 
@@ -893,33 +863,17 @@ T - tag prefix
 
 ;; major-mode hydra
 (use-package major-mode-hydra
-  :ensure t
+  :defer t
+  :after (org mu4e)
   :bind
-  ("C-M-] ." . major-mode-hydra))
+  ("C-M-] ." . major-mode-hydra)
+  :config
+  
+  )
 
-(major-mode-hydra-define org-mode nil
-  ("TODO"
-   (("t" my/to-do-complete "Cycle TODO")
-    ("d" org-deadline "Deadline")
-    ("s" org-schedule "Schedule")
-    ("i" org-clock-in "Clock in")
-    ("o" org-clock-out "Clock out")
-    ("a" org-archive-subtree-default "Archive")
-    ("A" org-agenda-file-to-front "Add as agenda file"))
-   "Org"
-   (("h" consult-org-heading "Headings"))))
 
-(major-mode-hydra-define mu4e-headers-mode nil
-  ("Marking"
-   (("=" mu4e-headers-mark-for-untrash "Untrash")
-    ("r" org-deadline "Deadline")
-    ("s" org-schedule "Schedule")
-    ("i" org-clock-in "Clock in")
-    ("o" org-clock-out "Clock out")
-    ("a" org-archive-subtree-default "Archive")
-    ("A" org-agenda-file-to-front "Add as agenda file"))
-   "Org"
-   (("h" consult-org-heading "Headings"))))
+
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; logs, debugging, and history ;;
@@ -1249,7 +1203,9 @@ T - tag prefix
   ;; `global-corfu-modes' to exclude certain modes
   :init
   (global-corfu-mode)
-  (corfu-popupinfo-mode))
+  (corfu-popupinfo-mode)
+  (add-to-list 'corfu-margin-formatters #'nerd-icons-corfu-formatter))
+  :custom
 
 ;; emacs configurations
 (use-package emacs
@@ -1260,12 +1216,7 @@ T - tag prefix
   ;; Emacs 28: Hide commands in M-x which do not apply to the current mode.
   ;; Corfu commands are hidden, since they are not supposed to be used via M-x.
   (setq read-extended-command-predicate
-        #'command-completion-default-include-p)
-
-  ;; `completion-at-point' is often bound to M-TAB.
-  ;; enable indentation+completion using the TAB key.
-  ;; (setq tab-always-indent 'complete))
-  )
+        #'command-completion-default-include-p))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; cape------------------------------------------------------------------------- ;;
@@ -1745,7 +1696,7 @@ Otherwise, call eat."
         mu4e-headers-list-mark      '("l" . "🔈")
         mu4e-headers-personal-mark  '("p" . "👨")
         mu4e-headers-calendar-mark  '("c" . "📅"))
-  (mu4e))
+  (mu4e)
 
 ;; org-mime
 (use-package org-mime
@@ -1889,60 +1840,67 @@ Otherwise, call eat."
   (my/connect-to-erc))
 
 ;; gcal
-;; migrate to use-package later
-(load "~/.emacs.d/gcal.el")
-
-(setq org-gcal-up-days 0
-      org-gcal-down-days 30)
-
-;; load the org-gcal library if it's not already loaded
-(when (require 'org-gcal nil t)
-  ;; define a function to run org-gcal-sync
-  (defun my/org-gcal-sync ()
-    (org-gcal-sync))
-
-  ;; set the delay time in seconds (30 seconds in this case)
+(use-package org-gcal
+  :load-path "private/gcal-credentials.el"
+  :ensure t
+  :after org
+  :commands (org-gcal--sync-unlock org-todo)
+  :custom
+  (org-gcal-up-days 0)
+  (org-gcal-down-days 30)
+  :hook ((find-file . my/clear-extra-gcal-timestamps)
+          (org-gcal-after-update-entry-functions . my/org-gcal-format))
+  :config
+  ;; set delay time in seconds (30 seconds in this case) and start timer
   (defvar my/org-gcal-sync-delay 30)
+  (run-with-timer my/org-gcal-sync-delay 43200 'org-gcal-sync)
 
-  ;; run org-gcal-sync after the specified delay
-  (run-with-timer my/org-gcal-sync-delay 43200 'my/org-gcal-sync))
-
-(defun my/org-gcal-format (_calendar-id event _update-mode)
-  (if (eq _update-mode 'newly-fetched)
-      (progn
-        (when-let* ((stime (plist-get (plist-get event :start) :dateTime))
-                    (etime (plist-get (plist-get event :end) :dateTime))
-                    (start-time (date-to-time stime))
-                    (end-time (date-to-time etime))
-                    (formatted-stime (format-time-string "%Y-%m-%d %a %H:%M" start-time))
-                    (formatted-etime (format-time-string "%H:%M" end-time)))
+  ;; run org-gcal-sync regularly at 9 am every day
+  (run-at-time
+   (let* ((now-decoded (decode-time))
+          (today-9am-decoded
+           (append '(0 0 9) (nthcdr 3 now-decoded)))
+          (now (encode-time now-decoded))
+          (today-9am (encode-time today-9am-decoded)))
+     (if (time-less-p now today-9am)
+         today-9am
+       (time-add today-9am (* 24 60 60))))
+   (* 24 60 60)
+   (defun my/org-gcal-sync-clear-token ()
+     "Sync calendar, clearing tokens first."
+     (interactive)
+     (require 'org-gcal)
+     (when org-gcal--sync-lock
+       (warn "%s" "‘my-org-gcal-sync-clear-token’: ‘org-gcal--sync-lock’ not nil - calling ‘org-gcal--sync-unlock’.")
+       (org-gcal--sync-unlock))
+     (org-gcal-sync-tokens-clear)
+     (org-gcal-sync)
+     nil))
+  
+  (defun my/org-gcal-format (_calendar-id event _update-mode)
+    "Format org-gcal events"
+    (if (eq _update-mode 'newly-fetched)
+        (progn
+          (when-let* ((stime (plist-get (plist-get event :start) :dateTime))
+                      (etime (plist-get (plist-get event :end) :dateTime))
+                      (start-time (date-to-time stime))
+                      (end-time (date-to-time etime))
+                      (formatted-stime (format-time-string "%Y-%m-%d %a %H:%M" start-time))
+                      (formatted-etime (format-time-string "%H:%M" end-time)))
           (org-todo "UPCOMING")
           (org-schedule nil (format "<%s-%s>" formatted-stime formatted-etime)))
-        (when-let* ((stime (plist-get (plist-get event :start) :date)))
-          (if (string= _calendar-id "997d9ee06bb6de8790f30e0fe0e8a52e60a15bf1301173490f0e92247a2eb4ad@group.calendar.google.com")
-              (org-todo "TODO")
+          (when-let* ((stime (plist-get (plist-get event :start) :date)))
+            (if (string= _calendar-id "997d9ee06bb6de8790f30e0fe0e8a52e60a15bf1301173490f0e92247a2eb4ad@group.calendar.google.com")
+                (org-todo "TODO")
             (org-todo "UPCOMING"))
-          (org-schedule nil (format "<%s>" stime))))))
+            (org-schedule nil (format "<%s>" stime))))))
 
-(defun my/clear-extra-gcal-timestamps ()
-  "Remove all lines in the current buffer that start with the character '<'."
-  (interactive)
-  (goto-char (point-min))
-  (while (re-search-forward "^<.*$" nil t)
-    (replace-match "")))
-
-(add-hook 'find-file-hook 'my/clear-extra-gcal-timestamps)
-(add-hook 'org-gcal-after-update-entry-functions #'my/org-gcal-format)
-
-;; copilot. saving for end, since it seems to break if loaded earlier (obsolete - no longer using copilot)
-;; (use-package copilot
-;;   :straight (:host github :repo "zerolfx/copilot.el" :files ("dist" "*.el"))
-;;   :ensure t
-;;   :bind (
-;;          :map copilot-completion-map
-;;          ("C-c TAB" . 'copilot-accept-completion))
-;;   :config
-;;   (set-face-attribute 'copilot-overlay-face nil :foreground "grey30"))
+  (defun my/clear-extra-gcal-timestamps ()
+    "Remove all lines in the current buffer that start with the character '<'."
+    (interactive)
+    (goto-char (point-min))
+    (while (re-search-forward "^<.*$" nil t)
+      (replace-match ""))))
 
 ;; codeium
 (use-package codeium
@@ -1970,10 +1928,44 @@ Otherwise, call eat."
     (when interactive
       (cape-interactive #'codeium-completion-at-point))))
 
+;; scratchpad in scratch buffers
 (load "~/projects/scratchpad/scratchpad.el")
-
-;; Custom keymap
 (global-set-key (kbd "C-M-z") #'scratchpad-toggle)
+
+;; hydra-colossa
+;; hydra-colossa (my personal global hydra)
+(defhydra hydra-colossa (:color amaranth :hint nil)
+  "
+  _c_: cheat
+  _C_: copilot
+  _d_: codeium
+  _e_: eat
+  _E_: erc
+  _k_: kill emacs (and save buffers)
+  _m_: mu4e
+  _p_: pomodoro
+  _q_: go away
+  _s_: search org files
+  _t_: tasks
+  _w_: windows + frames
+"
+  ("c" hydra-cheat/body :color blue)
+  ("C" copilot-mode :color blue)
+  ("d" my/codeium :color blue)
+  ("e" eat :color blue)
+  ("E" erc-switch-to-buffer :color blue)
+  ("k" save-buffers-kill-emacs :color blue)
+  ("m" mu4e :color blue)
+  ("p" org-pomodoro :color blue)
+  ("q" nil :color blue)
+  ("r" restart-emacs :color blue)
+  ("s" my/org-search :color blue)
+  ("t" consult-org-agenda :color blue)
+  ("w" hydra-windows/body :color blue)
+  ("." nil :color blue)
+  ("C-M-G" nil :color blue))
+
+(global-set-key (kbd "C-M-G") 'hydra-colossa/body)
 
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
@@ -1983,7 +1975,7 @@ Otherwise, call eat."
  '(codeium/metadata/api_key "3b26de11-593c-441e-967d-5ba6ae91577c")
  '(column-number-mode t)
  '(custom-safe-themes
-   '("b4c6b60bf5cf727ca62651c0a0147e0e6ba63564215bd3fd9bab771e7914bea8" "c9dba7f4b46497b5bddfab834603fc1748d50f6ea027c347561bb3d81a9c6a32" "57763ac4917fe06157c891fd73fd9a9db340bfe3a04392bb68b2df9032ce14a5" "e9aa348abd3713a75f2c5ba279aa581b1c6ec187ebefbfa33373083ff8004c7c" "7b8f5bbdc7c316ee62f271acf6bcd0e0b8a272fdffe908f8c920b0ba34871d98" default))
+   '("477715cf84159782e44bcea3c90697e4c64896b5af42d0466b2dd44ece279505" "b4c6b60bf5cf727ca62651c0a0147e0e6ba63564215bd3fd9bab771e7914bea8" "c9dba7f4b46497b5bddfab834603fc1748d50f6ea027c347561bb3d81a9c6a32" "57763ac4917fe06157c891fd73fd9a9db340bfe3a04392bb68b2df9032ce14a5" "e9aa348abd3713a75f2c5ba279aa581b1c6ec187ebefbfa33373083ff8004c7c" "7b8f5bbdc7c316ee62f271acf6bcd0e0b8a272fdffe908f8c920b0ba34871d98" default))
  '(js-indent-level 2)
  '(lsp-enable-links nil)
  '(menu-bar-mode nil)
@@ -2017,3 +2009,8 @@ Otherwise, call eat."
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  )
+
+;; Local Variables:
+;; byte-compile-warnings: (not docstrings)
+;; flycheck-disabled-checkers: (emacs-lisp-checkdoc)
+;; End:
