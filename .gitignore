@@ -24,29 +24,13 @@
 /.emacs.d/tree-sitter/
 
 .emacs.d/khoj.el
-.emacs.d/gcal.el
+.emacs.d/gcal-credentials.el
 .emacs.d/bookmarks
 .emacs.d/history
 .emacs.d/places
 .emacs.d/.org-generic-id-locations
 .emacs.d/.org-id-locations
 
-/.config/awesome/awesome-wm-widgets
-/.config/awesome/freedesktop/
-/.config/awesome/lain/
-/.config/awesome/themes/blackburn/
-/.config/awesome/themes/copland/
-/.config/awesome/themes/dremora/
-/.config/awesome/themes/holo/
-/.config/awesome/themes/multicolor/
-/.config/awesome/themes/powerarrow/
-/.config/awesome/themes/rainbow/
-/.config/awesome/themes/steamburn/
-/.config/awesome/themes/vertex/
-
-/.config/awesome/ISSUE_TEMPLATE.md
 /.config/awesome/rc.lua.template
-/.config/awesome/README.rst
-/.config/awesome/screenful.lua
-/.config/awesome/screens_db.lua
+
 
