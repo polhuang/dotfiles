@@ -53,6 +53,7 @@
  			 ("elpa" . "https://elpa.gnu.org/packages/")
  			 ("nongnu" . "https://elpa.nongnu.org/nongnu/")))
 
+
 ;; enable packages from quelpa
 (use-package quelpa
   :ensure t)
@@ -103,7 +104,7 @@
 
 ;; exclude from recentf
 (require 'recentf)
-(setq recentf-exclude '("schedule.org" "tasks.org" "init.el" "COMMIT_EDITMSG", "oauth2-auto.plist"))
+(setq recentf-exclude '("schedule.org" "tasks.org" "init.el" "COMMIT_EDITMSG" "oauth2-auto.plist"))
 
 ;; super-save
 (use-package super-save
@@ -186,8 +187,9 @@
 ;; fonts
 (set-face-attribute 'default nil :family "Iosevka Comfy Fixed" :inherit t)
 
+
 ;; fontify-face
-(use-package fontify-face                                    ; fontify symbols representing faces
+(use-package fontify-face
   :defer t)
 
 ;; define non-breaking space
@@ -261,6 +263,12 @@
                   "my-chinese-face")
 
 ;; icons
+(use-package all-the-icons
+  :ensure t)
+
+(use-package all-the-icons-completion
+  :ensure t)
+
 (use-package nerd-icons-corfu
   :ensure t
   ;; nerd-icons-corfu-formatter added to corfu-margin-formatters in corfu section
@@ -670,19 +678,7 @@ Use prefix argument ARG for number of lines, otherwise use default."
                org-ai-global-mode)
     :hook (org-mode . org-ai-mode)
     :init (org-ai-global-mode)
-    :custom (org-ai-default-chat-model "gpt-4o"))
-
-  (major-mode-hydra-define org-mode nil
-    ("TODO"
-q     (("t" my/to-do-complete "Cycle TODO")
-      ("d" org-deadline "Deadline")
-      ("s" org-schedule "Schedule")
-      ("i" org-clock-in "Clock in")
-      ("o" org-clock-out "Clock out")
-      ("a" org-archive-subtree-default "Archive")
-      ("A" org-agenda-file-to-front "Add as agenda file"))
-     "Org"
-     (("h" consult-org-heading "Headings")))))
+    :custom (org-ai-default-chat-model "gpt-4o")))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; hydra ----------------------------------------------------------------------- ;;
@@ -700,21 +696,6 @@ q     (("t" my/to-do-complete "Cycle TODO")
   ("t" crux-transpose-windows :color blue)
   ("s" my/toggle-window-split :color blue)
   ("." nil :color blue))
-
-(pretty-hydra-define navigation-hydra (:quit-key "q")
-  ("Mark motion"
-   (("C-x C-<space>" pop-global-mark "Pop global mark")
-    ("C-x C-x" exchange-point-and-mark "Exchange point and mark"))
-   "Text motion"
-   (("C-M-b" puni-backward-sexp "Backward sexp")
-    ("C-M-f" puni-forward-sexp "Forward sexp")
-    ("C-M-u" backward-up-list "Backward up hierarchy")
-    ("C-M-d" down-list "Forward down hierarchy")
-    ("C-M-p" backward-list "Backward list")
-    ("C-M-n" forward-list "Forward list"))
-   "Text selection"
-   (("C-c \\" puni-mark-sexp-around-point "Mark around sexp")
-    ("M-h" mark-paragraph "Mark paragraph"))))
 
 ;; hydra for ibuffer
 (require 'ibuffer)
@@ -868,12 +849,32 @@ T - tag prefix
   :bind
   ("C-M-] ." . major-mode-hydra)
   :config
+  (pretty-hydra-define navigation-hydra (:quit-key "q")
+    ("Mark motion"
+     (("C-x C-<space>" pop-global-mark "Pop global mark")
+      ("C-x C-x" exchange-point-and-mark "Exchange point and mark"))
+     "Text motion"
+     (("C-M-b" puni-backward-sexp "Backward sexp")
+      ("C-M-f" puni-forward-sexp "Forward sexp")
+      ("C-M-u" backward-up-list "Backward up hierarchy")
+      ("C-M-d" down-list "Forward down hierarchy")
+      ("C-M-p" backward-list "Backward list")
+      ("C-M-n" forward-list "Forward list"))
+     "Text selection"
+     (("C-c \\" puni-mark-sexp-around-point "Mark around sexp")
+    ("M-h" mark-paragraph "Mark paragraph"))))
   
-  )
-
-
-
-
+  (major-mode-hydra-define org-mode nil
+    ("TODO"
+     (("t" my/to-do-complete "Cycle TODO")
+      ("d" org-deadline "Deadline")
+      ("s" org-schedule "Schedule")
+      ("i" org-clock-in "Clock in")
+      ("o" org-clock-out "Clock out")
+      ("a" org-archive-subtree-default "Archive")
+      ("A" org-agenda-file-to-front "Add as agenda file"))
+     "Org"
+     (("h" consult-org-heading "Headings")))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; logs, debugging, and history ;;
@@ -1017,6 +1018,7 @@ T - tag prefix
   (define-key puni-mode-map (kbd "C-c <delete>") 'puni-force-delete))
 
 (use-package tempel
+  :ensure t
   :bind (("C-c t t" . tempel-complete)
          ("C-c t i" . tempel-insert))
   :hook
@@ -1264,11 +1266,15 @@ T - tag prefix
 
 ;; prescient
 (use-package prescient
+  :ensure t
   :commands (prescient-persist-mode)
+  :config
+  (prescient-persist-mode))
+
+(use-package vertico-prescient
   :ensure t
   :config
-  (vertico-prescient-mode)
-  (prescient-persist-mode))
+  (vertico-prescient-mode))
 
 (use-package corfu-prescient
   :ensure t
@@ -1370,6 +1376,7 @@ T - tag prefix
 
 ;; persistent scratch
 (use-package persistent-scratch
+  :ensure t
   :config
   (persistent-scratch-setup-default))
 
@@ -1468,12 +1475,17 @@ Otherwise, call eat."
   :commands lsp-ui-mode)
 
 (use-package lsp-tailwindcss
+  :ensure t
   :custom
   (lsp-tailwindcss-add-on-mode t)
   (lsp-tailwindcss-major-modes '(typescript-ts-mode js-ts-mode tsx-ts-mode typescript-ts-mode web-mode)))
 
 ;; flycheck
-(add-hook 'after-init-hook #'global-flycheck-mode)
+;; (use-package flycheck
+;;   :ensure t
+;;   :hook (after-init . global-flycheck-mode))
+
+;; (add-hook 'after-init-hook #'global-flycheck-mode)
 
 ;; treesit
 (setq treesit-language-source-alist
@@ -1588,9 +1600,12 @@ Otherwise, call eat."
   (venv-initialize-interactive-shells)
   (venv-initialize-eshell)
   (setq venv-location "~/.venv/")
-  (venv-with-virtualenv "org-babel" (org-babel-do-load-languages
-                                     'org-babel-load-languages
-                                     ' ((jupyter . t)))))
+
+  ;; make this into a function?
+  ;; (venv-with-virtualenv "org-babel" (org-babel-do-load-languages 
+  ;;                                    'org-babel-load-languages
+  ;;                                    ' ((jupyter . t))))
+  )
 
 ;; jupyter
 (use-package jupyter
@@ -1598,6 +1613,7 @@ Otherwise, call eat."
   :defer t)
 
 ;; slime (the superior lisp interaction mode for emacs)
+;; installation instructions here 
 (use-package slime
   :init
   (load (expand-file-name "~/.quicklisp/slime-helper.el"))
@@ -1696,7 +1712,7 @@ Otherwise, call eat."
         mu4e-headers-list-mark      '("l" . "🔈")
         mu4e-headers-personal-mark  '("p" . "👨")
         mu4e-headers-calendar-mark  '("c" . "📅"))
-  (mu4e)
+  (mu4e))
 
 ;; org-mime
 (use-package org-mime
@@ -2012,5 +2028,4 @@ Otherwise, call eat."
 
 ;; Local Variables:
 ;; byte-compile-warnings: (not docstrings)
-;; flycheck-disabled-checkers: (emacs-lisp-checkdoc)
 ;; End:
