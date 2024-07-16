@@ -256,7 +256,7 @@ theme.volume.widget:buttons(awful.util.table.join(
 
 
 -- Net
-local neticon = wibox.widget.imagebox(theme.widget_net)
+
 local net = lain.widget.net({
     settings = function()
         widget:set_markup(markup.font(theme.font,
