@@ -1,5 +1,4 @@
- 
-;;;;;;;;;;;;;;;;;;;;
+ ;;;;;;;;;;;;;;;;;;;;
 ;; emacs settings ;;
 ;;;;;;;;;;;;;;;;;;;;
 
@@ -1428,12 +1427,11 @@ Otherwise, call eat."
 (setq-default indent-tabs-mode nil)
 
 ;; projectile
-
-
 (use-package projectile
   :ensure t
   :bind-keymap ("C-x p" . projectile-command-map)
   :custom
+  (projectile-indexing-method 'hybrid)
   (projectile-project-search-path '("~/projects/"))
   (projectile-sort-order 'recently-active)
   :config
