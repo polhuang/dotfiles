@@ -289,6 +289,8 @@ Use prefix argument ARG for number of lines, otherwise use default."
 
 (use-package sublimity
   :ensure t
+  :init
+  (require 'sublimity-scroll)
   :custom
   (sublimity-scroll-weight 15)
   (sublimity-scroll-vertical-frame-delay 0.004))
@@ -1426,13 +1428,14 @@ Otherwise, call eat."
 (setq-default indent-tabs-mode nil)
 
 ;; projectile
-(global-set-key (kbd "C-x p") 'projectile-command-map)
+
 
 (use-package projectile
   :ensure t
   :bind-keymap ("C-x p" . projectile-command-map)
   :custom
-  (setq projectile-project-search-path '("~/projects/"))
+  (projectile-project-search-path '("~/projects/"))
+  (projectile-sort-order 'recently-active)
   :config
   (define-key projectile-command-map (kbd "e") #'eat-project)
   (define-key projectile-command-map (kbd "b") #'consult-project-buffer)
@@ -1906,11 +1909,7 @@ Otherwise, call eat."
             (if (string= _calendar-id "997d9ee06bb6de8790f30e0fe0e8a52e60a15bf1301173490f0e92247a2eb4ad@group.calendar.google.com")
                 (org-todo "TODO")
             (org-todo "UPCOMING"))
-            (org-schedule nil (format "<%s>" stime))))))
-
-  )
-
-
+            (org-schedule nil (format "<%s>" stime)))))))
 
 ;; codeium
 (use-package codeium
