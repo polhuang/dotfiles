@@ -32,6 +32,7 @@ local hotkeys_popup = require("awful.hotkeys_popup")
                       require("awful.hotkeys_popup.keys")
                       local mytable       = awful.util.table or gears.table -- 4.{0,1} compatibility
 local signal_started_before = false                      
+local volume_widget         = require('awesome-wm-widgets.pactl-widget.volume')
 
 --- Test
 
@@ -136,7 +137,7 @@ local themes = {
     "vertex"           -- 10
 }
 
-local chosen_theme = themes[7]
+local chosen_theme = themes[9]
 local modkey       = "Mod4"
 local altkey       = "Mod1"
 local terminal     = "kitty"
@@ -146,7 +147,7 @@ local editor       = "emacsclient -c -a=''"
 local browser      = "brave-browser"
 
 awful.util.terminal = terminal
-awful.util.tagnames = { " 一  sh ", " 二  key ", " 三  msg ", " 四  www ", " 五  emacs ", " 六  www2", " 七  music ", " 八  admin ", " 九  util " }
+awful.util.tagnames = { " 一 ", " 二 ", " 三 ", " 四 ", " 五 ", " 六 ", " 七 ", " 八 ", " 九 ", " 十 " }
 awful.layout.layouts = {
     --awful.layout.suit.floating,
     awful.layout.suit.tile,
@@ -709,17 +710,17 @@ awful.rules.rules = {
 
     -- Set apps to always map on the specific tags and screens
     { rule = { class = "discord" },
-      properties = { screen = 1, tag = " 三  msg " } },
+      properties = { screen = 1, tag = " 三 " } },
     { rule = { class = "Spotify" },
-      properties = { screen = 1, tag = " 七  music " } },
+      properties = { screen = 1, tag = " 七 " } },
     { rule = { class = "Keymapp" },
-      properties = { screen = 1, tag = " 二  key " } },
+      properties = { screen = 1, tag = " 二 " } },
     { rule = { class = "Proton Mail Bridge" },
-      properties = { screen = 1, tag = " 九  util " } },
+      properties = { screen = 1, tag = " 九 " } },
     { rule = { class = "whatsappweb-nativefier-d40211" },
-      properties = { screen = 1, tag = " 三  msg " } },
+      properties = { screen = 1, tag = " 三 " } },
     { rule = { class = "ticktick" },
-      properties = { screen = 1, tag = " 八  admin " } }
+      properties = { screen = 1, tag = " 八 " } }
 }
 
 -- }}}
@@ -837,12 +838,12 @@ tag.connect_signal("property::selected", backham)
 beautiful.useless_gap = 10
 
 -- Autostart
-awful.spawn("emacsclient -c -a ''", { screen = 1, tag = " 五  emacs "})
+awful.spawn("emacsclient -c -a ''", { screen = 1, tag = " 五 "})
 awful.spawn("kitty -e btop")
 awful.spawn("/opt/keymapp/keymapp")
 awful.spawn("spotify")
 awful.spawn("/opt/WhatsAppWeb-linux-x64/WhatsAppWeb")
-awful.util.spawn("1password", { screen = 1, tag = " 九  util " })
+awful.util.spawn("1password", { screen = 1, tag = " 九 " })
 awful.util.spawn("discord")
 awful.util.spawn("protonmail-bridge")
 awful.util.spawn("ticktick")

@@ -10,6 +10,7 @@ local lain  = require("lain")
 local awful = require("awful")
 local wibox = require("wibox")
 local dpi   = require("beautiful.xresources").apply_dpi
+local volume_widget                             = require('awesome-wm-widgets.pactl-widget.volume')
 
 local os = os
 local my_table = awful.util.table or gears.table -- 4.{0,1} compatibility
@@ -17,8 +18,8 @@ local my_table = awful.util.table or gears.table -- 4.{0,1} compatibility
 local theme                                     = {}
 theme.zenburn_dir                               = require("awful.util").get_themes_dir() .. "zenburn"
 theme.dir                                       = os.getenv("HOME") .. "/.config/awesome/themes/steamburn"
-theme.wallpaper                                 = theme.dir .. "/wall.png"
-theme.font                                      = "Terminus 10.5"
+theme.wallpaper                                 = theme.dir .. "/dusk.png"
+theme.font                                      = "Noto Sans 10"
 theme.fg_normal                                 = "#e2ccb0"
 theme.fg_focus                                  = "#d88166"
 theme.fg_urgent                                 = "#CC9393"
@@ -38,18 +39,18 @@ theme.menu_height                               = dpi(16)
 theme.menu_width                                = dpi(140)
 theme.awesome_icon                              = theme.dir .."/icons/awesome.png"
 theme.menu_submenu_icon                         = theme.dir .. "/icons/submenu.png"
-theme.layout_txt_tile                           = "[t]"
-theme.layout_txt_tileleft                       = "[l]"
-theme.layout_txt_tilebottom                     = "[b]"
-theme.layout_txt_tiletop                        = "[tt]"
-theme.layout_txt_fairv                          = "[fv]"
-theme.layout_txt_fairh                          = "[fh]"
-theme.layout_txt_spiral                         = "[s]"
-theme.layout_txt_dwindle                        = "[d]"
-theme.layout_txt_max                            = "[m]"
-theme.layout_txt_fullscreen                     = "[F]"
-theme.layout_txt_magnifier                      = "[M]"
-theme.layout_txt_floating                       = "[|]"
+theme.layout_txt_tile                           = "[tile]"
+theme.layout_txt_tileleft                       = "[tileleft]"
+theme.layout_txt_tilebottom                     = "[tilebottom]"
+theme.layout_txt_tiletop                        = "[tiletop]"
+theme.layout_txt_fairv                          = "[fairv]"
+theme.layout_txt_fairh                          = "[fairh]"
+theme.layout_txt_spiral                         = "[spiral]"
+theme.layout_txt_dwindle                        = "[dwindle]"
+theme.layout_txt_max                            = "[max]"
+theme.layout_txt_fullscreen                     = "[full]"
+theme.layout_txt_magnifier                      = "[magnified]"
+theme.layout_txt_floating                       = "[floating]"
 theme.tasklist_plain_task_name                  = true
 theme.tasklist_disable_icon                     = true
 theme.useless_gap                               = dpi(0)
@@ -72,7 +73,7 @@ theme.titlebar_floating_button_focus_active     = theme.zenburn_dir.."/titlebar/
 theme.titlebar_maximized_button_normal_inactive = theme.zenburn_dir.."/titlebar/maximized_normal_inactive.png"
 theme.titlebar_maximized_button_focus_inactive  = theme.zenburn_dir.."/titlebar/maximized_focus_inactive.png"
 theme.titlebar_maximized_button_normal_active   = theme.zenburn_dir.."/titlebar/maximized_normal_active.png"
-theme.titlebar_maximized_button_focus_active    = theme.zenburn_dir.."/titlebar/maximized_focus_active.png"
+theme.titlebar_maximized_button_focus_active    = theme.zenburn_dir .. "/titlebar/maximized_focus_active.png"
 
 -- lain related
 theme.layout_txt_termfair                       = "[termfair]"
@@ -82,70 +83,56 @@ local markup = lain.util.markup
 local gray   = "#94928F"
 
 -- Textclock
-local mytextclock = wibox.widget.textclock(" %H:%M ")
-mytextclock.font = theme.font
+local mytextclock = wibox.widget.textclock(markup(gray, " 時間 ") .. "%H:%M ")
+mytextclock.font = "IBM Plex Mono 10"
 
 -- Calendar
 theme.cal = lain.widget.cal({
     attach_to = { mytextclock },
     notification_preset = {
-        font = "Terminus 11",
+        font = "IBM Plex Mono",
         fg   = theme.fg_normal,
         bg   = theme.bg_normal
     }
 })
 
--- Mail IMAP check
---[[ to be set before use
-theme.mail = lain.widget.imap({
-    timeout  = 180,
-    server   = "server",
-    mail     = "mail",
-    password = "keyring get mail",
-    settings = function()
-        mail  = ""
-        count = ""
-
-        if mailcount > 0 then
-            mail = "Mail "
-            count = mailcount .. " "
-        end
-
-        widget:set_markup(markup(gray, mail) .. count)
-    end
-})
---]]
-
 -- MPD
-theme.mpd = lain.widget.mpd({
-    settings = function()
-        artist = mpd_now.artist .. " "
-        title  = mpd_now.title  .. " "
+-- theme.mpd = lain.widget.mpd({
+--     settings = function()
+--         artist = mpd_now.artist .. " "
+--         title  = mpd_now.title  .. " "
 
-        if mpd_now.state == "pause" then
-            artist = "mpd "
-            title  = "paused "
-        elseif mpd_now.state == "stop" then
-            artist = ""
-            title  = ""
-        end
+--         if mpd_now.state == "pause" then
+--             artist = "mpd "
+--             title  = "paused "
+--         elseif mpd_now.state == "stop" then
+--             artist = ""
+--             title  = ""
+--         end
 
-        widget:set_markup(markup.font(theme.font, markup(gray, artist) .. title))
-    end
-})
+--         widget:set_markup(markup.font(theme.font, markup(gray, artist) .. title))
+--     end
+-- })
 
 -- CPU
-local cpu = lain.widget.sysload({
+local cpu = lain.widget.cpu({
     settings = function()
-        widget:set_markup(markup.font(theme.font, markup(gray, " Cpu ") .. load_1 .. " "))
+       widget:set_markup(markup.font("IBM Plex Mono 10", markup(gray, " CPU ") .. cpu_now.usage .. "% "))
+    end
+})
+
+-- Coretemp
+local temp = lain.widget.temp({
+    settings = function()
+       widget:set_markup(markup.font("IBM Plex Mono 10", markup(gray, " 温度 ") .. coretemp_now .. "°C "))
     end
 })
 
 -- MEM
 local mem = lain.widget.mem({
     settings = function()
-        widget:set_markup(markup.font(theme.font, markup(gray, " Mem ") .. mem_now.used .. " "))
-    end
+      widget:set_markup(markup.font("IBM Plex Mono 10", markup(gray, " RAM ") .. mem_now.perc .. "% "))
+   end
 })
 
 -- /home fs
@@ -161,34 +148,54 @@ local bat = lain.widget.bat({
     settings = function()
         local perc = bat_now.perc
         if bat_now.ac_status == 1 then perc = perc .. " Plug" end
-        widget:set_markup(markup.font(theme.font, markup(gray, " Bat ") .. perc .. " "))
+        widget:set_markup(markup.font("IBM Plex Mono 10", markup(gray, "  at ") .. perc .. " "))
     end
 })
 
 -- Net checker
+-- local net = lain.widget.net({
+--     settings = function()
+--         if net_now.state == "up" then net_state = "On"
+--         else net_state = "Off" end
+--         widget:set_markup(markup.font(theme.font, markup(gray, " Net ") .. net_state .. " "))
+--     end
+-- })
+
+local neticon = wibox.widget.imagebox(theme.widget_net)
 local net = lain.widget.net({
     settings = function()
-        if net_now.state == "up" then net_state = "On"
-        else net_state = "Off" end
-        widget:set_markup(markup.font(theme.font, markup(gray, " Net ") .. net_state .. " "))
+       widget:set_markup(markup.font("IBM Plex Mono 10", markup(gray, "   入")) ..
+                         markup.font("IBM Plex Mono 10", markup("#7AC82E", " " .. string.format("%06.0f", net_now.received)))
+                         .. markup.font("IBM Plex Mono 10", markup.font("IBM Plex Mono 10", markup(gray, "  出"))) ..
+                         markup.font("IBM Plex Mono 10", markup("#46A8C3", " " .. string.format("%06.0f", net_now.sent) .. " ")))
     end
 })
 
 -- ALSA volume
-theme.volume = lain.widget.alsa({
-    settings = function()
-        header = " Vol "
-        vlevel  = volume_now.level
+-- local volicon = wibox.widget.imagebox(theme.widget_vol)
+-- theme.volume = lain.widget.pulse({
+--     settings = function()
+--         vlevel = volume_now.left .. "-" .. volume_now.right .. "% | " .. volume_now.device
+--         if volume_now.muted == "yes" then
+--             vlevel = vlevel .. " M"
+--         end
+--         widget:set_markup(lain.util.markup("#7493d2", vlevel))
+--     end
+-- })
 
-        if volume_now.status == "off" then
-            vlevel = vlevel .. "M "
-        else
-            vlevel = vlevel .. " "
-        end
-
-        widget:set_markup(markup.font(theme.font, markup(gray, header) .. vlevel))
-    end
-})
+-- theme.volume.widget:buttons(awful.util.table.join(
+--     awful.button({}, 1, function() -- left click
+--         awful.spawn("pavucontrol-qt")
+--     end),
+--     awful.button({}, 4, function() -- scroll up
+--         os.execute(string.format("pactl set-sink-volume %s +1%%", volume.device))
+--         volume.update()
+--     end),
+--     awful.button({}, 5, function() -- scroll down
+--         os.execute(string.format("pactl set-sink-volume %s -1%%", volume.device))
+--         volume.update()
+--     end)
+-- ))
 
 -- Weather
 --[[ to be set before use
@@ -199,13 +206,14 @@ theme.weather = lain.widget.weather({
 --]]
 
 -- Separators
-local first = wibox.widget.textbox(markup.font("Terminus 4", " "))
-local spr   = wibox.widget.textbox(' ')
+local first = wibox.widget.textbox("  ")
+local spr   = wibox.widget.textbox("  ")
 
 local function update_txt_layoutbox(s)
     -- Writes a string representation of the current layout in a textbox widget
-    local txt_l = theme["layout_txt_" .. awful.layout.getname(awful.layout.get(s))] or ""
-    s.mytxtlayoutbox:set_text(txt_l)
+   local txt_l = theme["layout_txt_" .. awful.layout.getname(awful.layout.get(s))] or "[default]"
+   s.mytxtlayoutbox:set_text(txt_l .. "  ")
+   s.mytxtlayoutbox.font = "IBM Plex Mono 8"
 end
 
 function theme.at_screen_connect(s)
@@ -231,19 +239,52 @@ function theme.at_screen_connect(s)
     awful.tag.attached_connect_signal(s, "property::layout", function () update_txt_layoutbox(s) end)
     s.mytxtlayoutbox:buttons(my_table.join(
                            awful.button({}, 1, function() awful.layout.inc(1) end),
-                           awful.button({}, 2, function () awful.layout.set( awful.layout.layouts[1] ) end),
+                           awful.button({}, 2, function() awful.layout.set( awful.layout.layouts[1] ) end),
                            awful.button({}, 3, function() awful.layout.inc(-1) end),
                            awful.button({}, 4, function() awful.layout.inc(1) end),
                            awful.button({}, 5, function() awful.layout.inc(-1) end)))
+   
 
     -- Create a taglist widget
     s.mytaglist = awful.widget.taglist(s, awful.widget.taglist.filter.all, awful.util.taglist_buttons)
 
+    s.mytaglist = awful.widget.taglist{
+       screen = s,
+       filter = awful.widget.taglist.filter.all,
+       buttons = awful.util.taglist_buttons,
+       style = {
+          font = "IBM Plex Mono 10"
+       },
+       widget_template = {
+          {
+             {
+                {
+                   id = 'text_role',
+                   widget = wibox.widget.textbox,
+                },
+                left = 15,
+                right = 15,
+                widget = wibox.container.margin,
+             },
+             id = 'background_role',
+             widget = wibox.container.background,
+          },
+          layout = wibox.layout.fixed.horizontal,
+       },
+    }
+    
     -- Create a tasklist widget
     s.mytasklist = awful.widget.tasklist(s, awful.widget.tasklist.filter.currenttags, awful.util.tasklist_buttons)
 
-    -- Create the wibox
-    s.mywibox = awful.wibar({ position = "top", screen = s, height = dpi(18) })
+    s.mytasklist = awful.widget.tasklist{
+       screen = s,
+       filter = awful.widget.tasklist.filter.currenttags,
+       style = {
+          font = "IBM Plex Mono 8"
+       }
+    }
+    
+    s.mywibox = awful.wibar({ position = "top", screen = s, height = dpi(25) })
 
     -- Add widgets to the wibox
     s.mywibox:setup {
@@ -260,17 +301,18 @@ function theme.at_screen_connect(s)
         },
         s.mytasklist, -- Middle widget
         { -- Right widgets
-            layout = wibox.layout.fixed.horizontal,
-            wibox.widget.systray(),
-            spr,
-            theme.mpd.widget,
+           layout = wibox.layout.fixed.horizontal,
+           volume_widget{
+              width=100,
+              widget_type="horizontal_bar"
+	    },
+           net.widget,
             --theme.mail.widget,
-            cpu.widget,
-            mem.widget,
-            bat.widget,
-            net.widget,
-            theme.volume.widget,
-            mytextclock
+           cpu.widget,
+           temp.widget,
+           mem.widget,
+           --bat.widget,
+           mytextclock
         },
     }
 end

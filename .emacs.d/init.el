@@ -1,4 +1,4 @@
-
+ 
 ;;;;;;;;;;;;;;;;;;;;
 ;; emacs settings ;;
 ;;;;;;;;;;;;;;;;;;;;
@@ -9,31 +9,7 @@
 ;; define new prefix
 (defvar my-map (make-sparse-keymap))
 (define-key global-map (kbd "C-M-]") my-map)
-
-(use-package emacs
-  :init
-  ;; add prompt indicator to `completing-read-multiple'.
-  ;; display [CRM<separator>], e.g., [CRM,] if the separator is a comma.
-  (defun crm-indicator (args)
-    (cons (format "[CRM%s] %s"
-		  (replace-regexp-in-string
-		   "\\`\\[.*?]\\*\\|\\[.*?]\\*\\'" ""
-		   crm-separator)
-		  (car args))
-	  (cdr args)))
-  (advice-add #'completing-read-multiple :filter-args #'crm-indicator)
-
-  ;; do not allow the cursor in the minibuffer prompt
-  (setq minibuffer-prompt-properties
-	'(read-only t cursor-intangible t face minibuffer-prompt))
-  (add-hook 'minibuffer-setup-hook #'cursor-intangible-mode)
-
-  ;; hide commands in m-x which do not work in the current mode
-  ;; vertico commands are hidden in normal buffers.
-  (setq read-extended-command-predicate
-        #'command-completion-default-include-p)
-
-  (setq completion-cycle-threshold 3))
+(menu-bar-mode -1)
 
 ;; emacs alarm
 (defun my/alarm (&optional length &rest _)
@@ -52,6 +28,7 @@
  			 ("org" . "https://orgmode.org/elpa/")
  			 ("elpa" . "https://elpa.gnu.org/packages/")
  			 ("nongnu" . "https://elpa.nongnu.org/nongnu/")))
+
 
 ;; enable packages from quelpa
 (use-package quelpa
@@ -103,7 +80,7 @@
 
 ;; exclude from recentf
 (require 'recentf)
-(setq recentf-exclude '("schedule.org" "tasks.org" "init.el" "COMMIT_EDITMSG", "oauth2-auto.plist"))
+(setq recentf-exclude '("schedule.org" "tasks.org" "init.el" "COMMIT_EDITMSG" "oauth2-auto.plist"))
 
 ;; super-save
 (use-package super-save
@@ -186,8 +163,9 @@
 ;; fonts
 (set-face-attribute 'default nil :family "Iosevka Comfy Fixed" :inherit t)
 
+
 ;; fontify-face
-(use-package fontify-face                                    ; fontify symbols representing faces
+(use-package fontify-face
   :defer t)
 
 ;; define non-breaking space
@@ -211,7 +189,6 @@
 (tool-bar-mode -1)                                           ; disable the toolbar
 (tooltip-mode -1)                                            ; disable tooltips
 (set-fringe-mode 10)                                         ; give some breathing room
-(menu-bar-mode -1)                                           ; disable the menu bar
 (setq visible-bell t)                                        ; set up the visible bell
 (global-visual-line-mode 1)                                  ; visual line mode (word wrap)
 (column-number-mode)                                         ; display column number display in mode line
@@ -261,6 +238,12 @@
                   "my-chinese-face")
 
 ;; icons
+(use-package all-the-icons
+  :ensure t)
+
+(use-package all-the-icons-completion
+  :ensure t)
+
 (use-package nerd-icons-corfu
   :ensure t
   ;; nerd-icons-corfu-formatter added to corfu-margin-formatters in corfu section
@@ -285,7 +268,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;; scrolling
-
 (defvar my/default-scroll-lines 15)
 (setq scroll-conservatively 5)
 
@@ -670,19 +652,7 @@ Use prefix argument ARG for number of lines, otherwise use default."
                org-ai-global-mode)
     :hook (org-mode . org-ai-mode)
     :init (org-ai-global-mode)
-    :custom (org-ai-default-chat-model "gpt-4o"))
-
-  (major-mode-hydra-define org-mode nil
-    ("TODO"
-q     (("t" my/to-do-complete "Cycle TODO")
-      ("d" org-deadline "Deadline")
-      ("s" org-schedule "Schedule")
-      ("i" org-clock-in "Clock in")
-      ("o" org-clock-out "Clock out")
-      ("a" org-archive-subtree-default "Archive")
-      ("A" org-agenda-file-to-front "Add as agenda file"))
-     "Org"
-     (("h" consult-org-heading "Headings")))))
+    :custom (org-ai-default-chat-model "gpt-4o")))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; hydra ----------------------------------------------------------------------- ;;
@@ -700,21 +670,6 @@ q     (("t" my/to-do-complete "Cycle TODO")
   ("t" crux-transpose-windows :color blue)
   ("s" my/toggle-window-split :color blue)
   ("." nil :color blue))
-
-(pretty-hydra-define navigation-hydra (:quit-key "q")
-  ("Mark motion"
-   (("C-x C-<space>" pop-global-mark "Pop global mark")
-    ("C-x C-x" exchange-point-and-mark "Exchange point and mark"))
-   "Text motion"
-   (("C-M-b" puni-backward-sexp "Backward sexp")
-    ("C-M-f" puni-forward-sexp "Forward sexp")
-    ("C-M-u" backward-up-list "Backward up hierarchy")
-    ("C-M-d" down-list "Forward down hierarchy")
-    ("C-M-p" backward-list "Backward list")
-    ("C-M-n" forward-list "Forward list"))
-   "Text selection"
-   (("C-c \\" puni-mark-sexp-around-point "Mark around sexp")
-    ("M-h" mark-paragraph "Mark paragraph"))))
 
 ;; hydra for ibuffer
 (require 'ibuffer)
@@ -868,12 +823,32 @@ T - tag prefix
   :bind
   ("C-M-] ." . major-mode-hydra)
   :config
+  (pretty-hydra-define navigation-hydra (:quit-key "q")
+    ("Mark motion"
+     (("C-x C-<space>" pop-global-mark "Pop global mark")
+      ("C-x C-x" exchange-point-and-mark "Exchange point and mark"))
+     "Text motion"
+     (("C-M-b" puni-backward-sexp "Backward sexp")
+      ("C-M-f" puni-forward-sexp "Forward sexp")
+      ("C-M-u" backward-up-list "Backward up hierarchy")
+      ("C-M-d" down-list "Forward down hierarchy")
+      ("C-M-p" backward-list "Backward list")
+      ("C-M-n" forward-list "Forward list"))
+     "Text selection"
+     (("C-c \\" puni-mark-sexp-around-point "Mark around sexp")
+    ("M-h" mark-paragraph "Mark paragraph"))))
   
-  )
-
-
-
-
+  (major-mode-hydra-define org-mode nil
+    ("TODO"
+     (("t" my/to-do-complete "Cycle TODO")
+      ("d" org-deadline "Deadline")
+      ("s" org-schedule "Schedule")
+      ("i" org-clock-in "Clock in")
+      ("o" org-clock-out "Clock out")
+      ("a" org-archive-subtree-default "Archive")
+      ("A" org-agenda-file-to-front "Add as agenda file"))
+     "Org"
+     (("h" consult-org-heading "Headings")))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; logs, debugging, and history ;;
@@ -1017,6 +992,7 @@ T - tag prefix
   (define-key puni-mode-map (kbd "C-c <delete>") 'puni-force-delete))
 
 (use-package tempel
+  :ensure t
   :bind (("C-c t t" . tempel-complete)
          ("C-c t i" . tempel-insert))
   :hook
@@ -1055,6 +1031,28 @@ T - tag prefix
   :ensure t
   :init
   (vertico-mode)
+  ;; add prompt indicator to `completing-read-multiple'.
+  ;; display [CRM<separator>], e.g., [CRM,] if the separator is a comma.
+  (defun crm-indicator (args)
+    (cons (format "[CRM%s] %s"
+		  (replace-regexp-in-string
+		   "\\`\\[.*?]\\*\\|\\[.*?]\\*\\'" ""
+		   crm-separator)
+		  (car args))
+	  (cdr args)))
+  (advice-add #'completing-read-multiple :filter-args #'crm-indicator)
+
+  ;; do not allow the cursor in the minibuffer prompt
+  (setq minibuffer-prompt-properties
+	'(read-only t cursor-intangible t face minibuffer-prompt))
+  (add-hook 'minibuffer-setup-hook #'cursor-intangible-mode)
+
+  ;; hide commands in m-x which do not work in the current mode
+  ;; vertico commands are hidden in normal buffers.
+  (setq read-extended-command-predicate
+        #'command-completion-default-include-p)
+
+  (setq completion-cycle-threshold 3)
   :custom
   (vertico-cycle t)
   (completion-in-region-function
@@ -1171,25 +1169,21 @@ T - tag prefix
 (use-package corfu
   :ensure t
   ;; Optional customizations
-  :bind
-  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-  ;; (:map corfu-map                         ;;
-  ;;       ("TAB" . corfu-insert)            ;;
-  ;;       ("<tab>" . corfu-insert)          ;;
-  ;;       ("RET" . corfu-insert)            ;;
-  ;;       ("<return>" . corfu-insert)       ;;
-  ;;       ("SPC" . corfu-insert-separator)) ;;
-  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+  ;; (:map corfu-map                         
+  ;;       ("TAB" . corfu-insert)           
+  ;;       ("RET" . corfu-insert)           
+  ;;       ("<return>" . corfu-insert))
+  :init
+  (global-corfu-mode)
+  (corfu-popupinfo-mode)
+  (add-to-list 'corfu-margin-formatters #'nerd-icons-corfu-formatter)
   :custom
   (corfu-auto t)                    ;; Enable auto completion
-  (corfu-auto-delay 1)
-  (corfu-separator ?\s)
   (corfu-preselect 'prompt)         ;; Don't select first candidate
   (corfu-history-mode)
   ;; (corfu-separator ?\s)          ;; Orderless field separator
   ;; (corfu-quit-at-boundary nil)   ;; Never quit at completion boundary
-  (corfu-quit-no-match t)      ;; Never quit, even if there is no match
-  (corfu-preview-current t) 
+  (corfu-quit-no-match 'separator)           ;; Never quit, even if there is no match
   ;; (corfu-on-exact-match nil)     ;; Configure handling of exact matches
   ;; (corfu-scroll-margin 5)        ;; Use scroll margin
 
@@ -1201,20 +1195,11 @@ T - tag prefix
   ;; recommended: enable Corfu globally.  recommended since dabbrev can
   ;; be used globally (M-/). see also the customization variable
   ;; `global-corfu-modes' to exclude certain modes
-  :init
-  (global-corfu-mode)
-  (corfu-popupinfo-mode)
-  (add-to-list 'corfu-margin-formatters #'nerd-icons-corfu-formatter))
-  :custom
+  )
 
 ;; emacs configurations
 (use-package emacs
   :init
-  ;; tab cycle if there are only few candidates
-  (setq completion-cycle-threshold 3)
-
-  ;; Emacs 28: Hide commands in M-x which do not apply to the current mode.
-  ;; Corfu commands are hidden, since they are not supposed to be used via M-x.
   (setq read-extended-command-predicate
         #'command-completion-default-include-p))
 
@@ -1264,11 +1249,15 @@ T - tag prefix
 
 ;; prescient
 (use-package prescient
+  :ensure t
   :commands (prescient-persist-mode)
+  :config
+  (prescient-persist-mode))
+
+(use-package vertico-prescient
   :ensure t
   :config
-  (vertico-prescient-mode)
-  (prescient-persist-mode))
+  (vertico-prescient-mode))
 
 (use-package corfu-prescient
   :ensure t
@@ -1368,8 +1357,26 @@ T - tag prefix
  (lambda (_ cmd)
    (put cmd 'repeat-map 'structural-navigation-map)) structural-navigation-map)
 
+(defvar org-navigation-map
+  (let ((map (make-sparse-keymap)))
+    (pcase-dolist (`(,k . ,f)
+                   '(("n" . org-next-visible-heading)
+                     ("p" . org-previous-visible-heading)
+                     ("f" . org-forward-heading-same-level)
+                     ("b" . org-backward-heading-same-level)))
+      (define-key map (kbd k) f))
+    map))
+
+(map-keymap
+ (lambda (_ cmd)
+   (put cmd 'repeat-map 'org-navigation-map)) org-navigation-map)
+
+
+
+
 ;; persistent scratch
 (use-package persistent-scratch
+  :ensure t
   :config
   (persistent-scratch-setup-default))
 
@@ -1468,12 +1475,17 @@ Otherwise, call eat."
   :commands lsp-ui-mode)
 
 (use-package lsp-tailwindcss
+  :ensure t
   :custom
   (lsp-tailwindcss-add-on-mode t)
   (lsp-tailwindcss-major-modes '(typescript-ts-mode js-ts-mode tsx-ts-mode typescript-ts-mode web-mode)))
 
 ;; flycheck
-(add-hook 'after-init-hook #'global-flycheck-mode)
+;; (use-package flycheck
+;;   :ensure t
+;;   :hook (after-init . global-flycheck-mode))
+
+;; (add-hook 'after-init-hook #'global-flycheck-mode)
 
 ;; treesit
 (setq treesit-language-source-alist
@@ -1588,9 +1600,12 @@ Otherwise, call eat."
   (venv-initialize-interactive-shells)
   (venv-initialize-eshell)
   (setq venv-location "~/.venv/")
-  (venv-with-virtualenv "org-babel" (org-babel-do-load-languages
-                                     'org-babel-load-languages
-                                     ' ((jupyter . t)))))
+
+  ;; make this into a function?
+  ;; (venv-with-virtualenv "org-babel" (org-babel-do-load-languages 
+  ;;                                    'org-babel-load-languages
+  ;;                                    ' ((jupyter . t))))
+  )
 
 ;; jupyter
 (use-package jupyter
@@ -1598,6 +1613,7 @@ Otherwise, call eat."
   :defer t)
 
 ;; slime (the superior lisp interaction mode for emacs)
+;; installation instructions here 
 (use-package slime
   :init
   (load (expand-file-name "~/.quicklisp/slime-helper.el"))
@@ -1696,7 +1712,7 @@ Otherwise, call eat."
         mu4e-headers-list-mark      '("l" . "🔈")
         mu4e-headers-personal-mark  '("p" . "👨")
         mu4e-headers-calendar-mark  '("c" . "📅"))
-  (mu4e)
+  (mu4e))
 
 ;; org-mime
 (use-package org-mime
@@ -1786,6 +1802,15 @@ Otherwise, call eat."
   :ensure t
   :bind
   (("C-c c" . gptel-menu))
+  :init
+  (gptel-make-openai "Perplexity"   
+  :host "api.perplexity.ai"
+  :key "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"
+  :endpoint "/chat/completions"
+  :stream t
+  :models '(
+            "llama-3-sonar-small-32k-online"
+            "llama-3-sonar-large-32k-online"))
   :custom
   (gptel-model "gpt-4o")
   (gptel-default-mode 'org-mode)
@@ -1800,7 +1825,9 @@ Otherwise, call eat."
           (chat . "You are a large language model and a conversation partner. Respond concisely.")
           (maniac . "You are an intelligent but crazed lunatic that lives to give extravagant but confounding responses.")
           (emacs-addict . "You are extremely obsessed with emacs. You cannot bear to talk about anything but emacs, so you find any kind of opportunity to give answers in a way that has to do with emacs.")
-          (sassy . "You are extremely sassy and like to give witty, sardonic answers and insult me."))))
+          (sassy . "You are extremely sassy and like to give witty, sardonic answers and insult me.")))
+
+  )
 
 ;; spell-checking
 (use-package jinx
@@ -1840,43 +1867,29 @@ Otherwise, call eat."
   (my/connect-to-erc))
 
 ;; gcal
+
 (use-package org-gcal
-  :load-path "private/gcal-credentials.el"
   :ensure t
-  :after org
   :commands (org-gcal--sync-unlock org-todo)
+  :init
+  (load (concat user-emacs-directory "private/gcal-credentials.el"))
+  (add-hook 'org-gcal-after-update-entry-functions #'my/org-gcal-format)
+  :hook (find-file . my/clear-extra-gcal-timestamps)
   :custom
   (org-gcal-up-days 0)
   (org-gcal-down-days 30)
-  :hook ((find-file . my/clear-extra-gcal-timestamps)
-          (org-gcal-after-update-entry-functions . my/org-gcal-format))
   :config
   ;; set delay time in seconds (30 seconds in this case) and start timer
   (defvar my/org-gcal-sync-delay 30)
   (run-with-timer my/org-gcal-sync-delay 43200 'org-gcal-sync)
 
-  ;; run org-gcal-sync regularly at 9 am every day
-  (run-at-time
-   (let* ((now-decoded (decode-time))
-          (today-9am-decoded
-           (append '(0 0 9) (nthcdr 3 now-decoded)))
-          (now (encode-time now-decoded))
-          (today-9am (encode-time today-9am-decoded)))
-     (if (time-less-p now today-9am)
-         today-9am
-       (time-add today-9am (* 24 60 60))))
-   (* 24 60 60)
-   (defun my/org-gcal-sync-clear-token ()
-     "Sync calendar, clearing tokens first."
-     (interactive)
-     (require 'org-gcal)
-     (when org-gcal--sync-lock
-       (warn "%s" "‘my-org-gcal-sync-clear-token’: ‘org-gcal--sync-lock’ not nil - calling ‘org-gcal--sync-unlock’.")
-       (org-gcal--sync-unlock))
-     (org-gcal-sync-tokens-clear)
-     (org-gcal-sync)
-     nil))
-  
+  (defun my/clear-extra-gcal-timestamps ()
+    "Remove all lines in the current buffer that start with the character '<'."
+    (interactive)
+    (goto-char (point-min))
+    (while (re-search-forward "^<.*$" nil t)
+      (replace-match "")))
+
   (defun my/org-gcal-format (_calendar-id event _update-mode)
     "Format org-gcal events"
     (if (eq _update-mode 'newly-fetched)
@@ -1895,12 +1908,9 @@ Otherwise, call eat."
             (org-todo "UPCOMING"))
             (org-schedule nil (format "<%s>" stime))))))
 
-  (defun my/clear-extra-gcal-timestamps ()
-    "Remove all lines in the current buffer that start with the character '<'."
-    (interactive)
-    (goto-char (point-min))
-    (while (re-search-forward "^<.*$" nil t)
-      (replace-match ""))))
+  )
+
+
 
 ;; codeium
 (use-package codeium
@@ -1978,7 +1988,6 @@ Otherwise, call eat."
    '("477715cf84159782e44bcea3c90697e4c64896b5af42d0466b2dd44ece279505" "b4c6b60bf5cf727ca62651c0a0147e0e6ba63564215bd3fd9bab771e7914bea8" "c9dba7f4b46497b5bddfab834603fc1748d50f6ea027c347561bb3d81a9c6a32" "57763ac4917fe06157c891fd73fd9a9db340bfe3a04392bb68b2df9032ce14a5" "e9aa348abd3713a75f2c5ba279aa581b1c6ec187ebefbfa33373083ff8004c7c" "7b8f5bbdc7c316ee62f271acf6bcd0e0b8a272fdffe908f8c920b0ba34871d98" default))
  '(js-indent-level 2)
  '(lsp-enable-links nil)
- '(menu-bar-mode nil)
  '(org-agenda-files
    '("/home/polhuang/org/tasks.org" "/home/polhuang/org/schedule.org"))
  '(package-selected-packages `(add-hook 'web-mode-hook #'lsp-deferred))
@@ -2012,5 +2021,4 @@ Otherwise, call eat."
 
 ;; Local Variables:
 ;; byte-compile-warnings: (not docstrings)
-;; flycheck-disabled-checkers: (emacs-lisp-checkdoc)
 ;; End:
