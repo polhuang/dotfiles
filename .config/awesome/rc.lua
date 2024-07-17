@@ -30,8 +30,8 @@ local menubar       = require("menubar")
 local freedesktop   = require("freedesktop")
 local hotkeys_popup = require("awful.hotkeys_popup")
                       require("awful.hotkeys_popup.keys")
-                      local mytable       = awful.util.table or gears.table -- 4.{0,1} compatibility
-local signal_started_before = false                      
+local mytable       = awful.util.table or gears.table -- 4.{0,1} compatibility
+local signal_started_before = false
 local volume_widget         = require('awesome-wm-widgets.pactl-widget.volume')
 
 --- Test
@@ -292,8 +292,6 @@ awful.screen.connect_for_each_screen(function(s)
       beautiful.at_screen_connect(s)
       awful.layout.set(awful.layout.layouts[3], s.tags[5])
 end)
-
-
 
 -- }}}
 
@@ -834,6 +832,38 @@ tag.connect_signal("property::selected", backham)
 
 -- }}}
 
+-- Create the rule that we will use to match for the application.
+local emacs_rule = { class = { "emacs", "Emacs" } }
+for group_name, group_data in pairs({
+    ["Emacs"] = { color = "#009F00", rule_any = emacs_rule }
+}) do
+    hotkeys_popup.widget.add_group_rules(group_name, group_data)
+end
+
+-- Table with all of our hotkeys
+local emacs_keys = {
+   ["Emacs"] = {
+      {
+        modifiers = { "C" },
+        keys = {
+           ["delete"] = "go to tab",
+           ['n/p'] = "scroll one line"
+        }
+      },
+      {
+         modifiers = { "M" },
+         keys = {
+            ["pg-up/down"] = "scroll other window"
+         }
+      }
+   }
+}
+       
+           
+
+hotkeys_popup.widget.add_hotkeys(emacs_keys)
+
+
 -- Gaps
 beautiful.useless_gap = 10
 
@@ -847,6 +877,7 @@ awful.util.spawn("1password", { screen = 1, tag = " 九 " })
 awful.util.spawn("discord")
 awful.util.spawn("protonmail-bridge")
 awful.util.spawn("ticktick")
-awful.spawn.with_shell("~/display-setup.sh")
-awful.spawn.with_shell("~/.config/startup.sh")
+-- awful.spawn.with_shell("display-setup.sh")
+awful.spawn.with_shell("startup.sh")
+awful.spawn.with_shell("xautolock -time 30 -locker 'idle_suspend.sh'")
 

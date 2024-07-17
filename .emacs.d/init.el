@@ -662,6 +662,40 @@ Use prefix argument ARG for number of lines, otherwise use default."
 (use-package hydra
   :ensure t)
 
+;; hydra-colossa
+;; hydra-colossa (my personal global hydra)
+(defhydra hydra-colossa (:color amaranth :hint nil)
+  "
+  _c_: copilot
+  _d_: codeium
+  _e_: eat
+  _E_: erc
+  _k_: kill emacs (and save buffers)
+  _m_: mu4e
+  _p_: pomodoro
+  _q_: go away
+  _s_: search org files
+  _t_: tasks
+  _w_: windows + frames
+"
+  ("c" hydra-cheat/body :color blue)
+  ("C" copilot-mode :color blue)
+  ("d" my/codeium :color blue)
+  ("e" eat :color blue)
+  ("E" erc-switch-to-buffer :color blue)
+  ("k" save-buffers-kill-emacs :color blue)
+  ("m" mu4e :color blue)
+  ("p" org-pomodoro :color blue)
+  ("q" nil :color blue)
+  ("r" restart-emacs :color blue)
+  ("s" my/org-search :color blue)
+  ("t" consult-org-agenda :color blue)
+  ("w" hydra-windows/body :color blue)
+  ("." nil :color blue)
+  ("C-M-G" nil :color blue))
+
+(global-set-key (kbd "C-M-G") 'hydra-colossa/body)
+
 (defhydra hydra-windows (:color pink :hint nil)
   "
   _t_: transpose
@@ -1938,41 +1972,6 @@ Otherwise, call eat."
 ;; scratchpad in scratch buffers
 (load "~/projects/scratchpad/scratchpad.el")
 (global-set-key (kbd "C-M-z") #'scratchpad-toggle)
-
-;; hydra-colossa
-;; hydra-colossa (my personal global hydra)
-(defhydra hydra-colossa (:color amaranth :hint nil)
-  "
-  _c_: cheat
-  _C_: copilot
-  _d_: codeium
-  _e_: eat
-  _E_: erc
-  _k_: kill emacs (and save buffers)
-  _m_: mu4e
-  _p_: pomodoro
-  _q_: go away
-  _s_: search org files
-  _t_: tasks
-  _w_: windows + frames
-"
-  ("c" hydra-cheat/body :color blue)
-  ("C" copilot-mode :color blue)
-  ("d" my/codeium :color blue)
-  ("e" eat :color blue)
-  ("E" erc-switch-to-buffer :color blue)
-  ("k" save-buffers-kill-emacs :color blue)
-  ("m" mu4e :color blue)
-  ("p" org-pomodoro :color blue)
-  ("q" nil :color blue)
-  ("r" restart-emacs :color blue)
-  ("s" my/org-search :color blue)
-  ("t" consult-org-agenda :color blue)
-  ("w" hydra-windows/body :color blue)
-  ("." nil :color blue)
-  ("C-M-G" nil :color blue))
-
-(global-set-key (kbd "C-M-G") 'hydra-colossa/body)
 
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
