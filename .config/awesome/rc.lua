@@ -404,12 +404,23 @@ globalkeys = mytable.join(
             for s in screen do
                 s.mywibox.visible = not s.mywibox.visible
                 if s.mybottomwibox then
-                    s.mybottomwibox.visible = not s.mybottomwibox.visible
+                   s.mybottomwibox.
+                      visible = not s.mybottomwibox.visible
                 end
             end
         end,
-        {description = "toggle wibox", group = "awesome"}),
+       {description = "toggle wibox", group = "awesome"}),
 
+    -- Show/hide bottom wibox
+    awful.key({ modkey, "Control" }, "b", function ()
+            for s in screen do
+               if s.mybottomwibox then
+                  s.mybottomwibox.visible = not s.mybottomwibox.visible
+               end
+            end
+    end,
+       {description = "toggle wibox", group = "awesome"}),
+    
     -- On-the-fly useless gaps change
     awful.key({ altkey, "Control" }, "+", function () lain.util.useless_gaps_resize(1) end,
               {description = "increment useless gaps", group = "tag"}),
@@ -718,7 +729,9 @@ awful.rules.rules = {
     { rule = { class = "whatsappweb-nativefier-d40211" },
       properties = { screen = 1, tag = " 三 " } },
     { rule = { class = "ticktick" },
-      properties = { screen = 1, tag = " 八 " } }
+      properties = { screen = 1, tag = " 八 " } },
+    { rule = { class = "OVPN" },
+      properties = { screen = 1, tag = " 九 " } }
 }
 
 -- }}}
@@ -858,8 +871,6 @@ local emacs_keys = {
       }
    }
 }
-       
-           
 
 hotkeys_popup.widget.add_hotkeys(emacs_keys)
 
@@ -873,10 +884,11 @@ awful.spawn("kitty -e btop")
 awful.spawn("/opt/keymapp/keymapp")
 awful.spawn("spotify")
 awful.spawn("/opt/WhatsAppWeb-linux-x64/WhatsAppWeb")
-awful.util.spawn("1password", { screen = 1, tag = " 九 " })
-awful.util.spawn("discord")
-awful.util.spawn("protonmail-bridge")
-awful.util.spawn("ticktick")
+awful.spawn("1password", { screen = 1, tag = " 九 " })
+awful.spawn("discord")
+awful.spawn("protonmail-bridge")
+awful.spawn("ticktick")
+awful.spawn("/opt/OVPN/OVPN")
 -- awful.spawn.with_shell("display-setup.sh")
 awful.spawn.with_shell("startup.sh")
 awful.spawn.with_shell("xautolock -time 30 -locker 'idle_suspend.sh'")
