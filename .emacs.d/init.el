@@ -19,6 +19,9 @@
                                 user-emacs-directory)))
     (start-process-shell-command "org" nil (concat "aplay " file))))
 
+;; load private emacs config
+(load (expand-file-name "private.el" user-emacs-directory))
+
 ;;;;;;;;;;;;;;;;;;;;;;
 ;; package settings ;;
 ;;;;;;;;;;;;;;;;;;;;;;
@@ -61,18 +64,23 @@
 ;; store backup files in separate directory
 (setq backup-directory-alist '(("." . "~/.emacs.d/backups")))
 
+;; backup-by-copying. prevents lsp from auto-importing backup files
+(setq backup-by-copying t)
+
 ;; store lock-file symlinks in separate directory
 (setq lock-file-name-transforms `((".*" "~/temp/emacs-lockfiles/" t)))
 
-;; store autosaves in separate directory
-(make-directory (expand-file-name "temp/autosaves/" user-emacs-directory) t)
+;; super-save
+(use-package super-save
+  :ensure t
+  :custom
+  (super-save-auto-save-when-idle t)
+  (super-save-all-buffers t)
+  (super-save-triggers '(consult-buffer find-file previous-buffer next-buffer))
+  :config
+  (super-save-mode +1))
 
-(setq auto-save-default nil)
-;; (setq auto-save-list-file-prefix (expand-file-name "temp/autosaves/sessions/" user-emacs-directory)
-;;       auto-save-file-name-transforms `((".*" ,(expand-file-name "temp/autosaves/" user-emacs-directory) t)))
-
-;; backup-by-copying. prevents lsp from auto-importing backup files
-(setq backup-by-copying t)
+(setq auto-save-default nil) ; autosave now redundant
 
 (use-package no-littering
   :ensure t)
@@ -80,14 +88,6 @@
 ;; exclude from recentf
 (require 'recentf)
 (setq recentf-exclude '("schedule.org" "tasks.org" "init.el" "COMMIT_EDITMSG" "oauth2-auto.plist"))
-
-;; super-save
-(use-package super-save
-  :ensure t
-  :custom
-  (super-save-auto-save-when-idle t)
-  :config
-  (super-save-mode +1))
 
 ;;;;;;;;;;;;;;;;;
 ;; ui settings ;;
@@ -197,15 +197,17 @@
 ;; transparency
 (add-to-list 'default-frame-alist '(alpha-background . 60))
 
-(defun my/transparent-frame ()
-  "Make frame transparent."
+(defun my/toggle-frametransparency ()
+  "Toggle frame transparency."
   (interactive)
-  (set-frame-parameter nil 'alpha-background 60))
-
-(defun my/untransparent-frame ()
-  "Make frame opaque."
-  (interactive)
-  (set-frame-parameter nil 'alpha-background 100))
+  (let ((current-alpha (frame-parameter nil 'alpha-background)))
+    (if (or (not current-alpha) (= current-alpha 100))
+        (progn
+          (set-frame-parameter nil 'alpha-background 60)
+          (cherry-seoul256-create 'cherry-seoul256 233))
+      (progn
+        (set-frame-parameter nil 'alpha-background 100)
+        (cherry-seoul256-create 'cherry-seoul256 235)))))
 
 ;; notifications
 (require 'alert)
@@ -896,13 +898,6 @@ T - tag prefix
 
 ;; minibuffer prompt history
 (setq history-length 25)
-
-;; keyfreq
-(use-package keyfreq
-  :ensure t
-  :config
-  (keyfreq-mode 1)
-  (keyfreq-autosave-mode))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; buffers / windows / frames  ;;
