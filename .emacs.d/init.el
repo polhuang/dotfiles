@@ -64,8 +64,7 @@
 ;; store backup files in separate directory
 (setq backup-directory-alist '(("." . "~/.emacs.d/backups")))
 
-;; backup-by-copying. prevents lsp from auto-importing backup files
-(setq backup-by-copying t)
+
 
 ;; store lock-file symlinks in separate directory
 (setq lock-file-name-transforms `((".*" "~/temp/emacs-lockfiles/" t)))
@@ -294,7 +293,9 @@ Use prefix argument ARG for number of lines, otherwise use default."
   (require 'sublimity-scroll)
   :custom
   (sublimity-scroll-weight 15)
-  (sublimity-scroll-vertical-frame-delay 0.004))
+  (sublimity-scroll-vertical-frame-delay 0.006)
+  :config
+  (sublimity-mode t))
 
 ;; bind scroll-one-line
 (global-set-key (kbd "C-n") 'scroll-up-line)
