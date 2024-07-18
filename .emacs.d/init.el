@@ -1,5 +1,4 @@
- 
-;;;;;;;;;;;;;;;;;;;;
+ ;;;;;;;;;;;;;;;;;;;;
 ;; emacs settings ;;
 ;;;;;;;;;;;;;;;;;;;;
 
@@ -19,6 +18,9 @@
                                   "sounds/bell.wav")
                                 user-emacs-directory)))
     (start-process-shell-command "org" nil (concat "aplay " file))))
+
+;; load private emacs config
+(load (expand-file-name "private.el" user-emacs-directory))
 
 ;;;;;;;;;;;;;;;;;;;;;;
 ;; package settings ;;
@@ -62,18 +64,22 @@
 ;; store backup files in separate directory
 (setq backup-directory-alist '(("." . "~/.emacs.d/backups")))
 
+
+
 ;; store lock-file symlinks in separate directory
 (setq lock-file-name-transforms `((".*" "~/temp/emacs-lockfiles/" t)))
 
-;; store autosaves in separate directory
-(make-directory (expand-file-name "temp/autosaves/" user-emacs-directory) t)
+;; super-save
+(use-package super-save
+  :ensure t
+  :custom
+  (super-save-auto-save-when-idle t)
+  (super-save-all-buffers t)
+  (super-save-triggers '(consult-buffer find-file previous-buffer next-buffer))
+  :config
+  (super-save-mode +1))
 
-(setq auto-save-default nil)
-;; (setq auto-save-list-file-prefix (expand-file-name "temp/autosaves/sessions/" user-emacs-directory)
-;;       auto-save-file-name-transforms `((".*" ,(expand-file-name "temp/autosaves/" user-emacs-directory) t)))
-
-;; backup-by-copying. prevents lsp from auto-importing backup files
-(setq backup-by-copying t)
+(setq auto-save-default nil) ; autosave now redundant
 
 (use-package no-littering
   :ensure t)
@@ -81,14 +87,6 @@
 ;; exclude from recentf
 (require 'recentf)
 (setq recentf-exclude '("schedule.org" "tasks.org" "init.el" "COMMIT_EDITMSG" "oauth2-auto.plist"))
-
-;; super-save
-(use-package super-save
-  :ensure t
-  :custom
-  (super-save-auto-save-when-idle t)
-  :config
-  (super-save-mode +1))
 
 ;;;;;;;;;;;;;;;;;
 ;; ui settings ;;
@@ -198,15 +196,17 @@
 ;; transparency
 (add-to-list 'default-frame-alist '(alpha-background . 60))
 
-(defun my/transparent-frame ()
-  "Make frame transparent."
+(defun my/toggle-frametransparency ()
+  "Toggle frame transparency."
   (interactive)
-  (set-frame-parameter nil 'alpha-background 60))
-
-(defun my/untransparent-frame ()
-  "Make frame opaque."
-  (interactive)
-  (set-frame-parameter nil 'alpha-background 100))
+  (let ((current-alpha (frame-parameter nil 'alpha-background)))
+    (if (or (not current-alpha) (= current-alpha 100))
+        (progn
+          (set-frame-parameter nil 'alpha-background 60)
+          (cherry-seoul256-create 'cherry-seoul256 233))
+      (progn
+        (set-frame-parameter nil 'alpha-background 100)
+        (cherry-seoul256-create 'cherry-seoul256 235)))))
 
 ;; notifications
 (require 'alert)
@@ -289,9 +289,13 @@ Use prefix argument ARG for number of lines, otherwise use default."
 
 (use-package sublimity
   :ensure t
+  :init
+  (require 'sublimity-scroll)
   :custom
   (sublimity-scroll-weight 15)
-  (sublimity-scroll-vertical-frame-delay 0.004))
+  (sublimity-scroll-vertical-frame-delay 0.006)
+  :config
+  (sublimity-mode t))
 
 ;; bind scroll-one-line
 (global-set-key (kbd "C-n") 'scroll-up-line)
@@ -661,6 +665,40 @@ Use prefix argument ARG for number of lines, otherwise use default."
 (use-package hydra
   :ensure t)
 
+;; hydra-colossa
+;; hydra-colossa (my personal global hydra)
+(defhydra hydra-colossa (:color amaranth :hint nil)
+  "
+  _c_: copilot
+  _d_: codeium
+  _e_: eat
+  _E_: erc
+  _k_: kill emacs (and save buffers)
+  _m_: mu4e
+  _p_: pomodoro
+  _q_: go away
+  _s_: search org files
+  _t_: tasks
+  _w_: windows + frames
+"
+  ("c" hydra-cheat/body :color blue)
+  ("C" copilot-mode :color blue)
+  ("d" my/codeium :color blue)
+  ("e" eat :color blue)
+  ("E" erc-switch-to-buffer :color blue)
+  ("k" save-buffers-kill-emacs :color blue)
+  ("m" mu4e :color blue)
+  ("p" org-pomodoro :color blue)
+  ("q" nil :color blue)
+  ("r" restart-emacs :color blue)
+  ("s" my/org-search :color blue)
+  ("t" consult-org-agenda :color blue)
+  ("w" hydra-windows/body :color blue)
+  ("." nil :color blue)
+  ("C-M-G" nil :color blue))
+
+(global-set-key (kbd "C-M-G") 'hydra-colossa/body)
+
 (defhydra hydra-windows (:color pink :hint nil)
   "
   _t_: transpose
@@ -861,13 +899,6 @@ T - tag prefix
 
 ;; minibuffer prompt history
 (setq history-length 25)
-
-;; keyfreq
-(use-package keyfreq
-  :ensure t
-  :config
-  (keyfreq-mode 1)
-  (keyfreq-autosave-mode))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; buffers / windows / frames  ;;
@@ -1426,13 +1457,13 @@ Otherwise, call eat."
 (setq-default indent-tabs-mode nil)
 
 ;; projectile
-(global-set-key (kbd "C-x p") 'projectile-command-map)
-
 (use-package projectile
   :ensure t
   :bind-keymap ("C-x p" . projectile-command-map)
   :custom
-  (setq projectile-project-search-path '("~/projects/"))
+  (projectile-indexing-method 'hybrid)
+  (projectile-project-search-path '("~/projects/"))
+  (projectile-sort-order 'recently-active)
   :config
   (define-key projectile-command-map (kbd "e") #'eat-project)
   (define-key projectile-command-map (kbd "b") #'consult-project-buffer)
@@ -1906,11 +1937,7 @@ Otherwise, call eat."
             (if (string= _calendar-id "997d9ee06bb6de8790f30e0fe0e8a52e60a15bf1301173490f0e92247a2eb4ad@group.calendar.google.com")
                 (org-todo "TODO")
             (org-todo "UPCOMING"))
-            (org-schedule nil (format "<%s>" stime))))))
-
-  )
-
-
+            (org-schedule nil (format "<%s>" stime)))))))
 
 ;; codeium
 (use-package codeium
@@ -1941,41 +1968,6 @@ Otherwise, call eat."
 ;; scratchpad in scratch buffers
 (load "~/projects/scratchpad/scratchpad.el")
 (global-set-key (kbd "C-M-z") #'scratchpad-toggle)
-
-;; hydra-colossa
-;; hydra-colossa (my personal global hydra)
-(defhydra hydra-colossa (:color amaranth :hint nil)
-  "
-  _c_: cheat
-  _C_: copilot
-  _d_: codeium
-  _e_: eat
-  _E_: erc
-  _k_: kill emacs (and save buffers)
-  _m_: mu4e
-  _p_: pomodoro
-  _q_: go away
-  _s_: search org files
-  _t_: tasks
-  _w_: windows + frames
-"
-  ("c" hydra-cheat/body :color blue)
-  ("C" copilot-mode :color blue)
-  ("d" my/codeium :color blue)
-  ("e" eat :color blue)
-  ("E" erc-switch-to-buffer :color blue)
-  ("k" save-buffers-kill-emacs :color blue)
-  ("m" mu4e :color blue)
-  ("p" org-pomodoro :color blue)
-  ("q" nil :color blue)
-  ("r" restart-emacs :color blue)
-  ("s" my/org-search :color blue)
-  ("t" consult-org-agenda :color blue)
-  ("w" hydra-windows/body :color blue)
-  ("." nil :color blue)
-  ("C-M-G" nil :color blue))
-
-(global-set-key (kbd "C-M-G") 'hydra-colossa/body)
 
 (custom-set-variables
  ;; custom-set-variables was added by Custom.

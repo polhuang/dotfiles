@@ -30,8 +30,8 @@ local menubar       = require("menubar")
 local freedesktop   = require("freedesktop")
 local hotkeys_popup = require("awful.hotkeys_popup")
                       require("awful.hotkeys_popup.keys")
-                      local mytable       = awful.util.table or gears.table -- 4.{0,1} compatibility
-local signal_started_before = false                      
+local mytable       = awful.util.table or gears.table -- 4.{0,1} compatibility
+local signal_started_before = false
 local volume_widget         = require('awesome-wm-widgets.pactl-widget.volume')
 
 --- Test
@@ -293,8 +293,6 @@ awful.screen.connect_for_each_screen(function(s)
       awful.layout.set(awful.layout.layouts[3], s.tags[5])
 end)
 
-
-
 -- }}}
 
 -- {{{ Mouse bindings
@@ -406,12 +404,23 @@ globalkeys = mytable.join(
             for s in screen do
                 s.mywibox.visible = not s.mywibox.visible
                 if s.mybottomwibox then
-                    s.mybottomwibox.visible = not s.mybottomwibox.visible
+                   s.mybottomwibox.
+                      visible = not s.mybottomwibox.visible
                 end
             end
         end,
-        {description = "toggle wibox", group = "awesome"}),
+       {description = "toggle wibox", group = "awesome"}),
 
+    -- Show/hide bottom wibox
+    awful.key({ modkey, "Control" }, "b", function ()
+            for s in screen do
+               if s.mybottomwibox then
+                  s.mybottomwibox.visible = not s.mybottomwibox.visible
+               end
+            end
+    end,
+       {description = "toggle wibox", group = "awesome"}),
+    
     -- On-the-fly useless gaps change
     awful.key({ altkey, "Control" }, "+", function () lain.util.useless_gaps_resize(1) end,
               {description = "increment useless gaps", group = "tag"}),
@@ -720,7 +729,9 @@ awful.rules.rules = {
     { rule = { class = "whatsappweb-nativefier-d40211" },
       properties = { screen = 1, tag = " 三 " } },
     { rule = { class = "ticktick" },
-      properties = { screen = 1, tag = " 八 " } }
+      properties = { screen = 1, tag = " 八 " } },
+    { rule = { class = "OVPN" },
+      properties = { screen = 1, tag = " 九 " } }
 }
 
 -- }}}
@@ -834,6 +845,36 @@ tag.connect_signal("property::selected", backham)
 
 -- }}}
 
+-- Create the rule that we will use to match for the application.
+local emacs_rule = { class = { "emacs", "Emacs" } }
+for group_name, group_data in pairs({
+    ["Emacs"] = { color = "#009F00", rule_any = emacs_rule }
+}) do
+    hotkeys_popup.widget.add_group_rules(group_name, group_data)
+end
+
+-- Table with all of our hotkeys
+local emacs_keys = {
+   ["Emacs"] = {
+      {
+        modifiers = { "C" },
+        keys = {
+           ["delete"] = "go to tab",
+           ['n/p'] = "scroll one line"
+        }
+      },
+      {
+         modifiers = { "M" },
+         keys = {
+            ["pg-up/down"] = "scroll other window"
+         }
+      }
+   }
+}
+
+hotkeys_popup.widget.add_hotkeys(emacs_keys)
+
+
 -- Gaps
 beautiful.useless_gap = 10
 
@@ -843,10 +884,12 @@ awful.spawn("kitty -e btop")
 awful.spawn("/opt/keymapp/keymapp")
 awful.spawn("spotify")
 awful.spawn("/opt/WhatsAppWeb-linux-x64/WhatsAppWeb")
-awful.util.spawn("1password", { screen = 1, tag = " 九 " })
-awful.util.spawn("discord")
-awful.util.spawn("protonmail-bridge")
-awful.util.spawn("ticktick")
-awful.spawn.with_shell("~/display-setup.sh")
-awful.spawn.with_shell("~/.config/startup.sh")
+awful.spawn("1password", { screen = 1, tag = " 九 " })
+awful.spawn("discord")
+awful.spawn("protonmail-bridge")
+awful.spawn("ticktick")
+awful.spawn("/opt/OVPN/OVPN")
+-- awful.spawn.with_shell("display-setup.sh")
+awful.spawn.with_shell("startup.sh")
+awful.spawn.with_shell("xautolock -time 30 -locker 'idle_suspend.sh'")
 

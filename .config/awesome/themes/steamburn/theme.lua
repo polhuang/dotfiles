@@ -26,7 +26,7 @@ theme.fg_urgent                                 = "#CC9393"
 theme.bg_normal                                 = "#140c0b"
 theme.bg_focus                                  = "#140c0b"
 theme.bg_urgent                                 = "#2a1f1e"
-theme.border_width                              = dpi(1)
+theme.border_width                              = dpi(2)
 theme.border_normal                             = "#302627"
 theme.border_focus                              = "#c2745b"
 theme.border_marked                             = "#CC9393"
@@ -84,7 +84,16 @@ local gray   = "#94928F"
 
 -- Textclock
 local mytextclock = wibox.widget.textclock(markup(gray, " 時間 ") .. "%H:%M ")
-mytextclock.font = "IBM Plex Mono 10"
+mytextclock.font                                = "IBM Plex Mono 10"
+
+
+-- Systray
+local systray = wibox.widget.textbox("sys ")
+systray.font  = "IBM Plex Mono 10"
+
+
+
+
 
 -- Calendar
 theme.cal = lain.widget.cal({
@@ -314,6 +323,18 @@ function theme.at_screen_connect(s)
            --bat.widget,
            mytextclock
         },
+    }
+
+    s.mybottomwibox = awful.wibar({ position = "bottom", screen = s, border_width = 0, height = dpi(20), visible = false})
+    s.mybottomwibox:setup {
+            layout = wibox.layout.align.horizontal,
+            { -- Left widgetswibox.widget.systray(),
+               layout = wibox.layout.fixed.horizontal,
+               wibox.widget.systray(),
+            },
+            { -- Right widgets
+               layout = wibox.layout.fixed.horizontal,
+            },
     }
 end
 
