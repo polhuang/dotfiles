@@ -77,7 +77,7 @@
   (super-save-all-buffers t)
   (super-save-triggers '(consult-buffer find-file previous-buffer next-buffer))
   :config
-  (super-save-mode +1))
+  (super-save-mode 1))
 
 (setq auto-save-default nil) ; autosave now redundant
 
@@ -159,7 +159,7 @@
   (set-face-attribute 'marginalia-documentation nil :inherit 'doom-mode-line :slant 'italic))
 
 ;; fonts
-(set-face-attribute 'default nil :family "Iosevka Comfy Fixed" :inherit t)
+(set-face-attribute 'default nil :family "Iosevka Comfy Fixed" :inherit t :height 100)
 
 
 ;; fontify-face
@@ -179,7 +179,8 @@
 ;; modeline
 (use-package doom-modeline
   :ensure t
-  :init (doom-modeline-mode 1))
+  :init
+  (doom-modeline-mode t))
 
 ;; misc ui settings
 (global-hl-line-mode t)                                      ; highlight current line
@@ -341,8 +342,8 @@ Use prefix argument ARG for number of lines, otherwise use default."
   :bind (("M-'"   . popper-cycle)
          ("C-M-'" . popper-toggle-type)) ; turns a popup buffer into a regular window or vice-versa.
   :init
-  (popper-mode +1)
-  (popper-echo-mode +1)
+  (popper-mode 1)
+  (popper-echo-mode 1)
   :custom
   (popper-reference-buffers
         '("\\*Messages\\*"
@@ -1467,7 +1468,7 @@ Otherwise, call eat."
   :config
   (define-key projectile-command-map (kbd "e") #'eat-project)
   (define-key projectile-command-map (kbd "b") #'consult-project-buffer)
-  (projectile-mode +1))
+  (projectile-mode 1))
 
 ;; lsp
 (use-package lsp-mode
@@ -1780,7 +1781,6 @@ Otherwise, call eat."
 
 ;; zone-mode
 (use-package zone
-  :ensure nil
   :config
   (zone-when-idle 600))
 
@@ -1898,7 +1898,6 @@ Otherwise, call eat."
   (my/connect-to-erc))
 
 ;; gcal
-
 (use-package org-gcal
   :ensure t
   :commands (org-gcal--sync-unlock org-todo)
