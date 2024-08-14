@@ -197,7 +197,7 @@
 (global-prettify-symbols-mode 1)                             ; prettify-symbols
 
 ;; transparency
-(add-to-list 'default-frame-alist '(alpha-background . 60))
+(add-to-list 'default-frame-alist '(alpha-background . 80))
 
 (defun my/toggle-frametransparency ()
   "Toggle frame transparency."
@@ -312,13 +312,14 @@ Use prefix argument ARG for number of lines, otherwise use default."
   (tab-jump-out-global-mode t))
 
 ;; registers
-(set-register ?a (cons 'file "~/.config/awesome/rc.lua"))
+(set-register ?a (cons 'file "~/.dotfiles/.config/"))
 (set-register ?d (cons 'file "~/org/daily-tracker.org"))
-(set-register ?e (cons 'file "~/.emacs.d/init.el"))
+(set-register ?e (cons 'file "~/.dotfiles/.emacs.d/init.el"))
+(set-register ?h (cons 'file "~/.dotfiles/.config/hypr/hyprland.conf"))
 (set-register ?s (cons 'file "~/org/schedule.org"))
 (set-register ?S (cons 'file "~/projects/cherry-seoul256/cherry-seoul256-theme.el"))
 (set-register ?t (cons 'file "~/org/tasks.org"))
-(set-register ?z (cons 'file "~/.zshrc"))
+(set-register ?z (cons 'file "~/.dotfiles/.zshrc"))
 
 ;; use ibuffer
 (global-set-key (kbd "C-x C-b") 'ibuffer)
