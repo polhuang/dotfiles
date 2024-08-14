@@ -305,6 +305,21 @@ root.buttons(mytable.join(
 
 -- }}}
 
+-- {{ Functions
+
+local function close_all_except_active()
+    local current_tag = awful.screen.focused().selected_tag
+    local active_client = client.focus
+
+    for _, c in ipairs(current_tag:clients()) do
+        if c ~= active_client then
+            c:kill()
+        end
+    end
+end
+
+-- }}
+
 -- {{{ Key bindings
 
 globalkeys = mytable.join(
@@ -569,7 +584,9 @@ clientkeys = mytable.join(
         end,
         {description = "toggle fullscreen", group = "client"}),
     awful.key({ modkey, "Shift"   }, "c",      function (c) c:kill()                         end,
-              {description = "close", group = "client"}),
+       {description = "close", group = "client"}),
+    awful.key({ modkey, "Control" }, "c", close_all_except_active,
+       {description = "close all but active window", group = "client"}),
     awful.key({ modkey, "Control" }, "space",  awful.client.floating.toggle                     ,
               {description = "toggle floating", group = "client"}),
     awful.key({ modkey, "Control" }, "Return", function (c) c:swap(awful.client.getmaster()) end,
@@ -891,5 +908,5 @@ awful.spawn("ticktick")
 awful.spawn("/opt/OVPN/OVPN")
 -- awful.spawn.with_shell("display-setup.sh")
 awful.spawn.with_shell("startup.sh")
-awful.spawn.with_shell("xautolock -time 30 -locker 'idle_suspend.sh'")
+awful.spawn.with_shell("xautolock -time 30 -locker /home/polhuang/.dotfiles/.bin/idle_suspend.sh")
 
