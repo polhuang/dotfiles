@@ -1,4 +1,4 @@
- ;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;
 ;; emacs settings ;;
 ;;;;;;;;;;;;;;;;;;;;
 
@@ -92,12 +92,15 @@
 ;; ui settings ;;
 ;;;;;;;;;;;;;;;;;
 
-(use-package cherry-seoul256-theme
-  :load-path "~/projects/cherry-seoul256"
-  :custom
-  (cherry-seoul256-background 233)
-  :config
-  (load-theme 'cherry-seoul256 t))
+(add-to-list 'custom-theme-load-path "~/.emacs.d/everforest-emacs")
+(load-theme 'everforest-hard-dark t)
+
+;; (use-package cherry-seoul256-theme
+;;   :load-path "~/projects/cherry-seoul256"
+;;   :custom
+;;   (cherry-seoul256-background 233)
+;;   :config
+;;   (load-theme 'cherry-seoul256 t))
 
 ;; theme
 ;; (use-package seoul256-theme
@@ -159,8 +162,7 @@
   (set-face-attribute 'marginalia-documentation nil :inherit 'doom-mode-line :slant 'italic))
 
 ;; fonts
-(set-face-attribute 'default nil :family "Iosevka Comfy Fixed" :inherit t :height 100)
-
+(set-face-attribute 'default nil :family "Source Code Pro" :inherit t :height 125)
 
 ;; fontify-face
 (use-package fontify-face
@@ -195,7 +197,7 @@
 (global-prettify-symbols-mode 1)                             ; prettify-symbols
 
 ;; transparency
-(add-to-list 'default-frame-alist '(alpha-background . 60))
+(add-to-list 'default-frame-alist '(alpha-background . 80))
 
 (defun my/toggle-frametransparency ()
   "Toggle frame transparency."
@@ -240,7 +242,8 @@
 
 ;; icons
 (use-package all-the-icons
-  :ensure t)
+  :if (display-graphic-p)
+  :config (all-the-icons-install-fonts))
 
 (use-package all-the-icons-completion
   :ensure t)
@@ -294,7 +297,7 @@ Use prefix argument ARG for number of lines, otherwise use default."
   (require 'sublimity-scroll)
   :custom
   (sublimity-scroll-weight 15)
-  (sublimity-scroll-vertical-frame-delay 0.006)
+  (sublimity-scroll-vertical-frame-delay 0.003)
   :config
   (sublimity-mode t))
 
@@ -309,13 +312,14 @@ Use prefix argument ARG for number of lines, otherwise use default."
   (tab-jump-out-global-mode t))
 
 ;; registers
-(set-register ?a (cons 'file "~/.config/awesome/rc.lua"))
+(set-register ?a (cons 'file "~/.dotfiles/.config/"))
 (set-register ?d (cons 'file "~/org/daily-tracker.org"))
-(set-register ?e (cons 'file "~/.emacs.d/init.el"))
+(set-register ?e (cons 'file "~/.dotfiles/.emacs.d/init.el"))
+(set-register ?h (cons 'file "~/.dotfiles/.config/hypr/hyprland.conf"))
 (set-register ?s (cons 'file "~/org/schedule.org"))
 (set-register ?S (cons 'file "~/projects/cherry-seoul256/cherry-seoul256-theme.el"))
 (set-register ?t (cons 'file "~/org/tasks.org"))
-(set-register ?z (cons 'file "~/.zshrc"))
+(set-register ?z (cons 'file "~/.dotfiles/.zshrc"))
 
 ;; use ibuffer
 (global-set-key (kbd "C-x C-b") 'ibuffer)
@@ -1646,11 +1650,11 @@ Otherwise, call eat."
 
 ;; slime (the superior lisp interaction mode for emacs)
 ;; installation instructions here 
-(use-package slime
-  :init
-  (load (expand-file-name "~/.quicklisp/slime-helper.el"))
-  :custom
-  (setq inferior-lisp-program "sbcl"))
+;; (use-package slime
+;;   :init
+;;   (load (expand-file-name "~/.quicklisp/slime-helper.el"))
+;;   :custom
+;;   (setq inferior-lisp-program "sbcl"))
 
 ;;;;;;;;;;;
 ;; email ;;
