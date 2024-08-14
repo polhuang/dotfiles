@@ -1,4 +1,4 @@
- ;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;
 ;; emacs settings ;;
 ;;;;;;;;;;;;;;;;;;;;
 
@@ -77,7 +77,7 @@
   (super-save-all-buffers t)
   (super-save-triggers '(consult-buffer find-file previous-buffer next-buffer))
   :config
-  (super-save-mode +1))
+  (super-save-mode 1))
 
 (setq auto-save-default nil) ; autosave now redundant
 
@@ -92,12 +92,15 @@
 ;; ui settings ;;
 ;;;;;;;;;;;;;;;;;
 
-(use-package cherry-seoul256-theme
-  :load-path "~/projects/cherry-seoul256"
-  :custom
-  (cherry-seoul256-background 233)
-  :config
-  (load-theme 'cherry-seoul256 t))
+(add-to-list 'custom-theme-load-path "~/.emacs.d/everforest-emacs")
+(load-theme 'everforest-hard-dark t)
+
+;; (use-package cherry-seoul256-theme
+;;   :load-path "~/projects/cherry-seoul256"
+;;   :custom
+;;   (cherry-seoul256-background 233)
+;;   :config
+;;   (load-theme 'cherry-seoul256 t))
 
 ;; theme
 ;; (use-package seoul256-theme
@@ -159,8 +162,7 @@
   (set-face-attribute 'marginalia-documentation nil :inherit 'doom-mode-line :slant 'italic))
 
 ;; fonts
-(set-face-attribute 'default nil :family "Iosevka Comfy Fixed" :inherit t)
-
+(set-face-attribute 'default nil :family "Source Code Pro" :inherit t :height 125)
 
 ;; fontify-face
 (use-package fontify-face
@@ -179,7 +181,8 @@
 ;; modeline
 (use-package doom-modeline
   :ensure t
-  :init (doom-modeline-mode 1))
+  :init
+  (doom-modeline-mode t))
 
 ;; misc ui settings
 (global-hl-line-mode t)                                      ; highlight current line
@@ -239,7 +242,8 @@
 
 ;; icons
 (use-package all-the-icons
-  :ensure t)
+  :if (display-graphic-p)
+  :config (all-the-icons-install-fonts))
 
 (use-package all-the-icons-completion
   :ensure t)
@@ -293,7 +297,7 @@ Use prefix argument ARG for number of lines, otherwise use default."
   (require 'sublimity-scroll)
   :custom
   (sublimity-scroll-weight 15)
-  (sublimity-scroll-vertical-frame-delay 0.006)
+  (sublimity-scroll-vertical-frame-delay 0.003)
   :config
   (sublimity-mode t))
 
@@ -341,8 +345,8 @@ Use prefix argument ARG for number of lines, otherwise use default."
   :bind (("M-'"   . popper-cycle)
          ("C-M-'" . popper-toggle-type)) ; turns a popup buffer into a regular window or vice-versa.
   :init
-  (popper-mode +1)
-  (popper-echo-mode +1)
+  (popper-mode 1)
+  (popper-echo-mode 1)
   :custom
   (popper-reference-buffers
         '("\\*Messages\\*"
@@ -1467,7 +1471,7 @@ Otherwise, call eat."
   :config
   (define-key projectile-command-map (kbd "e") #'eat-project)
   (define-key projectile-command-map (kbd "b") #'consult-project-buffer)
-  (projectile-mode +1))
+  (projectile-mode 1))
 
 ;; lsp
 (use-package lsp-mode
@@ -1645,11 +1649,11 @@ Otherwise, call eat."
 
 ;; slime (the superior lisp interaction mode for emacs)
 ;; installation instructions here 
-(use-package slime
-  :init
-  (load (expand-file-name "~/.quicklisp/slime-helper.el"))
-  :custom
-  (setq inferior-lisp-program "sbcl"))
+;; (use-package slime
+;;   :init
+;;   (load (expand-file-name "~/.quicklisp/slime-helper.el"))
+;;   :custom
+;;   (setq inferior-lisp-program "sbcl"))
 
 ;;;;;;;;;;;
 ;; email ;;
@@ -1780,7 +1784,6 @@ Otherwise, call eat."
 
 ;; zone-mode
 (use-package zone
-  :ensure nil
   :config
   (zone-when-idle 600))
 
@@ -1898,7 +1901,6 @@ Otherwise, call eat."
   (my/connect-to-erc))
 
 ;; gcal
-
 (use-package org-gcal
   :ensure t
   :commands (org-gcal--sync-unlock org-todo)
