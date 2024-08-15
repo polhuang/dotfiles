@@ -1664,94 +1664,94 @@ Otherwise, call eat."
 ;;;;;;;;;;;
 
 ;; mu4e
-;; (use-package mu4e
-;;   :ensure nil
-;;   :load-path "/usr/local/share/emacs/site-lisp/mu4e/"
-;;   :custom
-;;   (mu4e-use-fancy-chars t)
-;;   (mu4e-bookmarks
-;;      '(( :name  "Unread messages"
-;;       :query "flag:unread AND NOT flag:trashed AND NOT \"maildir:/All Mail\""
-;;       :key ?u)
-;;     ( :name "Today's messages"
-;;       :query "date:today..now"
-;;       :key ?t)
-;;     ( :name "Last 7 days"
-;;       :query "date:7d..now"
-;;       :hide-unread t
-;;       :key ?w)
-;;     ( :name "Messages with images"
-;;       :query "mime:image/*"
-;;       :key ?p)))
-;;   :preface
-;;   (setq mail-user-agent 'mu4e-user-agent)
-;;   (setq user-mail-address "paulleehuang@proton.me")
-;;   (setq smtpmail-smtp-server "localhost")
-;;   :config
-;;   ;; refresh mail using isync every 5 minutes
-;;   (setq mu4e-update-interval (* 5 60))
-;;   (setq mu4e-get-mail-command "mbsync -a")
-;;   (setq mu4e-root-maildir "~/mail")
+(use-package mu4e
+  :ensure nil
+  :load-path "/usr/share/emacs/site-lisp/mu4e/"
+  :custom
+  (mu4e-use-fancy-chars t)
+  (mu4e-bookmarks
+     '(( :name  "Unread messages"
+      :query "flag:unread AND NOT flag:trashed AND NOT \"maildir:/All Mail\""
+      :key ?u)
+    ( :name "Today's messages"
+      :query "date:today..now"
+      :key ?t)
+    ( :name "Last 7 days"
+      :query "date:7d..now"
+      :hide-unread t
+      :key ?w)
+    ( :name "Messages with images"
+      :query "mime:image/*"
+      :key ?p)))
+  :preface
+  (setq mail-user-agent 'mu4e-user-agent)
+  (setq user-mail-address "paulleehuang@proton.me")
+  (setq smtpmail-smtp-server "localhost")
+  :config
+  ;; refresh mail using isync every 5 minutes
+  (setq mu4e-update-interval (* 5 60))
+  (setq mu4e-get-mail-command "mbsync -a")
+  (setq mu4e-root-maildir "~/mail")
 
 
-;;   ;; setup dynamic folders
-;;   (setq mu4e-drafts-folder "/Drafts"
-;;         mu4e-sent-folder   "/Sent"
-;;         mu4e-refile-folder "/Archive"
-;;         mu4e-trash-folder  "/Trash")
+  ;; setup dynamic folders
+  (setq mu4e-drafts-folder "/Drafts"
+        mu4e-sent-folder   "/Sent"
+        mu4e-refile-folder "/Archive"
+        mu4e-trash-folder  "/Trash")
 
-;;   (setq mu4e-maildir-shortcuts
-;;         '((:maildir "/inbox"     :key ?i)
-;;           (:maildir "/Sent"      :key ?s)
-;;           (:maildir "/Starred"   :key ?S)
-;;           (:maildir "/Trash"     :key ?t)
-;;           (:maildir "/Drafts"    :key ?d)
-;;           (:maildir "/Archive"   :key ?A)
-;;           (:maildir "/All Mail"  :key ?a)))
+  (setq mu4e-maildir-shortcuts
+        '((:maildir "/inbox"     :key ?i)
+          (:maildir "/Sent"      :key ?s)
+          (:maildir "/Starred"   :key ?S)
+          (:maildir "/Trash"     :key ?t)
+          (:maildir "/Drafts"    :key ?d)
+          (:maildir "/Archive"   :key ?A)
+          (:maildir "/All Mail"  :key ?a)))
   
-;;   ;; setup smtp
-;;   (setq message-send-mail-function 'smtpmail-send-it
-;;       auth-sources '("~/.authinfo")
-;;       smtpmail-smtp-server "127.0.0.1"
-;;       smtpmail-smtp-service 1025)
+  ;; setup smtp
+  (setq message-send-mail-function 'smtpmail-send-it
+      auth-sources '("~/.authinfo")
+      smtpmail-smtp-server "127.0.0.1"
+      smtpmail-smtp-service 1025)
   
   
-;;   :config
-;;   ;; signature
-;; ;;   (setq message-signature "<#multipart type=alternative>
-;; ;; <#part type=text/plain>
-;; ;; [[https://linkedin.com/in/paulleehuang][LinkedIn]] | [[https://github.com/polhuang][Github]]
-
-;; ;; Sent using [[https://google.com][mu4e]]
-;; ;; <#/part>
-
-;; ;; <#part type=text/html>
-;; ;; <p>
-;; ;; <a href=\"https://linkedin.com/in/paulleehuang\">LinkedIn</a> | <a href=\"https://github.com/polhuang\">Github</a>
-;; ;; </p>
-
-;; ;; <p>
-;; ;; Sent from <a href=\"https://www.djcbsoftware.nl/code/mu/\">mu</a>
-;; ;; </p>
-;; ;; <#/part>
-;; ;; <#/multipart>
-;; ;; ")
-;;   ;; fancy header marks
-;;   (setq mu4e-headers-draft-mark     '("D" . "💈")
-;;         mu4e-headers-flagged-mark   '("F" . "📍")
-;;         mu4e-headers-new-mark       '("N" . "🔥")
-;;         mu4e-headers-passed-mark    '("P" . "❯")
-;;         mu4e-headers-replied-mark   '("R" . "❮")
-;;         mu4e-headers-seen-mark      '("S" . "☑")
-;;         mu4e-headers-trashed-mark   '("d" . "💀")
-;;         mu4e-headers-attach-mark    '("a" . "📎")
-;;         mu4e-headers-encrypted-mark '("x" . "🔒")
-;;         mu4e-headers-signed-mark    '("s" . "🔑")
-;;         mu4e-headers-unread-mark    '("u" . "⎕")
-;;         mu4e-headers-list-mark      '("l" . "🔈")
-;;         mu4e-headers-personal-mark  '("p" . "👨")
-;;         mu4e-headers-calendar-mark  '("c" . "📅"))
-;;   (mu4e))
+  :config
+  ;; signature
+  ;;   (setq message-signature "<#multipart type=alternative>
+  ;; <#part type=text/plain>
+  ;; [[https://linkedin.com/in/paulleehuang][LinkedIn]] | [[https://github.com/polhuang][Github]]
+  
+  ;; Sent using [[https://google.com][mu4e]]
+  ;; <#/part>
+  
+  ;; <#part type=text/html>
+  ;; <p>
+  ;; <a href=\"https://linkedin.com/in/paulleehuang\">LinkedIn</a> | <a href=\"https://github.com/polhuang\">Github</a>
+  ;; </p>
+  
+  ;; <p>
+  ;; Sent from <a href=\"https://www.djcbsoftware.nl/code/mu/\">mu</a>
+  ;; </p>
+  ;; <#/part>
+  ;; <#/multipart>
+  ;; ")
+  ;; fancy header marks
+  (setq mu4e-headers-draft-mark     '("D" . "💈")
+        mu4e-headers-flagged-mark   '("F" . "📍")
+        mu4e-headers-new-mark       '("N" . "🔥")
+        mu4e-headers-passed-mark    '("P" . "❯")
+        mu4e-headers-replied-mark   '("R" . "❮")
+        mu4e-headers-seen-mark      '("S" . "☑")
+        mu4e-headers-trashed-mark   '("d" . "💀")
+        mu4e-headers-attach-mark    '("a" . "📎")
+        mu4e-headers-encrypted-mark '("x" . "🔒")
+        mu4e-headers-signed-mark    '("s" . "🔑")
+        mu4e-headers-unread-mark    '("u" . "⎕")
+        mu4e-headers-list-mark      '("l" . "🔈")
+        mu4e-headers-personal-mark  '("p" . "👨")
+        mu4e-headers-calendar-mark  '("c" . "📅"))
+  (mu4e))
 
 ;; org-mime
 (use-package org-mime
