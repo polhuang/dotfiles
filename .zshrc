@@ -35,6 +35,7 @@ if (( $+commands[luarocks] )); then
     eval `luarocks path --bin`
 fi
 
+source <(fzf --zsh)
 source ~/.zsh/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 source ~/.zsh/zsh-autosuggestions/zsh-autosuggestions.zsh
-source ~/.zsh/zsh-autocomplete/zsh-autocomplete.plugin.zshz
+source ~/.zsh/zsh-autocomplete/zsh-autocomplete.plugin.zsh
