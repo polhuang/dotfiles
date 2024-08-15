@@ -142,22 +142,23 @@
 ;;           ("DONE" . (:foreground "#a7f3d0" :weight bold)))))
 
 ;; ansi colors
-;; (set-face-attribute 'ansi-color-black nil :foreground "#1b1b23" :background (face-attribute 'default :background))
-;; (set-face-attribute 'ansi-color-red nil :foreground "#ebb9b9" :background "#ebb9b9")
-;; (set-face-attribute 'ansi-color-green nil :foreground "#caf6bb" :background "#caf6bb")
-;; (set-face-attribute 'ansi-color-yellow nil :foreground "#e6dfb8" :background "#e6dfb8")
-;; (set-face-attribute 'ansi-color-blue nil :foreground "#cddbf9" :background "#cddbf9")
-;; (set-face-attribute 'ansi-color-magenta nil :foreground "#f6bbe7" :background "#f6bbe7")
-;; (set-face-attribute 'ansi-color-cyan nil :foreground "#b8dceb" :background "#b8dceb")
-;; (set-face-attribute 'ansi-color-white nil :foreground "#c8cedc" :background "#c8cedc")
+(require 'ansi-color)
+(set-face-attribute 'ansi-color-black nil :foreground "#1b1b23" :background (face-attribute 'default :background))
+(set-face-attribute 'ansi-color-red nil :foreground "#ebb9b9" :background "#ebb9b9")
+(set-face-attribute 'ansi-color-green nil :foreground "#caf6bb" :background "#caf6bb")
+(set-face-attribute 'ansi-color-yellow nil :foreground "#e6dfb8" :background "#e6dfb8")
+(set-face-attribute 'ansi-color-blue nil :foreground "#cddbf9" :background "#cddbf9")
+(set-face-attribute 'ansi-color-magenta nil :foreground "#f6bbe7" :background "#f6bbe7")
+(set-face-attribute 'ansi-color-cyan nil :foreground "#b8dceb" :background "#b8dceb")
+(set-face-attribute 'ansi-color-white nil :foreground "#c8cedc" :background "#c8cedc")
 
-;; (set-face-attribute 'ansi-color-bright-black nil :foreground "#1b1b23" :background (face-attribute 'default :background))
-;; (set-face-attribute 'ansi-color-bright-red nil :foreground "#d95e59" :background "#d95e59")
-;; (set-face-attribute 'ansi-color-bright-green nil :foreground "#8fc587" :background "#8fc587")
-;; (set-face-attribute 'ansi-color-bright-yellow nil :foreground "#ffcf85" :background "#ffcf85")
-;; (set-face-attribute 'ansi-color-bright-blue nil :foreground "#4a83c3" :background "#4a83c3")
-;; (set-face-attribute 'ansi-color-bright-magenta nil :foreground "#f6bbe7" :background "#f6bbe7")
-;; (set-face-attribute 'ansi-color-bright-cyan nil :foreground "#4eb3cd" :background "#4eb3cd")
+(set-face-attribute 'ansi-color-bright-black nil :foreground "#1b1b23" :background (face-attribute 'default :background))
+(set-face-attribute 'ansi-color-bright-red nil :foreground "#d95e59" :background "#d95e59")
+(set-face-attribute 'ansi-color-bright-green nil :foreground "#8fc587" :background "#8fc587")
+(set-face-attribute 'ansi-color-bright-yellow nil :foreground "#ffcf85" :background "#ffcf85")
+(set-face-attribute 'ansi-color-bright-blue nil :foreground "#4a83c3" :background "#4a83c3")
+(set-face-attribute 'ansi-color-bright-magenta nil :foreground "#f6bbe7" :background "#f6bbe7")
+(set-face-attribute 'ansi-color-bright-cyan nil :foreground "#4eb3cd" :background "#4eb3cd")
 
 (use-package autothemer
   :defer t)
@@ -1663,94 +1664,94 @@ Otherwise, call eat."
 ;;;;;;;;;;;
 
 ;; mu4e
-(use-package mu4e
-  :ensure nil
-  :load-path "/usr/local/share/emacs/site-lisp/mu4e/"
-  :custom
-  (mu4e-use-fancy-chars t)
-  (mu4e-bookmarks
-     '(( :name  "Unread messages"
-      :query "flag:unread AND NOT flag:trashed AND NOT \"maildir:/All Mail\""
-      :key ?u)
-    ( :name "Today's messages"
-      :query "date:today..now"
-      :key ?t)
-    ( :name "Last 7 days"
-      :query "date:7d..now"
-      :hide-unread t
-      :key ?w)
-    ( :name "Messages with images"
-      :query "mime:image/*"
-      :key ?p)))
-  :preface
-  (setq mail-user-agent 'mu4e-user-agent)
-  (setq user-mail-address "paulleehuang@proton.me")
-  (setq smtpmail-smtp-server "localhost")
-  :config
-  ;; refresh mail using isync every 5 minutes
-  (setq mu4e-update-interval (* 5 60))
-  (setq mu4e-get-mail-command "mbsync -a")
-  (setq mu4e-root-maildir "~/mail")
+;; (use-package mu4e
+;;   :ensure nil
+;;   :load-path "/usr/local/share/emacs/site-lisp/mu4e/"
+;;   :custom
+;;   (mu4e-use-fancy-chars t)
+;;   (mu4e-bookmarks
+;;      '(( :name  "Unread messages"
+;;       :query "flag:unread AND NOT flag:trashed AND NOT \"maildir:/All Mail\""
+;;       :key ?u)
+;;     ( :name "Today's messages"
+;;       :query "date:today..now"
+;;       :key ?t)
+;;     ( :name "Last 7 days"
+;;       :query "date:7d..now"
+;;       :hide-unread t
+;;       :key ?w)
+;;     ( :name "Messages with images"
+;;       :query "mime:image/*"
+;;       :key ?p)))
+;;   :preface
+;;   (setq mail-user-agent 'mu4e-user-agent)
+;;   (setq user-mail-address "paulleehuang@proton.me")
+;;   (setq smtpmail-smtp-server "localhost")
+;;   :config
+;;   ;; refresh mail using isync every 5 minutes
+;;   (setq mu4e-update-interval (* 5 60))
+;;   (setq mu4e-get-mail-command "mbsync -a")
+;;   (setq mu4e-root-maildir "~/mail")
 
 
-  ;; setup dynamic folders
-  (setq mu4e-drafts-folder "/Drafts"
-        mu4e-sent-folder   "/Sent"
-        mu4e-refile-folder "/Archive"
-        mu4e-trash-folder  "/Trash")
+;;   ;; setup dynamic folders
+;;   (setq mu4e-drafts-folder "/Drafts"
+;;         mu4e-sent-folder   "/Sent"
+;;         mu4e-refile-folder "/Archive"
+;;         mu4e-trash-folder  "/Trash")
 
-  (setq mu4e-maildir-shortcuts
-        '((:maildir "/inbox"     :key ?i)
-          (:maildir "/Sent"      :key ?s)
-          (:maildir "/Starred"   :key ?S)
-          (:maildir "/Trash"     :key ?t)
-          (:maildir "/Drafts"    :key ?d)
-          (:maildir "/Archive"   :key ?A)
-          (:maildir "/All Mail"  :key ?a)))
+;;   (setq mu4e-maildir-shortcuts
+;;         '((:maildir "/inbox"     :key ?i)
+;;           (:maildir "/Sent"      :key ?s)
+;;           (:maildir "/Starred"   :key ?S)
+;;           (:maildir "/Trash"     :key ?t)
+;;           (:maildir "/Drafts"    :key ?d)
+;;           (:maildir "/Archive"   :key ?A)
+;;           (:maildir "/All Mail"  :key ?a)))
   
-  ;; setup smtp
-  (setq message-send-mail-function 'smtpmail-send-it
-      auth-sources '("~/.authinfo")
-      smtpmail-smtp-server "127.0.0.1"
-      smtpmail-smtp-service 1025)
+;;   ;; setup smtp
+;;   (setq message-send-mail-function 'smtpmail-send-it
+;;       auth-sources '("~/.authinfo")
+;;       smtpmail-smtp-server "127.0.0.1"
+;;       smtpmail-smtp-service 1025)
   
   
-  :config
-  ;; signature
-;;   (setq message-signature "<#multipart type=alternative>
-;; <#part type=text/plain>
-;; [[https://linkedin.com/in/paulleehuang][LinkedIn]] | [[https://github.com/polhuang][Github]]
+;;   :config
+;;   ;; signature
+;; ;;   (setq message-signature "<#multipart type=alternative>
+;; ;; <#part type=text/plain>
+;; ;; [[https://linkedin.com/in/paulleehuang][LinkedIn]] | [[https://github.com/polhuang][Github]]
 
-;; Sent using [[https://google.com][mu4e]]
-;; <#/part>
+;; ;; Sent using [[https://google.com][mu4e]]
+;; ;; <#/part>
 
-;; <#part type=text/html>
-;; <p>
-;; <a href=\"https://linkedin.com/in/paulleehuang\">LinkedIn</a> | <a href=\"https://github.com/polhuang\">Github</a>
-;; </p>
+;; ;; <#part type=text/html>
+;; ;; <p>
+;; ;; <a href=\"https://linkedin.com/in/paulleehuang\">LinkedIn</a> | <a href=\"https://github.com/polhuang\">Github</a>
+;; ;; </p>
 
-;; <p>
-;; Sent from <a href=\"https://www.djcbsoftware.nl/code/mu/\">mu</a>
-;; </p>
-;; <#/part>
-;; <#/multipart>
-;; ")
-  ;; fancy header marks
-  (setq mu4e-headers-draft-mark     '("D" . "💈")
-        mu4e-headers-flagged-mark   '("F" . "📍")
-        mu4e-headers-new-mark       '("N" . "🔥")
-        mu4e-headers-passed-mark    '("P" . "❯")
-        mu4e-headers-replied-mark   '("R" . "❮")
-        mu4e-headers-seen-mark      '("S" . "☑")
-        mu4e-headers-trashed-mark   '("d" . "💀")
-        mu4e-headers-attach-mark    '("a" . "📎")
-        mu4e-headers-encrypted-mark '("x" . "🔒")
-        mu4e-headers-signed-mark    '("s" . "🔑")
-        mu4e-headers-unread-mark    '("u" . "⎕")
-        mu4e-headers-list-mark      '("l" . "🔈")
-        mu4e-headers-personal-mark  '("p" . "👨")
-        mu4e-headers-calendar-mark  '("c" . "📅"))
-  (mu4e))
+;; ;; <p>
+;; ;; Sent from <a href=\"https://www.djcbsoftware.nl/code/mu/\">mu</a>
+;; ;; </p>
+;; ;; <#/part>
+;; ;; <#/multipart>
+;; ;; ")
+;;   ;; fancy header marks
+;;   (setq mu4e-headers-draft-mark     '("D" . "💈")
+;;         mu4e-headers-flagged-mark   '("F" . "📍")
+;;         mu4e-headers-new-mark       '("N" . "🔥")
+;;         mu4e-headers-passed-mark    '("P" . "❯")
+;;         mu4e-headers-replied-mark   '("R" . "❮")
+;;         mu4e-headers-seen-mark      '("S" . "☑")
+;;         mu4e-headers-trashed-mark   '("d" . "💀")
+;;         mu4e-headers-attach-mark    '("a" . "📎")
+;;         mu4e-headers-encrypted-mark '("x" . "🔒")
+;;         mu4e-headers-signed-mark    '("s" . "🔑")
+;;         mu4e-headers-unread-mark    '("u" . "⎕")
+;;         mu4e-headers-list-mark      '("l" . "🔈")
+;;         mu4e-headers-personal-mark  '("p" . "👨")
+;;         mu4e-headers-calendar-mark  '("c" . "📅"))
+;;   (mu4e))
 
 ;; org-mime
 (use-package org-mime
