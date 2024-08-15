@@ -20,7 +20,7 @@
     (start-process-shell-command "org" nil (concat "aplay " file))))
 
 ;; load private emacs config
-(load (expand-file-name "private.el" user-emacs-directory))
+;; (load (expand-file-name "private.el" user-emacs-directory))
 
 ;;;;;;;;;;;;;;;;;;;;;;
 ;; package settings ;;
@@ -64,8 +64,6 @@
 ;; store backup files in separate directory
 (setq backup-directory-alist '(("." . "~/.emacs.d/backups")))
 
-
-
 ;; store lock-file symlinks in separate directory
 (setq lock-file-name-transforms `((".*" "~/temp/emacs-lockfiles/" t)))
 
@@ -95,12 +93,14 @@
 (add-to-list 'custom-theme-load-path "~/.emacs.d/everforest-emacs")
 (load-theme 'everforest-hard-dark t)
 
-;; (use-package cherry-seoul256-theme
-;;   :load-path "~/projects/cherry-seoul256"
-;;   :custom
-;;   (cherry-seoul256-background 233)
-;;   :config
-;;   (load-theme 'cherry-seoul256 t))
+;; (load "~/projects/cherry-seoul256")
+(use-package cherry-seoul256-theme
+  :load-path "~/projects/cherry-seoul256"
+  :custom
+  (cherry-seoul256-background 233)
+  ;; :config
+  (load-theme 'cherry-seoul256 t)
+  )
 
 ;; theme
 ;; (use-package seoul256-theme
@@ -162,7 +162,7 @@
   (set-face-attribute 'marginalia-documentation nil :inherit 'doom-mode-line :slant 'italic))
 
 ;; fonts
-(set-face-attribute 'default nil :family "Source Code Pro" :inherit t :height 125)
+(set-face-attribute 'default nil :family "Fira Code" :inherit t :height 125)
 
 ;; fontify-face
 (use-package fontify-face
@@ -242,8 +242,7 @@
 
 ;; icons
 (use-package all-the-icons
-  :if (display-graphic-p)
-  :config (all-the-icons-install-fonts))
+  :if (display-graphic-p))
 
 (use-package all-the-icons-completion
   :ensure t)
@@ -814,14 +813,13 @@ Use prefix argument ARG for number of lines, otherwise use default."
 (defhydra hydra-dired (:hint nil :color pink)
   "
 _+_ mkdir          _v_iew           _m_ark             _(_ details        _i_nsert-subdir    wdired
-_C_opy             _O_ view other   _U_nmark all       _)_ omit-mode      _$_ hide-subdir    C-x C-q : edit
-_D_elete           _o_pen other     _u_nmark           _l_ redisplay      _w_ kill-subdir    C-c C-c : commit
+_c_opy             _O_ view other   _U_nmark all       _)_ omit-mode                         C-x C-q : edit
+_d_elete           _o_pen other     _u_nmark           _l_ redisplay      _w_ kill-subdir    C-c C-c : commit
 _R_ename           _M_ chmod        _t_oggle           _g_ revert buf     _e_ ediff          C-c ESC : abort
-_Y_ rel symlink    _G_ chgrp        _E_xtension mark   _s_ort             _=_ pdiff
-_S_ymlink          ^ ^              _F_ind marked      _._ toggle hydra   \\ flyspell
-_r_sync            ^ ^              ^ ^                ^ ^                _?_ summary
-_z_ compress-file  _A_ find regexp
-_Z_ compress       _Q_ repl regexp
+_y_ rel symlink    _G_ chgrp        _e_xtension mark   _s_ort             _S_ymlink          ^ ^              _f_ind marked      _._ toggle hydra   \\ flyspell
+                   ^ ^              ^ ^                ^ ^                _?_ summary
+_z_ compress-file  _a_ find regexp
+                   _Q_ repl regexp
 
 T - tag prefix
 "
@@ -971,7 +969,7 @@ T - tag prefix
 ;;;;;;;;;;;;;;;;;;;;
 
 ;; plist store
-(setq plstore-cache-passphrase-for-symmetric-encryption t)
+;; (setq plstore-cache-passphrase-for-symmetric-encryption t)
 
 ;; tramp
 (use-package tramp
@@ -1983,8 +1981,6 @@ Otherwise, call eat."
    '("477715cf84159782e44bcea3c90697e4c64896b5af42d0466b2dd44ece279505" "b4c6b60bf5cf727ca62651c0a0147e0e6ba63564215bd3fd9bab771e7914bea8" "c9dba7f4b46497b5bddfab834603fc1748d50f6ea027c347561bb3d81a9c6a32" "57763ac4917fe06157c891fd73fd9a9db340bfe3a04392bb68b2df9032ce14a5" "e9aa348abd3713a75f2c5ba279aa581b1c6ec187ebefbfa33373083ff8004c7c" "7b8f5bbdc7c316ee62f271acf6bcd0e0b8a272fdffe908f8c920b0ba34871d98" default))
  '(js-indent-level 2)
  '(lsp-enable-links nil)
- '(org-agenda-files
-   '("/home/polhuang/org/tasks.org" "/home/polhuang/org/schedule.org"))
  '(package-selected-packages `(add-hook 'web-mode-hook #'lsp-deferred))
  '(register-preview-delay 0.0)
  '(safe-local-variable-values
