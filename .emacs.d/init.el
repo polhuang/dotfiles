@@ -90,9 +90,13 @@
 ;; ui settings ;;
 ;;;;;;;;;;;;;;;;;
 
+;; everforest
 (add-to-list 'custom-theme-load-path "~/.emacs.d/everforest-emacs")
 (load-theme 'everforest-hard-dark t)
+(set-face-attribute 'line-number nil :foreground "#7e968d")
+(set-face-attribute 'line-number-current-line nil :weight 'bold)
 
+;; cherry-seoul
 ;; (load "~/projects/cherry-seoul256")
 (use-package cherry-seoul256-theme
   :load-path "~/projects/cherry-seoul256"
@@ -197,7 +201,7 @@
 (global-prettify-symbols-mode 1)                             ; prettify-symbols
 
 ;; transparency
-(add-to-list 'default-frame-alist '(alpha-background . 80))
+(add-to-list 'default-frame-alist '(alpha-background . 85))
 
 (defun my/toggle-frametransparency ()
   "Toggle frame transparency."
@@ -969,7 +973,7 @@ T - tag prefix
 ;;;;;;;;;;;;;;;;;;;;
 
 ;; plist store
-;; (setq plstore-cache-passphrase-for-symmetric-encryption t)
+(setq plstore-cache-passphrase-for-symmetric-encryption t)
 
 ;; tramp
 (use-package tramp
