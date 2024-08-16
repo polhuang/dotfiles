@@ -5,12 +5,101 @@
 ;; set gc threshold for startup performance
 (setq gc-cons-threshold (* 50 1000 1000))
 
-;; define new prefix
+;; turn off (temporarily) startup messages, which cause expensive and excessive redisplays
+(unless (or (daemonp) noninteractive)
+  (setq-default inhibit-redisplay t
+                inhibit-message t)
+  ;; re-enables and forces redisplay once windows are initialized
+  (add-hook 'window-setup-hook
+            (lambda ()
+              (setq-default inhibit-redisplay nil
+                            inhibit-message nil)
+              (redisplay)))
+
+  ;; add advice suppressing messages during file loading
+  (define-advice load-file (:override (file) silence)
+    (load file nil 'nomessage))
+
+  ;; immediately remove prior adviced after file is loaded, re-enabling messages
+  (define-advice startup--load-user-init-file (:before (&rest _) nomessage-remove)
+    (advice-remove #'load-file@silence)))
+
+;; do not show un-styled emacs at initialization
+(push '(menu-bar-lines . 0) default-frame-alist)
+(push '(tool-bar-lines . 0) default-frame-alist)
+(push '(vertical-scroll-bars) default-frame-alist)
+
+;; identify OS
+(defconst IS-MAC     (eq system-type 'darwin))
+(defconst IS-LINUX   (eq system-type 'gnu/linux))
+(defconst IS-WINDOWS (memq system-type '(cygwin windows-nt ms-dos)))
+(defconst IS-BSD     (or IS-MAC (eq system-type 'berkeley-unix)))
+(defconst IS-GUIX    (and IS-LINUX
+                          (with-temp-buffer
+                            (insert-file-contents "/etc/os-release")
+                            (re-search-forward "ID=\\(?:guix\\|nixos\\)" nil t))))
+
+;; disable bidirectional text for performance
+(setq-default bidi-display-reordering 'left-to-right)
+
+;; do not render cursors or regions in non-focused windows
+(setq-default cursor-in-non-selected-windows nil)
+(setq highlight-nonselected-windows nil)
+
+;; enable performant scrolling
+(setq fast-but-imprecise-scrollling t
+      redisplay-skip-fontification-on-input t)
+
+;; do not resize frame to preserve # columns/lines displayed
+(setq frame-inhibit-implied-resize t)
+
+;; don't ping things that look like domain names.
+(setq ffap-machine-p-known 'reject)
+
+;; performance on windows is worse so reduce workload during file IO
+(when IS-WINDOWS
+  (setq w32-get-true-file-attributes nil)
+
+  ;; font compacting expensive on windows
+  (setq inhibit-compacting-font-caches t))
+
+;; remove cl options irrelevant to current OS
+(unless IS-MAC   (setq command-line-ns-option-alist nil))
+(unless IS-LINUX (setq command-line-x-option-alist nil))
+
+;; when launching server, load heavier libraries first
+(when (daemonp)
+  (defvar pulse-flag t)
+  (add-hook
+   'after-init-hook
+   (defun my/load-packages-eagerly ()
+     (run-at-time 1 nil
+                  (lambda () 
+                    (when (fboundp 'pdf-tools-install) (pdf-tools-install t))
+                    (load-library "pulse")
+                    (when (string-suffix-p "server" server-name)
+                      (let ((after-init-time (current-time)))
+                         (dolist (lib '("org" "ob" "ox" "ol" "org-roam"
+                                       "org-capture" "org-agenda" "org-fragtog"
+                                       "org-gcal" "latex" "reftex" "cdlatex"
+                                       "consult" "helpful" "elisp-mode"
+                                       "elfeed" "simple"
+                                       "expand-region" "embrace"
+                                       "ace-window" "avy" "yasnippet"
+                                       "magit" "modus-themes" "diff-hl"
+                                       "dired" "ibuffer" "pdf-tools"
+                                       "emacs-wm"))
+                          (with-demoted-errors "Error: %S" (load-library lib)))
+                        (let ((elapsed (float-time (time-subtract (current-time)
+                                                                  after-init-time))))
+                          (message "[Pre-loaded packages in %.3fs]" elapsed)))))))))
+
+;; define personal keybinding prefix (an unpragmatic keybinding repurposed for reprogrammed keyboard)
 (defvar my-map (make-sparse-keymap))
 (define-key global-map (kbd "C-M-]") my-map)
 (menu-bar-mode -1)
 
-;; emacs alarm
+;; an all-purpose emacs alarm
 (defun my/alarm (&optional length &rest _)
   "My Emacs alarm. If optional parameter LENGTH is `long`, plays the longer alarm."
   (let ((file (expand-file-name (if (equal length "long")
@@ -19,7 +108,7 @@
                                 user-emacs-directory)))
     (start-process-shell-command "org" nil (concat "aplay " file))))
 
-;; load private emacs config
+;; load private emacs config section
 ;; (load (expand-file-name "private.el" user-emacs-directory))
 
 ;;;;;;;;;;;;;;;;;;;;;;
@@ -166,29 +255,6 @@
 (with-eval-after-load 'marginalia
   (set-face-attribute 'marginalia-documentation nil :inherit 'doom-mode-line :slant 'italic))
 
-;; fonts
-(set-face-attribute 'default nil :family "Fira Code" :inherit t :height 125)
-
-;; fontify-face
-(use-package fontify-face
-  :defer t)
-
-;; define non-breaking space
-(defface my/non-breaking-space
-  '((t :inherit default))
-  "My non-breaking space face.")
-(font-lock-add-keywords 'org-mode '(("\u00a0" . 'my/non-breaking-space)))
-
-;; rainbow mode
-(use-package rainbow-mode
-  :defer t)
-
-;; modeline
-(use-package doom-modeline
-  :ensure t
-  :init
-  (doom-modeline-mode t))
-
 ;; misc ui settings
 (global-hl-line-mode t)                                      ; highlight current line
 (scroll-bar-mode -1)                                         ; disable visible scrollbar
@@ -200,6 +266,13 @@
 (column-number-mode)                                         ; display column number display in mode line
 (setq use-dialog-box nil)                                    ; disable ui dialog prompts
 (global-prettify-symbols-mode 1)                             ; prettify-symbols
+(setq inhibit-startup-message t
+      inhibit-splash-screen t
+      inhibit-startup-echo-area-message user-login-name
+      inhibit-default-init t
+      initial-major-mode 'fundamental-mode
+      initial-scratch-message nil)
+(fset #'display-startup-echo-area-message #'ignore)
 
 ;; transparency
 (add-to-list 'default-frame-alist '(alpha-background . 85))
@@ -216,18 +289,22 @@
         (set-frame-parameter nil 'alpha-background 100)
         (cherry-seoul256-create 'cherry-seoul256 235)))))
 
-;; notifications
-(require 'alert)
-(setq alert-default-style "notifications")
+;; fonts
+(set-face-attribute 'default nil :family "Fira Code" :inherit t :height 125)
 
-;; display line numbers
-(require 'display-line-numbers)
-(global-display-line-numbers-mode 1)                        ; display line numbers
-(setq display-line-numbers-width-start t)                   ; uses width necessary to display all line numbers
-(defun display-line-numbers--turn-on ()                     ; do not display in pdf-mode or in minibuffer
-  "Turn on `display-line-numbers-mode`."
-  (unless (or (minibufferp) (eq major-mode 'pdf-view-mode))
-    (display-line-numbers-mode)))
+;; fontify-face
+(use-package fontify-face
+  :defer t)
+
+;; define non-breaking space
+(defface my/non-breaking-space
+  '((t :inherit default))
+  "My non-breaking space face.")
+(font-lock-add-keywords 'org-mode '(("\u00a0" . 'my/non-breaking-space)))
+
+;; rainbow mode
+(use-package rainbow-mode
+  :defer t)
 
 ;; chinese font
 (defface my/chinese-face
@@ -270,6 +347,100 @@
   :ensure t
   :hook
   (ibuffer-mode . nerd-icons-ibuffer-mode))
+
+;;;;;;;;;;;;;;
+;; modeline ;;
+;;;;;;;;;;;;;;
+
+(use-package doom-modeline
+  :ensure t
+  :init
+  (doom-modeline-mode t))
+
+;; clean up modeline text
+(defvar mode-line-cleaner-alist
+  `((company-mode . " ⇝")
+    (corfu-mode . " ⇝")
+    (yas-minor-mode .  " ")
+    (smartparens-mode . " ()")
+    (evil-smartparens-mode . "")
+    (eldoc-mode . "")
+    (abbrev-mode . "")
+    (evil-snipe-local-mode . "")
+    (evil-owl-mode . "")
+    (evil-rsi-mode . "")
+    (evil-commentary-mode . "")
+    (ivy-mode . "")
+    (counsel-mode . "")
+    (wrap-region-mode . "")
+    (rainbow-mode . "")
+    (which-key-mode . "")
+    (undo-tree-mode . "")
+    ;; (undo-tree-mode . " ⎌")
+    (auto-revert-mode . "")
+    ;; Major modes
+    (lisp-interaction-mode . "λ")
+    (hi-lock-mode . "")
+    (python-mode . "py")
+    (emacs-lisp-mode . "eλ")
+    (nxhtml-mode . "nx")
+    (dot-mode . "")
+    (scheme-mode . " scm")
+    (matlab-mode . "mat")
+    (org-mode . " org";; "⦿"
+              )
+    (valign-mode . "")
+    (eldoc-mode . "")
+    (org-cdlatex-mode . "")
+    (cdlatex-mode . "")
+    (org-indent-mode . "")
+    (org-roam-mode . "")
+    (visual-line-mode . "")
+    (latex-mode . "TeX")
+    (outline-minor-mode . " ֍" ;; " [o]"
+                        )
+    (hs-minor-mode . "")
+    (matlab-functions-have-end-minor-mode . "")
+    (org-roam-ui-mode . " UI")
+    (abridge-diff-mode . "")
+    ;; Evil modes
+    (evil-traces-mode . "")
+    (latex-extra-mode . "")
+    (strokes-mode . "")
+    (flymake-mode . "fly")
+    (god-mode . ,(propertize "God" 'face 'success))
+    (gcmh-mode . ""))
+  "Alist for `clean-mode-line'.
+
+  ; ;; When you add a new element to the alist, keep in mind that you
+  ; ;; must pass the correct minor/major mode symbol and a string you
+  ; ;; want to use in the modeline *in lieu of* the original.")
+
+(defun clean-mode-line ()
+  (cl-loop for cleaner in mode-line-cleaner-alist
+           do (let* ((mode (car cleaner))
+                     (mode-str (cdr cleaner))
+                     (old-mode-str (cdr (assq mode minor-mode-alist))))
+                (when old-mode-str
+                  (setcar old-mode-str mode-str))
+                ;; major mode
+                (when (eq mode major-mode)
+                  (setq mode-name mode-str)))))
+
+(add-hook 'after-change-major-mode-hook 'clean-mode-line)
+
+;; notifications
+(require 'alert)
+(setq alert-default-style "notifications")
+
+;; display line numbers
+(require 'display-line-numbers)
+(global-display-line-numbers-mode 1)                        ; display line numbers
+(setq display-line-numbers-width-start t)                   ; uses width necessary to display all line numbers
+(defun display-line-numbers--turn-on ()                     ; do not display in pdf-mode or in minibuffer
+  "Turn on `display-line-numbers-mode`."
+  (unless (or (minibufferp) (eq major-mode 'pdf-view-mode))
+    (display-line-numbers-mode)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; navigation settings ;;
@@ -644,8 +815,8 @@ Use prefix argument ARG for number of lines, otherwise use default."
     (org-clock-reminder-active-title "Big Brother says:")
     (org-clock-reminder-inactive-text "%t: You're not clocked in, bro")
     (org-clock-reminder-active-text "%t: You've been working for %c on <br/>%h.")
-    (org-clock-reminder-inactive-notifications-p t)
-    (org-clock-reminder-interval (cons 10 15))
+    (org-clock-reminder-interval (cons 10 30))
+    (org-clock-reminder-inactive-notifications-p nil)
     :config
     ;; replace function to configure urgency
     (defun org-clock-reminder-notify (title message)
@@ -968,6 +1139,28 @@ T - tag prefix
 	  (set-window-buffer (next-window) next-win-buffer)
 	  (select-window first-win)
 	  (if this-win-2nd (other-window 1))))))
+
+;;;;;;;;;;;;;;;;
+;; minibuffer ;;
+;;;;;;;;;;;;;;;;
+
+(use-package minibuffer
+  :hook (minibuffer-setup . cursor-intangible-mode)
+  :custom
+  (read-minibuffer-restore-windows t) ; restore window configurations on exit from minibuffer
+  (read-answer-short t) ; accept single character answers
+  (resize-mini-windows 'grow-only)
+
+  (defun my/focus-minibuffer ()
+    "Focus the active minibuffer."
+    (interactive)
+    (let ((minibuffer (active-minibuffer-window)))
+      (when minibuffer
+        (select-window minibuffer))))
+
+  ;; prevent cursor from getting stuck in read-only prompt section of minibuffer
+  (setq minibuffer-prompt-properties
+      '(read-only t intangible t cursor-intangible t face minibuffer-prompt)))
 
 ;;;;;;;;;;;;;;;;;;;;
 ;; authentication ;;
@@ -1868,6 +2061,7 @@ Otherwise, call eat."
   )
 
 ;; spell-checking
+;; enchant is system dependency (see https://github.com/minad/jinx)
 (use-package jinx
   :hook (emacs-startup . global-jinx-mode)
   :bind (("M-$" . jinx-correct)
