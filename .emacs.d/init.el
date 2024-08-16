@@ -2061,6 +2061,7 @@ Otherwise, call eat."
   )
 
 ;; spell-checking
+;; enchant is system dependency (see https://github.com/minad/jinx)
 (use-package jinx
   :hook (emacs-startup . global-jinx-mode)
   :bind (("M-$" . jinx-correct)
