@@ -67,33 +67,6 @@
 (unless IS-MAC   (setq command-line-ns-option-alist nil))
 (unless IS-LINUX (setq command-line-x-option-alist nil))
 
-;; when launching server, load heavier libraries first
-(when (daemonp)
-  (defvar pulse-flag t)
-  (add-hook
-   'after-init-hook
-   (defun my/load-packages-eagerly ()
-     (run-at-time 1 nil
-                  (lambda () 
-                    (when (fboundp 'pdf-tools-install) (pdf-tools-install t))
-                    (load-library "pulse")
-                    (when (string-suffix-p "server" server-name)
-                      (let ((after-init-time (current-time)))
-                         (dolist (lib '("org" "ob" "ox" "ol" "org-roam"
-                                       "org-capture" "org-agenda" "org-fragtog"
-                                       "org-gcal" "latex" "reftex" "cdlatex"
-                                       "consult" "helpful" "elisp-mode"
-                                       "elfeed" "simple"
-                                       "expand-region" "embrace"
-                                       "ace-window" "avy" "yasnippet"
-                                       "magit" "modus-themes" "diff-hl"
-                                       "dired" "ibuffer" "pdf-tools"
-                                       "emacs-wm"))
-                          (with-demoted-errors "Error: %S" (load-library lib)))
-                        (let ((elapsed (float-time (time-subtract (current-time)
-                                                                  after-init-time))))
-                          (message "[Pre-loaded packages in %.3fs]" elapsed)))))))))
-
 ;; define personal keybinding prefix (an unpragmatic keybinding repurposed for reprogrammed keyboard)
 (defvar my-map (make-sparse-keymap))
 (define-key global-map (kbd "C-M-]") my-map)
@@ -853,8 +826,9 @@ Use prefix argument ARG for number of lines, otherwise use default."
   _d_: codeium
   _e_: eat
   _E_: erc
-  _k_: kill emacs (and save buffers)
+  _k_: save and kill emacs
   _m_: mu4e
+  _n_: new scratchpad
   _p_: pomodoro
   _q_: go away
   _s_: search org files
@@ -868,6 +842,7 @@ Use prefix argument ARG for number of lines, otherwise use default."
   ("E" erc-switch-to-buffer :color blue)
   ("k" save-buffers-kill-emacs :color blue)
   ("m" mu4e :color blue)
+  ("n" scratchpad-new :color blue)
   ("p" org-pomodoro :color blue)
   ("q" nil :color blue)
   ("r" restart-emacs :color blue)
@@ -2139,32 +2114,6 @@ Otherwise, call eat."
             (org-todo "UPCOMING"))
             (org-schedule nil (format "<%s>" stime)))))))
 
-;; codeium
-(use-package codeium
-  :straight '(:host github :repo "Exafunction/codeium.el")
-  :defer t
-  :init
-  (setq codeium-api-enabled
-        (lambda (api)
-          (memq api '(GetCompletions Heartbeat CancelRequest GetAuthToken RegisterUser auth-redirect AcceptCompletion))))
-  
-  (defun my-codeium/document/text ()
-    (buffer-substring-no-properties (max (- (point) 3000) (point-min)) (min (+ (point) 1000) (point-max))))
-    ;; if you change the text, you should also change the cursor_offset
-    ;; warning: this is measured by UTF-8 encoded bytes
-  (defun my-codeium/document/cursor_offset ()
-    (codeium-utf8-byte-length
-     (buffer-substring-no-properties (max (- (point) 3000) (point-min)) (point))))
-  (setq codeium/document/text 'my-codeium/document/text)
-  (setq codeium/document/cursor_offset 'my-codeium/document/cursor_offset)
-  
-  ;; decouple codeium from other completions
-  (defun my/codeium (&optional interactive)
-    "Decouple codeium from other completions"
-    (interactive (list t))
-    (when interactive
-      (cape-interactive #'codeium-completion-at-point))))
-
 ;; scratchpad in scratch buffers
 (load "~/projects/scratchpad/scratchpad.el")
 (global-set-key (kbd "C-M-z") #'scratchpad-toggle)
@@ -2174,7 +2123,6 @@ Otherwise, call eat."
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(codeium/metadata/api_key "3b26de11-593c-441e-967d-5ba6ae91577c")
  '(column-number-mode t)
  '(custom-safe-themes
    '("477715cf84159782e44bcea3c90697e4c64896b5af42d0466b2dd44ece279505" "b4c6b60bf5cf727ca62651c0a0147e0e6ba63564215bd3fd9bab771e7914bea8" "c9dba7f4b46497b5bddfab834603fc1748d50f6ea027c347561bb3d81a9c6a32" "57763ac4917fe06157c891fd73fd9a9db340bfe3a04392bb68b2df9032ce14a5" "e9aa348abd3713a75f2c5ba279aa581b1c6ec187ebefbfa33373083ff8004c7c" "7b8f5bbdc7c316ee62f271acf6bcd0e0b8a272fdffe908f8c920b0ba34871d98" default))
