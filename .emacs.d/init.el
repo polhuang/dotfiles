@@ -5,24 +5,20 @@
 ;; set gc threshold for startup performance
 (setq gc-cons-threshold (* 50 1000 1000))
 
-;; turn off (temporarily) startup messages, which cause expensive and excessive redisplays
 (unless (or (daemonp) noninteractive)
   (setq-default inhibit-redisplay t
                 inhibit-message t)
-  ;; re-enables and forces redisplay once windows are initialized
   (add-hook 'window-setup-hook
             (lambda ()
               (setq-default inhibit-redisplay nil
                             inhibit-message nil)
               (redisplay)))
 
-  ;; add advice suppressing messages during file loading
   (define-advice load-file (:override (file) silence)
     (load file nil 'nomessage))
-
-  ;; immediately remove prior adviced after file is loaded, re-enabling messages
+  
   (define-advice startup--load-user-init-file (:before (&rest _) nomessage-remove)
-    (advice-remove #'load-file@silence)))
+    (advice-remove #'load-file #'load-file@silence)))
 
 ;; do not show un-styled emacs at initialization
 (push '(menu-bar-lines . 0) default-frame-alist)
@@ -38,6 +34,17 @@
                           (with-temp-buffer
                             (insert-file-contents "/etc/os-release")
                             (re-search-forward "ID=\\(?:guix\\|nixos\\)" nil t))))
+
+;; remove cl options irrelevant to current OS
+(unless IS-MAC   (setq command-line-ns-option-alist nil))
+(unless IS-LINUX (setq command-line-x-option-alist nil))
+
+;; performance on windows is worse so reduce workload during file IO
+(when IS-WINDOWS
+  (setq w32-get-true-file-attributes nil)
+
+  ;; font compacting expensive on windows
+  (setq inhibit-compacting-font-caches t))
 
 ;; disable bidirectional text for performance
 (setq-default bidi-display-reordering 'left-to-right)
@@ -56,43 +63,6 @@
 ;; don't ping things that look like domain names.
 (setq ffap-machine-p-known 'reject)
 
-;; performance on windows is worse so reduce workload during file IO
-(when IS-WINDOWS
-  (setq w32-get-true-file-attributes nil)
-
-  ;; font compacting expensive on windows
-  (setq inhibit-compacting-font-caches t))
-
-;; remove cl options irrelevant to current OS
-(unless IS-MAC   (setq command-line-ns-option-alist nil))
-(unless IS-LINUX (setq command-line-x-option-alist nil))
-
-;; when launching server, load heavier libraries first
-(when (daemonp)
-  (defvar pulse-flag t)
-  (add-hook
-   'after-init-hook
-   (defun my/load-packages-eagerly ()
-     (run-at-time 1 nil
-                  (lambda () 
-                    (when (fboundp 'pdf-tools-install) (pdf-tools-install t))
-                    (load-library "pulse")
-                    (when (string-suffix-p "server" server-name)
-                      (let ((after-init-time (current-time)))
-                         (dolist (lib '("org" "ob" "ox" "ol" "org-roam"
-                                       "org-capture" "org-agenda" "org-fragtog"
-                                       "org-gcal" "latex" "reftex" "cdlatex"
-                                       "consult" "helpful" "elisp-mode"
-                                       "elfeed" "simple"
-                                       "expand-region" "embrace"
-                                       "ace-window" "avy" "yasnippet"
-                                       "magit" "modus-themes" "diff-hl"
-                                       "dired" "ibuffer" "pdf-tools"
-                                       "emacs-wm"))
-                          (with-demoted-errors "Error: %S" (load-library lib)))
-                        (let ((elapsed (float-time (time-subtract (current-time)
-                                                                  after-init-time))))
-                          (message "[Pre-loaded packages in %.3fs]" elapsed)))))))))
 
 ;; define personal keybinding prefix (an unpragmatic keybinding repurposed for reprogrammed keyboard)
 (defvar my-map (make-sparse-keymap))
@@ -362,7 +332,7 @@
   `((company-mode . " ⇝")
     (corfu-mode . " ⇝")
     (yas-minor-mode .  " ")
-    (smartparens-mode . " ()")
+    (smartparens-mode . "()")
     (evil-smartparens-mode . "")
     (eldoc-mode . "")
     (abbrev-mode . "")
@@ -387,7 +357,7 @@
     (dot-mode . "")
     (scheme-mode . " scm")
     (matlab-mode . "mat")
-    (org-mode . " org";; "⦿"
+    (org-mode . "org";; "⦿"
               )
     (valign-mode . "")
     (eldoc-mode . "")
@@ -397,11 +367,12 @@
     (org-roam-mode . "")
     (visual-line-mode . "")
     (latex-mode . "TeX")
+    (tsx-ts-mode . "TypeScript")
     (outline-minor-mode . " ֍" ;; " [o]"
                         )
     (hs-minor-mode . "")
     (matlab-functions-have-end-minor-mode . "")
-    (org-roam-ui-mode . " UI")
+    (org-roam-ui-mode . "UI")
     (abridge-diff-mode . "")
     ;; Evil modes
     (evil-traces-mode . "")
@@ -430,7 +401,7 @@
 (add-hook 'after-change-major-mode-hook 'clean-mode-line)
 
 ;; notifications
-(require 'alert)
+;; (require 'alert)
 (setq alert-default-style "notifications")
 
 ;; display line numbers
@@ -853,8 +824,9 @@ Use prefix argument ARG for number of lines, otherwise use default."
   _d_: codeium
   _e_: eat
   _E_: erc
-  _k_: kill emacs (and save buffers)
+  _k_: save and kill emacs
   _m_: mu4e
+  _n_: new scratchpad
   _p_: pomodoro
   _q_: go away
   _s_: search org files
@@ -868,6 +840,7 @@ Use prefix argument ARG for number of lines, otherwise use default."
   ("E" erc-switch-to-buffer :color blue)
   ("k" save-buffers-kill-emacs :color blue)
   ("m" mu4e :color blue)
+  ("n" scratchpad-new :color blue)
   ("p" org-pomodoro :color blue)
   ("q" nil :color blue)
   ("r" restart-emacs :color blue)
@@ -1648,7 +1621,7 @@ Otherwise, call eat."
          ("C-c e p" . eat-project))
   :custom 
   (eat-kill-buffer-on-exit t)
-  (eat-term-name "kitty"))
+  (eat-term-name "xterm-kitty"))
 
 ;;;;;;;;;;;;
 ;; coding ;;
@@ -1713,78 +1686,23 @@ Otherwise, call eat."
   (lsp-tailwindcss-major-modes '(typescript-ts-mode js-ts-mode tsx-ts-mode typescript-ts-mode web-mode)))
 
 ;; flycheck
-;; (use-package flycheck
-;;   :ensure t
-;;   :hook (after-init . global-flycheck-mode))
-
-;; (add-hook 'after-init-hook #'global-flycheck-mode)
-
-;; treesit
-(setq treesit-language-source-alist
-      '((bash "https://github.com/tree-sitter/tree-sitter-bash")
-        (c "https://github.com/tree-sitter/tree-sitter-c")
-        (css "https://github.com/tree-sitter/tree-sitter-css")
-        (elisp "https://github.com/Wilfred/tree-sitter-elisp")
-        (html "https://github.com/tree-sitter/tree-sitter-html")
-        (javascript "https://github.com/tree-sitter/tree-sitter-javascript" "master" "src")
-        (json "https://gtihub.com/tree-sitter/tree-sitter-json")
-        (lua "https://github.com/MunifTanjim/tree-sitter-lua")
-        (markdown "https://github.com/ikatyang/tree-sitter-markdown")
-        (python "https://github.com/tree-sitter/tree-sitter-python")
-        (rust "https://github.com/tree-sitter/tree-sitter-rust")
-        (toml "https://github.com/tree-sitter/tree-sitter-toml")
-        (tsx "https://github.com/tree-sitter/tree-sitter-typescript" "master" "tsx/src")
-        (typescript "https://github.com/tree-sitter/tree-sitter-typescript" "master" "typescript/src")
-        (yaml "https://github.com/ikatyang/tree-sitter-yaml")))
-
-;; use (treesit-language-available-p 'language) to test if language treesit is installed
-(setq major-mode-remap-alist
-      '((yaml-mode . yaml-ts-mode)
-        (bash-mode . bash-ts-mode)
-        (javascript-mode . tsx-ts-mode)
-        (js-mode . tsx-ts-mode)
-        (js2-mode . tsx-ts-mode)
-        (js-jsx-mode . tsx-ts-mode)
-        (rjsx-mode . tsx-ts-mode)
-        (rust-mode . rust-ts-mode)
-        (typescript-mode . tsx-ts-mode)
-        (json-mode . json-ts-mode)
-        (shell-mode . bash-ts-mode)
-        (css-mode . css-ts-mode)
-        ;; (python-mode . python-ts-mode)
-      ))
+(use-package flycheck
+  :ensure t
+  :hook (after-init . global-flycheck-mode))
 
 ;; treesit-auto
 (use-package treesit-auto
   :commands (treesit-auto-add-to-auto-mode-alist global-treesit-auto-mode)
   :ensure t
   :custom
-  (treesit-auto-install 'prompt)
+  (treesit-auto-install 't)
   :config
   (treesit-auto-add-to-auto-mode-alist 'all)
   (global-treesit-auto-mode))
 
-;; combobulate - commenting out due to apparent navigation bug
-;; (quelpa '(combobulate :fetcher github :repo mickeynp/combobulate))
-;; (use-package combobulate
-;;   :preface
-;;   ;; You can customize Combobulate's key prefix here.
-;;   ;; Note that you may have to restart Emacs for this to take effect!
-;;   (setq combobulate-key-prefix "C-c o")
-;;   :hook
-;;   ((python-ts-mode . combobulate-mode)
-;;    (js-ts-mode . combobulate-mode)
-;;    (html-ts-mode . combobulate-mode)
-;;    (css-ts-mode . combobulate-mode)
-;;    (yaml-ts-mode . combobulate-mode)
-;;    (typescript-ts-mode . combobulate-mode)
-;;    (json-ts-mode . combobulate-mode)
-;;    (tsx-ts-mode . combobulate-mode))
-;;   ;; Amend this to the directory where you keep Combobulate's source
-;;   ;; code.
-;;   :load-path ("path-to-git-checkout-of-combobulate"))
-  
-  ;; emmet
+;; use (treesit-language-available-p 'language) to test if language treesit is installed
+ 
+;; emmet
 (use-package emmet-mode
   :ensure t
   :bind (("C-j" . emmet-expand-line))
@@ -1876,40 +1794,29 @@ Otherwise, call eat."
     ( :name "Messages with images"
       :query "mime:image/*"
       :key ?p)))
-  :preface
-  (setq mail-user-agent 'mu4e-user-agent)
-  (setq user-mail-address "paulleehuang@proton.me")
-  (setq smtpmail-smtp-server "localhost")
+  (mail-user-agent 'mu4e-user-agent)
+  (user-mail-address "paulleehuang@proton.me")
+  (mu4e-update-interval (* 5 60))
+  (mu4e-get-mail-command "mbsync -a")
+  (mu4e-drafts-folder "/Drafts")
+  (mu4e-sent-folder "/Sent")
+  (mu4e-refile-folder "/Archive")
+  (mu4e-trash-folder "/Trash")
+  (mu4e-maildir-shortcuts
+   '((:maildir "/inbox"     :key ?i)
+     (:maildir "/Sent"      :key ?s)
+     (:maildir "/Starred"   :key ?S)
+     (:maildir "/Trash"     :key ?t)
+     (:maildir "/Drafts"    :key ?d)
+     (:maildir "/Archive"   :key ?A)
+     (:maildir "/All Mail"  :key ?a)))
+  (message-send-mail-function 'smtpmail-send-it)
+  (auth-sources '("~/.authinfo"))
+  (smtpmail-smtp-server "127.0.0.1")
+  (smtpmail-smtp-service 1025)
+   
   :config
-  ;; refresh mail using isync every 5 minutes
-  (setq mu4e-update-interval (* 5 60))
-  (setq mu4e-get-mail-command "mbsync -a")
-  (setq mu4e-root-maildir "~/mail")
-
-
-  ;; setup dynamic folders
-  (setq mu4e-drafts-folder "/Drafts"
-        mu4e-sent-folder   "/Sent"
-        mu4e-refile-folder "/Archive"
-        mu4e-trash-folder  "/Trash")
-
-  (setq mu4e-maildir-shortcuts
-        '((:maildir "/inbox"     :key ?i)
-          (:maildir "/Sent"      :key ?s)
-          (:maildir "/Starred"   :key ?S)
-          (:maildir "/Trash"     :key ?t)
-          (:maildir "/Drafts"    :key ?d)
-          (:maildir "/Archive"   :key ?A)
-          (:maildir "/All Mail"  :key ?a)))
-  
-  ;; setup smtp
-  (setq message-send-mail-function 'smtpmail-send-it
-      auth-sources '("~/.authinfo")
-      smtpmail-smtp-server "127.0.0.1"
-      smtpmail-smtp-service 1025)
-  
-  
-  :config
+  (set-face-attribute 'mu4e-highlight-face nil :inherit 'mu4e-title-face)
   ;; signature
   ;;   (setq message-signature "<#multipart type=alternative>
   ;; <#part type=text/plain>
@@ -1944,7 +1851,8 @@ Otherwise, call eat."
         mu4e-headers-list-mark      '("l" . "🔈")
         mu4e-headers-personal-mark  '("p" . "👨")
         mu4e-headers-calendar-mark  '("c" . "📅"))
-  (mu4e))
+  (if (daemonp)
+      (mu4e)))
 
 ;; org-mime
 (use-package org-mime
@@ -1965,6 +1873,8 @@ Otherwise, call eat."
 
 ;; perspective
 (use-package perspective
+  :ensure t
+  :commands persp-mode
   :custom
   (consult-customize consult--source-buffer :hidden t :default nil)
   (add-to-list 'consult-buffer-sources persp-consult-source)
@@ -1981,29 +1891,30 @@ Otherwise, call eat."
 
 ;; zone-mode
 (use-package zone
+  :commands zone-when-idle
   :config
   (zone-when-idle 600))
 
 ;; dashboard
 (use-package dashboard
   :ensure t
-  :init
-  (setq dashboard-banner-logo-title "~~ HI POL ~~")
-  (setq dashboard-startup-banner "~/.dotfiles/.emacs.d/dashboard-banner.txt")
-  (setq dashboard-footer-messages '("Time saved by emacs: 5 days 11 hours 47 minutes \nTime spent editing emacs config: 615 days 11 hours 38 minutes"))
-  (setq dashboard-agenda-prefix-format "%-10:c %-12s")
-  (setq dashboard-agenda-time-string-format "%m-%d %H:%M")
-  :config
+  :custom
+  (dashboard-banner-logo-title "~~ HI POL ~~")
+  (dashboard-startup-banner "~/.dotfiles/.emacs.d/dashboard-banner.txt")
+  (dashboard-footer-messages '("Time saved by emacs: 5 days 11 hours 47 minutes \nTime spent editing emacs config: 615 days 11 hours 38 minutes"))
+  (dashboard-agenda-prefix-format "%-10:c %-12s")
+  (dashboard-agenda-time-string-format "%m-%d %H:%M")
   ;; (setq dashboard-agenda-prefix-format " %-10:c %-12s ")
-  (setq dashboard-items '((recents  . 5)
+  (dashboard-items '((recents  . 5)
 			  (bookmarks . 5)
 			  (projects . 5)
 			  (agenda . 15)
 			  (registers . 5)))
-  (setq dashboard-agenda-sort-strategy '(time-up))
-  (setq dashboard-match-agenda-entry
+  (dashboard-agenda-sort-strategy '(time-up))
+  (dashboard-match-agenda-entry
       "TODO=\"TODO\"|TODO=\"IN PROGRESS\"|TODO=\"UPCOMING\"")
-  (setq initial-buffer-choice (lambda () (get-buffer-create "*dashboard*")))
+  (initial-buffer-choice (lambda () (get-buffer-create "*dashboard*")))
+  :config
   (dashboard-setup-startup-hook))
 
 ;; refresh buffer after UI components load (necessary for emacs-daemon/client)
@@ -2063,6 +1974,7 @@ Otherwise, call eat."
 ;; spell-checking
 ;; enchant is system dependency (see https://github.com/minad/jinx)
 (use-package jinx
+  :ensure t
   :hook (emacs-startup . global-jinx-mode)
   :bind (("M-$" . jinx-correct)
          ("C-M-$" . jinx-languages)))
@@ -2104,7 +2016,7 @@ Otherwise, call eat."
   :commands (org-gcal--sync-unlock org-todo)
   :init
   (load (concat user-emacs-directory "private/gcal-credentials.el"))
-  (add-hook 'org-gcal-after-update-entry-functions #'my/org-gcal-format)
+  (add-hook 'org-gcal-after-update-entry-functions 'my/org-gcal-format)
   :hook (find-file . my/clear-extra-gcal-timestamps)
   :custom
   (org-gcal-up-days 0)
@@ -2139,42 +2051,17 @@ Otherwise, call eat."
             (org-todo "UPCOMING"))
             (org-schedule nil (format "<%s>" stime)))))))
 
-;; codeium
-(use-package codeium
-  :straight '(:host github :repo "Exafunction/codeium.el")
-  :defer t
-  :init
-  (setq codeium-api-enabled
-        (lambda (api)
-          (memq api '(GetCompletions Heartbeat CancelRequest GetAuthToken RegisterUser auth-redirect AcceptCompletion))))
-  
-  (defun my-codeium/document/text ()
-    (buffer-substring-no-properties (max (- (point) 3000) (point-min)) (min (+ (point) 1000) (point-max))))
-    ;; if you change the text, you should also change the cursor_offset
-    ;; warning: this is measured by UTF-8 encoded bytes
-  (defun my-codeium/document/cursor_offset ()
-    (codeium-utf8-byte-length
-     (buffer-substring-no-properties (max (- (point) 3000) (point-min)) (point))))
-  (setq codeium/document/text 'my-codeium/document/text)
-  (setq codeium/document/cursor_offset 'my-codeium/document/cursor_offset)
-  
-  ;; decouple codeium from other completions
-  (defun my/codeium (&optional interactive)
-    "Decouple codeium from other completions"
-    (interactive (list t))
-    (when interactive
-      (cape-interactive #'codeium-completion-at-point))))
-
 ;; scratchpad in scratch buffers
 (load "~/projects/scratchpad/scratchpad.el")
-(global-set-key (kbd "C-M-z") #'scratchpad-toggle)
+
+(global-set-key (kbd "C-M-z") 'scratchpad-toggle)
+
 
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(codeium/metadata/api_key "3b26de11-593c-441e-967d-5ba6ae91577c")
  '(column-number-mode t)
  '(custom-safe-themes
    '("477715cf84159782e44bcea3c90697e4c64896b5af42d0466b2dd44ece279505" "b4c6b60bf5cf727ca62651c0a0147e0e6ba63564215bd3fd9bab771e7914bea8" "c9dba7f4b46497b5bddfab834603fc1748d50f6ea027c347561bb3d81a9c6a32" "57763ac4917fe06157c891fd73fd9a9db340bfe3a04392bb68b2df9032ce14a5" "e9aa348abd3713a75f2c5ba279aa581b1c6ec187ebefbfa33373083ff8004c7c" "7b8f5bbdc7c316ee62f271acf6bcd0e0b8a272fdffe908f8c920b0ba34871d98" default))

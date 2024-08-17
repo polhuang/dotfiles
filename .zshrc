@@ -3,24 +3,29 @@ HISTFILE=~/.histfile
 HISTSIZE=1000
 SAVEHIST=1000
 bindkey -e
-# End of lines configured by zsh-newuser-install
-# The following lines were added by compinstall
 zstyle :compinstall filename '/home/polhuang/.zshrc'
 
-autoload -Uz compinit
-compinit .zcompdump
-# End of lines added by compinstall
+export PATH="$PATH:/home/polhuang/.local/bin"
+export PATH="$PATH:/home/polhuang/.bin"
+export GUIX_LOCPATH=$HOME/.guix-profile/lib/locale
 
-eval "$(starship init zsh)"
+GUIX_PROFILE="$HOME/.config/guix/current"
+. "$GUIX_PROFILE/etc/profile"
 
-# Download Znap, if it's not there yet.
-[[ -r ~/Repos/znap/znap.zsh ]] ||
+GUIX_PROFILE="$HOME/.guix-profile"
+. "$GUIX_PROFILE/etc/profile"
+
+# # Download Znap, if it's not there yet.
+[[ -r ~/.zsh/znap/znap.zsh ]] ||
     git clone --depth 1 -- \
-        https://github.com/marlonrichert/zsh-snap.git ~/Repos/znap
+        https://github.com/marlonrichert/zsh-snap.git ~/.zsh/znap
 
-source ~/Repos/znap/znap.zsh  # Start Znap
+source ~/.zsh/znap/znap.zsh  # Start Znap
 
-# znap source marlonrichert/zsh-autocomplete
+znap source marlonrichert/zsh-autocomplete
+znap source zsh-users/zsh-syntax-highlighting
+znap source zsh-users/zsh-autosuggestions
+znap source rupa/z
 
 TMOUT=600
 
@@ -28,20 +33,4 @@ TRAPALRM() {
     asciiquarium
 }
 
-export PATH="$PATH:/home/polhuang/.local/bin"
-export PATH="$PATH:/home/polhuang/.bin"
-
-GUIX_PROFILE="$HOME/.guix-profile"
-. "$GUIX_PROFILE/etc/profile"
-
-GUIX_PROFILE="$HOME/.config/guix/current"
-. "$GUIX_PROFILE/etc/profile"
-
-if (( $+commands[luarocks] )); then
-    eval `luarocks path --bin`
-fi
-
-source <(fzf --zsh)
-source ~/.zsh/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
-source ~/.zsh/zsh-autosuggestions/zsh-autosuggestions.zsh
-source ~/.zsh/zsh-autocomplete/zsh-autocomplete.plugin.zsh
+eval "$(starship init zsh)"
