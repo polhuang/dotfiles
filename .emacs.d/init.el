@@ -5,18 +5,22 @@
 ;; set gc threshold for startup performance
 (setq gc-cons-threshold (* 50 1000 1000))
 
+;; temporarily turn off startup messages
 (unless (or (daemonp) noninteractive)
   (setq-default inhibit-redisplay t
                 inhibit-message t)
+  ;; re-enable after windows are initialized
   (add-hook 'window-setup-hook
             (lambda ()
               (setq-default inhibit-redisplay nil
                             inhibit-message nil)
               (redisplay)))
 
+  ;; suppress messages during file loading
   (define-advice load-file (:override (file) silence)
     (load file nil 'nomessage))
-  
+
+  ;; un-suppress after file loaded
   (define-advice startup--load-user-init-file (:before (&rest _) nomessage-remove)
     (advice-remove #'load-file #'load-file@silence)))
 
@@ -378,7 +382,6 @@
     (evil-traces-mode . "")
     (latex-extra-mode . "")
     (strokes-mode . "")
-    (flymake-mode . "fly")
     (god-mode . ,(propertize "God" 'face 'success))
     (gcmh-mode . ""))
   "Alist for `clean-mode-line'.
@@ -401,7 +404,7 @@
 (add-hook 'after-change-major-mode-hook 'clean-mode-line)
 
 ;; notifications
-;; (require 'alert)
+(require 'alert)
 (setq alert-default-style "notifications")
 
 ;; display line numbers
@@ -1972,9 +1975,9 @@ Otherwise, call eat."
   )
 
 ;; spell-checking
-;; enchant is system dependency (see https://github.com/minad/jinx)
+;; install external dependencies enchant, pkgconf, and lang dict
+;; pacman: enchant, pkgconf, hunspell-en_us
 (use-package jinx
-  :ensure t
   :hook (emacs-startup . global-jinx-mode)
   :bind (("M-$" . jinx-correct)
          ("C-M-$" . jinx-languages)))
