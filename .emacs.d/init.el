@@ -29,26 +29,13 @@
 (push '(tool-bar-lines . 0) default-frame-alist)
 (push '(vertical-scroll-bars) default-frame-alist)
 
-;; identify OS
+
 (defconst IS-MAC     (eq system-type 'darwin))
 (defconst IS-LINUX   (eq system-type 'gnu/linux))
-(defconst IS-WINDOWS (memq system-type '(cygwin windows-nt ms-dos)))
-(defconst IS-BSD     (or IS-MAC (eq system-type 'berkeley-unix)))
-(defconst IS-GUIX    (and IS-LINUX
-                          (with-temp-buffer
-                            (insert-file-contents "/etc/os-release")
-                            (re-search-forward "ID=\\(?:guix\\|nixos\\)" nil t))))
 
 ;; remove cl options irrelevant to current OS
 (unless IS-MAC   (setq command-line-ns-option-alist nil))
 (unless IS-LINUX (setq command-line-x-option-alist nil))
-
-;; performance on windows is worse so reduce workload during file IO
-(when IS-WINDOWS
-  (setq w32-get-true-file-attributes nil)
-
-  ;; font compacting expensive on windows
-  (setq inhibit-compacting-font-caches t))
 
 ;; disable bidirectional text for performance
 (setq-default bidi-display-reordering 'left-to-right)
@@ -57,16 +44,8 @@
 (setq-default cursor-in-non-selected-windows nil)
 (setq highlight-nonselected-windows nil)
 
-;; enable performant scrolling
-(setq fast-but-imprecise-scrollling t
-      redisplay-skip-fontification-on-input t)
-
 ;; do not resize frame to preserve # columns/lines displayed
 (setq frame-inhibit-implied-resize t)
-
-;; don't ping things that look like domain names.
-(setq ffap-machine-p-known 'reject)
-
 
 ;; define personal keybinding prefix (an unpragmatic keybinding repurposed for reprogrammed keyboard)
 (defvar my-map (make-sparse-keymap))
@@ -83,7 +62,7 @@
     (start-process-shell-command "org" nil (concat "aplay " file))))
 
 ;; load private emacs config section
-;; (load (expand-file-name "private.el" user-emacs-directory))
+(load (expand-file-name "private.el" user-emacs-directory))
 
 ;;;;;;;;;;;;;;;;;;;;;;
 ;; package settings ;;
@@ -163,10 +142,11 @@
 ;; (load "~/projects/cherry-seoul256")
 (use-package cherry-seoul256-theme
   :load-path "~/projects/cherry-seoul256"
+  :commands cherry-seoul256-create
   :custom
   (cherry-seoul256-background 233)
   ;; :config
-  (load-theme 'cherry-seoul256 t)
+  ;;(load-theme 'cherry-seoul256 t)
   )
 
 ;; theme
@@ -230,17 +210,17 @@
   (set-face-attribute 'marginalia-documentation nil :inherit 'doom-mode-line :slant 'italic))
 
 ;; misc ui settings
-(global-hl-line-mode t)                                      ; highlight current line
-(scroll-bar-mode -1)                                         ; disable visible scrollbar
-(tool-bar-mode -1)                                           ; disable the toolbar
-(tooltip-mode -1)                                            ; disable tooltips
-(set-fringe-mode 10)                                         ; give some breathing room
-(setq visible-bell t)                                        ; set up the visible bell
-(global-visual-line-mode 1)                                  ; visual line mode (word wrap)
-(column-number-mode)                                         ; display column number display in mode line
-(setq use-dialog-box nil)                                    ; disable ui dialog prompts
-(global-prettify-symbols-mode 1)                             ; prettify-symbols
-(setq inhibit-startup-message t
+(global-hl-line-mode t)
+(scroll-bar-mode -1)
+(tool-bar-mode -1)
+(tooltip-mode -1)
+(set-fringe-mode 10)
+(global-visual-line-mode 1)
+(column-number-mode)
+(global-prettify-symbols-mode 1)
+(setq visible-bell t
+      use-dialog-box nil
+      inhibit-startup-message t
       inhibit-splash-screen t
       inhibit-startup-echo-area-message user-login-name
       inhibit-default-init t
@@ -278,7 +258,7 @@
 
 ;; rainbow mode
 (use-package rainbow-mode
-  :defer t)
+  :ensure t)
 
 ;; chinese font
 (defface my/chinese-face
@@ -359,11 +339,9 @@
     (emacs-lisp-mode . "eλ")
     (nxhtml-mode . "nx")
     (dot-mode . "")
-    (scheme-mode . " scm")
+    (scheme-mode . "scm")
     (matlab-mode . "mat")
-    (org-mode . "org";; "⦿"
-              )
-    (valign-mode . "")
+    (org-mode . "org")
     (eldoc-mode . "")
     (org-cdlatex-mode . "")
     (cdlatex-mode . "")
@@ -374,15 +352,10 @@
     (tsx-ts-mode . "TypeScript")
     (outline-minor-mode . " ֍" ;; " [o]"
                         )
-    (hs-minor-mode . "")
-    (matlab-functions-have-end-minor-mode . "")
     (org-roam-ui-mode . "UI")
-    (abridge-diff-mode . "")
     ;; Evil modes
-    (evil-traces-mode . "")
     (latex-extra-mode . "")
     (strokes-mode . "")
-    (god-mode . ,(propertize "God" 'face 'success))
     (gcmh-mode . ""))
   "Alist for `clean-mode-line'.
 
@@ -723,7 +696,6 @@ Use prefix argument ARG for number of lines, otherwise use default."
     :ensure t
     :custom
     (org-notify-timestamp-types '(:deadline :scheduled))
-    (org-notify-max-notifications-per-run 10)
     :config
     (message "hello")
     (defun my/alarm-long (&rest _)
@@ -820,7 +792,6 @@ Use prefix argument ARG for number of lines, otherwise use default."
   :ensure t)
 
 ;; hydra-colossa
-;; hydra-colossa (my personal global hydra)
 (defhydra hydra-colossa (:color amaranth :hint nil)
   "
   _c_: copilot
@@ -2060,7 +2031,7 @@ Otherwise, call eat."
 (global-set-key (kbd "C-M-z") 'scratchpad-toggle)
 
 
-(custom-set-variables
+r(custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
