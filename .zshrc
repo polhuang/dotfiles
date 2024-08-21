@@ -2,6 +2,8 @@
 HISTFILE=~/.histfile
 HISTSIZE=1000
 SAVEHIST=1000
+setopt SHARE_HISTORY
+setopt EXTENDED_HISTORY
 bindkey -e
 zstyle :compinstall filename '/home/polhuang/.zshrc'
 
