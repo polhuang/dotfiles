@@ -5,48 +5,6 @@
 ;; set gc threshold for startup performance
 (setq gc-cons-threshold (* 50 1000 1000))
 
-;; temporarily turn off startup messages
-(unless (or (daemonp) noninteractive)
-  (setq-default inhibit-redisplay t
-                inhibit-message t)
-  ;; re-enable after windows are initialized
-  (add-hook 'window-setup-hook
-            (lambda ()
-              (setq-default inhibit-redisplay nil
-                            inhibit-message nil)
-              (redisplay)))
-
-  ;; suppress messages during file loading
-  (define-advice load-file (:override (file) silence)
-    (load file nil 'nomessage))
-
-  ;; un-suppress after file loaded
-  (define-advice startup--load-user-init-file (:before (&rest _) nomessage-remove)
-    (advice-remove #'load-file #'load-file@silence)))
-
-;; do not show un-styled emacs at initialization
-(push '(menu-bar-lines . 0) default-frame-alist)
-(push '(tool-bar-lines . 0) default-frame-alist)
-(push '(vertical-scroll-bars) default-frame-alist)
-
-
-(defconst IS-MAC     (eq system-type 'darwin))
-(defconst IS-LINUX   (eq system-type 'gnu/linux))
-
-;; remove cl options irrelevant to current OS
-(unless IS-MAC   (setq command-line-ns-option-alist nil))
-(unless IS-LINUX (setq command-line-x-option-alist nil))
-
-;; disable bidirectional text for performance
-(setq-default bidi-display-reordering 'left-to-right)
-
-;; do not render cursors or regions in non-focused windows
-(setq-default cursor-in-non-selected-windows nil)
-(setq highlight-nonselected-windows nil)
-
-;; do not resize frame to preserve # columns/lines displayed
-(setq frame-inhibit-implied-resize t)
-
 ;; define personal keybinding prefix (an unpragmatic keybinding repurposed for reprogrammed keyboard)
 (defvar my-map (make-sparse-keymap))
 (define-key global-map (kbd "C-M-]") my-map)
@@ -482,7 +440,6 @@ Use prefix argument ARG for number of lines, otherwise use default."
 ;;;;;;;;;;;;;;
 ;; org mode ;;
 ;;;;;;;;;;;;;;
-
 ;; org mode
 (use-package org
   :straight (:type built-in)
@@ -516,6 +473,7 @@ Use prefix argument ARG for number of lines, otherwise use default."
   (org-clock-persist t)
   (org-habit-graph-column 100)
   (org-habit-preceding-days 28)
+  (org-src-preserve-indentation t) ;; prevents org src blocks from indenting every new line
   (org-habit-following-days 0)
   (org-indent-mode-turns-off-org-adapt-indentation nil)
   (org-startup-with-inline-images t)
@@ -1664,17 +1622,49 @@ Otherwise, call eat."
   :ensure t
   :hook (after-init . global-flycheck-mode))
 
+;; treesit
+(require 'treesit)
+(setq treesit-language-source-alist
+      '((bash "https://github.com/tree-sitter/tree-sitter-bash")
+        (c "https://github.com/tree-sitter/tree-sitter-c")
+        (css "https://github.com/tree-sitter/tree-sitter-css")
+        (elisp "https://github.com/Wilfred/tree-sitter-elisp")
+        (html "https://github.com/tree-sitter/tree-sitter-html")
+        (javascript "https://github.com/tree-sitter/tree-sitter-javascript" "master" "src")
+        (json "https://gtihub.com/tree-sitter/tree-sitter-json")
+        (lua "https://github.com/MunifTanjim/tree-sitter-lua")
+        (markdown "https://github.com/ikatyang/tree-sitter-markdown")
+        (python "https://github.com/tree-sitter/tree-sitter-python")
+        (rust "https://github.com/tree-sitter/tree-sitter-rust")
+        (toml "https://github.com/tree-sitter/tree-sitter-toml")
+        (tsx "https://github.com/tree-sitter/tree-sitter-typescript" "master" "tsx/src")
+        (typescript "https://github.com/tree-sitter/tree-sitter-typescript" "master" "typescript/src")
+        (yaml "https://github.com/ikatyang/tree-sitter-yaml")))
+
+(setq major-mode-remap-alist
+      '((yaml-mode . yaml-ts-mode)
+        (bash-mode . bash-ts-mode)
+        (javascript-mode . tsx-ts-mode)
+        (js-mode . tsx-ts-mode)
+        (js2-mode . tsx-ts-mode)
+        (js-jsx-mode . tsx-ts-mode)
+        (rjsx-mode . tsx-ts-mode)
+        (rust-mode . rust-ts-mode)
+        (typescript-mode . tsx-ts-mode)
+        (json-mode . json-ts-mode)
+        (shell-mode . bash-ts-mode)
+        (css-mode . css-ts-mode)
+        (python-mode . python-ts-mode)))
+
 ;; treesit-auto
 (use-package treesit-auto
   :commands (treesit-auto-add-to-auto-mode-alist global-treesit-auto-mode)
   :ensure t
   :custom
-  (treesit-auto-install 't)
+  (treesit-auto-install 'prompt)
   :config
-  (treesit-auto-add-to-auto-mode-alist 'all)
+  (treesit-auto-add-to-auto-mode-alist)
   (global-treesit-auto-mode))
-
-;; use (treesit-language-available-p 'language) to test if language treesit is installed
  
 ;; emmet
 (use-package emmet-mode
