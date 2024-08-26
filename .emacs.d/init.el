@@ -1,3 +1,5 @@
+
+
 ;;;;;;;;;;;;;;;;;;;;
 ;; emacs settings ;;
 ;;;;;;;;;;;;;;;;;;;;
@@ -25,6 +27,13 @@
 ;;;;;;;;;;;;;;;;;;;;;;
 ;; package settings ;;
 ;;;;;;;;;;;;;;;;;;;;;;
+
+;; (setq package-enable-at-startup nil)
+
+(use-package guix)
+
+;; (let ((guix-emacs-dir "/home/polhuang/.guix-profile/share/emacs/site-lisp"))
+;;   (add-to-list 'load-path guix-emacs-dir))
 
 (setq package-archives '(("melpa" . "https://melpa.org/packages/")
  			 ("org" . "https://orgmode.org/elpa/")
@@ -55,7 +64,7 @@
   (load bootstrap-file nil 'nomessage))
 
 ;; upgrade all packages
-(package-upgrade-all)
+;; (package-upgrade-all)
 
 ;;;;;;;;;;;;;;;;;;;
 ;; file settings ;;

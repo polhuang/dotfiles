@@ -1,4 +1,4 @@
-#!/usr/bin/bash
+#!/usr/bin/sh
 
 hyprctl dispatch exec discord
 sleep 5
