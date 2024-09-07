@@ -19,6 +19,7 @@
    #:use-module (gnu packages rust-apps)
    #:use-module (gnu packages vim)
    #:use-module (gnu packages mail)
+   #:use-module (gnu packages password-utils)
    #:use-module (gnu packages wm)
    #:use-module (gnu packages web-browsers)
    #:use-module (gnu packages terminals)
@@ -38,6 +39,7 @@
                  emacs-next-pgtk-xwidgets
                  emacs-desktop-environment
                  emacs-guix
+                 emacs-jinx
                  kitty
                  qutebrowser
                  rofi-wayland
@@ -52,6 +54,7 @@
                  waybar
                  swaynotificationcenter
                  neovim
+                 password-store
                  obs
                  rust
                  rust-cargo

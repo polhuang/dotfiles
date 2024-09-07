@@ -40,7 +40,6 @@
 ;;   (add-to-list 'load-path guix-emacs-dir))
 
 (setq package-archives '(("melpa" . "https://melpa.org/packages/")
- 			 ("org" . "https://orgmode.org/elpa/")
  			 ("elpa" . "https://elpa.gnu.org/packages/")
  			 ("nongnu" . "https://elpa.nongnu.org/nongnu/")))
 
@@ -455,7 +454,6 @@ Use prefix argument ARG for number of lines, otherwise use default."
 ;;;;;;;;;;;;;;
 ;; org mode
 (use-package org
-  :straight (:type built-in)
   :ensure t
   :bind
   (("C-c n C-i" . org-id-get-create)
@@ -1570,7 +1568,7 @@ Otherwise, call eat."
          ("C-c e p" . eat-project))
   :custom 
   (eat-kill-buffer-on-exit t)
-  (eat-term-name "xterm-kitty"))
+  (eat-term-name "xterm-256color"))
 
 ;;;;;;;;;;;;
 ;; coding ;;
