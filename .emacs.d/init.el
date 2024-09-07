@@ -26,6 +26,14 @@
 ;; package settings ;;
 ;;;;;;;;;;;;;;;;;;;;;;
 
+;; (setq package-enable-at-startup nil)
+
+(use-package geiser
+  :ensure nil)
+
+;; (let ((guix-emacs-dir "/home/polhuang/.guix-profile/share/emacs/site-lisp"))
+;;   (add-to-list 'load-path guix-emacs-dir))
+
 (setq package-archives '(("melpa" . "https://melpa.org/packages/")
  			 ("org" . "https://orgmode.org/elpa/")
  			 ("elpa" . "https://elpa.gnu.org/packages/")
@@ -55,7 +63,7 @@
   (load bootstrap-file nil 'nomessage))
 
 ;; upgrade all packages
-(package-upgrade-all)
+;; (package-upgrade-all)
 
 ;;;;;;;;;;;;;;;;;;;
 ;; file settings ;;
@@ -1071,8 +1079,12 @@ T - tag prefix
 ;; authentication ;;
 ;;;;;;;;;;;;;;;;;;;;
 
+;; pinentry
+(load (expand-file-name "private/gpg.el" user-emacs-directory))
+(setq epg-pinentry-mode 'loopback)
+
 ;; plist store
-(setq plstore-cache-passphrase-for-symmetric-encryption t)
+;; (setq plstore-cache-passphrase-for-symmetric-encryption t)
 
 ;; tramp
 (use-package tramp
