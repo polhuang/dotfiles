@@ -1,3 +1,5 @@
+
+
 ;;;;;;;;;;;;;;;;;;;;
 ;; emacs settings ;;
 ;;;;;;;;;;;;;;;;;;;;
@@ -28,8 +30,11 @@
 
 ;; (setq package-enable-at-startup nil)
 
+
 (use-package geiser
   :ensure nil)
+
+(use-package guix)
 
 ;; (let ((guix-emacs-dir "/home/polhuang/.guix-profile/share/emacs/site-lisp"))
 ;;   (add-to-list 'load-path guix-emacs-dir))

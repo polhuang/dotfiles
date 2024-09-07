@@ -1,11 +1,23 @@
-# Lines configured by zsh-newuser-install
 HISTFILE=~/.histfile
 HISTSIZE=1000
 SAVEHIST=1000
+
 setopt SHARE_HISTORY
 setopt EXTENDED_HISTORY
 bindkey -e
+
 zstyle :compinstall filename '/home/polhuang/.zshrc'
+
+export PATH="$PATH:/home/polhuang/.local/bin"
+export PATH="$PATH:/home/polhuang/.bin"
+
+export GUIX_LOCPATH=$HOME/.guix-profile/lib/locale
+
+GUIX_PROFILE="$HOME/.config/guix/current"
+. "$GUIX_PROFILE/etc/profile"
+
+GUIX_PROFILE="$HOME/.guix-profile"
+. "$GUIX_PROFILE/etc/profile"
 
 # # Download Znap, if it's not there yet.
 [[ -r ~/.zsh/znap/znap.zsh ]] ||
@@ -26,3 +38,4 @@ TRAPALRM() {
 }
 
 eval "$(starship init zsh)"
+
