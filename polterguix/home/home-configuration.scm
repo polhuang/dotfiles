@@ -14,7 +14,11 @@
    #:use-module (gnu packages emacs)
    #:use-module (gnu packages librewolf)
    #:use-module (gnu packages video)
+   #:use-module (gnu packages fonts)
+   #:use-module (gnu packages rust)
+   #:use-module (gnu packages rust-apps)
    #:use-module (gnu packages vim)
+   #:use-module (gnu packages mail)
    #:use-module (gnu packages wm)
    #:use-module (gnu packages web-browsers)
    #:use-module (gnu packages terminals)
@@ -23,7 +27,8 @@
    #:use-module (guix gexp)
    #:use-module (gnu home services shells)
    #:use-module (polterguix packages hyprland)
-   #:use-module (polterguix packages desktop))
+   #:use-module (polterguix packages desktop)
+   #:use-module (polterguix packages cli))
 
 (define home
   (home-environment
@@ -36,6 +41,10 @@
                  kitty
                  qutebrowser
                  rofi-wayland
+                 font-google-noto
+                 font-google-noto-emoji
+                 font-google-noto-sans-cjk
+                 mu
                  firefox
                  gnupg
                  btop
@@ -44,8 +53,11 @@
                  swaynotificationcenter
                  neovim
                  obs
+                 rust
+                 rust-cargo
                  hyprpaper
-                 hypridle))
+                 hypridle
+                 starship-bin))
  ;; Below is the list of Home services.  To search for available
   ;; services, run 'guix home search KEYWORD' in a terminal.
  (services
