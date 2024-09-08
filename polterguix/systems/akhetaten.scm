@@ -1,10 +1,4 @@
-;; This "home-environment" file can be passed to 'guix home reconfigure'
-;; to reproduce the content of your profile.  This is "symbolic": it only
-;; specifies package names.  To reproduce the exact same profile, you also
-;; need to capture the channels being used, as returned by "guix describe".
-;; See the "Replicating Guix" section in the manual.
-
-(define-module (polterguix home home-configuration)
+(define-module (polterguix systems akhetaten)
    #:use-module (gnu home)
    #:use-module (gnu packages)
    #:use-module (gnu packages admin)
@@ -55,6 +49,7 @@
                  btop
                  librewolf
                  waybar
+                 alacritty
                  swaynotificationcenter
                  neovim
                  password-store
@@ -85,4 +80,3 @@
                    (zprofile (list (local-file
                                     "/home/polhuang/polterguix/files/.zprofile"
                                     "zprofile")))))))))
-home
