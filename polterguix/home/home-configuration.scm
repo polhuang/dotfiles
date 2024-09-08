@@ -9,9 +9,9 @@
    #:use-module (gnu packages)
    #:use-module (gnu packages admin)
    #:use-module (gnu packages xdisorg)
-   #:use-module (gnu packages gnupg)
    #:use-module (gnu packages emacs-xyz)
    #:use-module (gnu packages emacs)
+   #:use-module (gnu packages gnupg)
    #:use-module (gnu packages librewolf)
    #:use-module (gnu packages video)
    #:use-module (gnu packages fonts)
@@ -29,6 +29,7 @@
    #:use-module (gnu home services shells)
    #:use-module (polterguix packages hyprland)
    #:use-module (polterguix packages desktop)
+   #:use-module (polterguix packages security)
    #:use-module (polterguix packages cli))
 
 (define home
@@ -36,10 +37,12 @@
  ;; Below is the list of packages that will show up in your
  ;; Home profile, under ~/.guix-home/profile.
  (packages (list pinentry
+                 pinentry-emacs
                  emacs-next-pgtk-xwidgets
                  emacs-desktop-environment
                  emacs-guix
                  emacs-jinx
+                 firefox
                  kitty
                  qutebrowser
                  rofi-wayland
@@ -47,8 +50,8 @@
                  font-google-noto-emoji
                  font-google-noto-sans-cjk
                  mu
-                 firefox
-                 gnupg
+                 gnupg-new
+                 emacs-jinx
                  btop
                  librewolf
                  waybar
