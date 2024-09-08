@@ -28,6 +28,9 @@
 ;; package settings ;;
 ;;;;;;;;;;;;;;;;;;;;;;
 
+;; (setq package-enable-at-startup nil)
+
+
 (use-package geiser
   :ensure nil)
 
@@ -63,6 +66,8 @@
       (eval-print-last-sexp)))
   (load bootstrap-file nil 'nomessage))
 
+;; upgrade all packages
+;; (package-upgrade-all)
 
 ;;;;;;;;;;;;;;;;;;;
 ;; file settings ;;
@@ -1089,10 +1094,11 @@ T - tag prefix
   :config
   (pinentry-start))
 
+(load (expand-file-name "private/gpg.el" user-emacs-directory))
+
 ;; plist store
 (require 'plstore)
 (setq plstore-cache-passphrase-for-symmetric-encryption t)
-(load (expand-file-name "private/gpg.el" user-emacs-directory))
 
 ;; tramp
 (use-package tramp
@@ -1998,7 +2004,6 @@ Otherwise, call eat."
   :defer t
   :commands (org-gcal--sync-unlock org-todo)
   :init
-  (load (expand-file-name "private/gcal-credentials.el" user-emacs-directory))
   (add-hook 'org-gcal-after-update-entry-functions 'my/org-gcal-format)
   :hook (find-file . my/clear-extra-gcal-timestamps)
   :custom
@@ -2006,8 +2011,8 @@ Otherwise, call eat."
   (org-gcal-down-days 30)
   :config
   ;; set delay time in seconds (30 seconds in this case) and start timer
-  ;; (defvar my/org-gcal-sync-delay 30)
-  ;; (run-with-timer my/org-gcal-sync-delay 43200 'org-gcal-sync)
+  (defvar my/org-gcal-sync-delay 30)
+  (run-with-timer my/org-gcal-sync-delay 43200 'org-gcal-sync)
 
   (defun my/clear-extra-gcal-timestamps ()
     "Remove all lines in the current buffer that start with the character '<'."
@@ -2038,8 +2043,6 @@ Otherwise, call eat."
 (load "~/projects/scratchpad/scratchpad.el")
 
 (global-set-key (kbd "C-M-z") 'scratchpad-toggle)
-
-(setq plstore-encrypt-to '("0139AB6E245270F2"))
 
 
 (custom-set-variables
