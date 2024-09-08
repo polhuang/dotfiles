@@ -11,6 +11,7 @@
    #:use-module (gnu packages fonts)
    #:use-module (gnu packages rust)
    #:use-module (gnu packages rust-apps)
+   #:use-module (gnu packages gnupg)
    #:use-module (gnu packages vim)
    #:use-module (gnu packages mail)
    #:use-module (gnu packages password-utils)
@@ -39,10 +40,11 @@
                  firefox
                  kitty
                  qutebrowser
+                 font-fira-code
                  rofi-wayland
                  font-google-noto
                  font-google-noto-emoji
-                 font-google-noto-sans-cjk
+                font-google-noto-sans-cjk 
                  mu
                  gnupg-new
                  emacs-jinx
@@ -80,3 +82,4 @@
                    (zprofile (list (local-file
                                     "/home/polhuang/polterguix/files/.zprofile"
                                     "zprofile")))))))))
+home
