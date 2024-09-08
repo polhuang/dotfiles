@@ -6,7 +6,7 @@ eval "$(guix package --search-paths \
 
 export GUIX_LOCPATH=$HOME/.guix-profile/lib/locale
 export PATH="$HOME/.npm-global/bin:$PATH"
-export XDG_DATA_DIRS=/var/lib/flatpak/exports/share:$XDG_DATA_DIRSgui
+export XDG_DATA_DIRS=/var/lib/flatpak/exports/share:$XDG_DATA_DIRS
 export GUIX_PACKAGE_PATH=$HOME
 export GUILE_LOAD_PATH=$HOME
 
