@@ -1082,12 +1082,23 @@ T - tag prefix
 ;; authentication ;;
 ;;;;;;;;;;;;;;;;;;;;
 
-;; pinentry
+(setq auth-sources '("~/.authinfo"))
+
+;; gpg
+(use-package pinentry :ensure t)
+(use-package epa
+  :ensure nil
+  :custom
+  (epa-pinentry-mode 'loopback)
+  (epa-file-cache-passphrase-for-symmetric-encryption t)
+  :config
+  (pinentry-start))
+
 (load (expand-file-name "private/gpg.el" user-emacs-directory))
-(setq epg-pinentry-mode 'loopback)
 
 ;; plist store
-;; (setq plstore-cache-passphrase-for-symmetric-encryption t)
+(require 'plstore)
+(setq plstore-cache-passphrase-for-symmetric-encryption t)
 
 ;; tramp
 (use-package tramp
@@ -1790,7 +1801,6 @@ Otherwise, call eat."
      (:maildir "/Archive"   :key ?A)
      (:maildir "/All Mail"  :key ?a)))
   (message-send-mail-function 'smtpmail-send-it)
-  (auth-sources '("~/.authinfo"))
   (smtpmail-smtp-server "127.0.0.1")
   (smtpmail-smtp-service 1025)
    
@@ -1989,12 +1999,11 @@ Otherwise, call eat."
          :port "6667"))
   (my/connect-to-erc))
 
-;; gcal
+;; org-gcal
 (use-package org-gcal
-  :ensure t
+  :defer t
   :commands (org-gcal--sync-unlock org-todo)
   :init
-  (load (concat user-emacs-directory "private/gcal-credentials.el"))
   (add-hook 'org-gcal-after-update-entry-functions 'my/org-gcal-format)
   :hook (find-file . my/clear-extra-gcal-timestamps)
   :custom
