@@ -1,5 +1,3 @@
-
-
 ;;;;;;;;;;;;;;;;;;;;
 ;; emacs settings ;;
 ;;;;;;;;;;;;;;;;;;;;
@@ -33,8 +31,6 @@
 
 (use-package geiser
   :ensure nil)
-
-(use-package guix)
 
 ;; (let ((guix-emacs-dir "/home/polhuang/.guix-profile/share/emacs/site-lisp"))
 ;;   (add-to-list 'load-path guix-emacs-dir))
@@ -364,7 +360,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;; scrolling
-(defvar my/default-scroll-lines 15)
+(defvar my/default-scroll-lines 60)
 (setq scroll-conservatively 5)
 
 ;; keep cursor in same position
@@ -385,11 +381,9 @@ Use prefix argument ARG for number of lines, otherwise use default."
 
 (use-package sublimity
   :ensure t
-  :init
-  (require 'sublimity-scroll)
   :custom
-  (sublimity-scroll-weight 15)
-  (sublimity-scroll-vertical-frame-delay 0.003)
+  (sublimity-scroll-weight 10)
+  (sublimity-scroll-drift-length 5)
   :config
   (sublimity-mode t))
 
@@ -484,7 +478,6 @@ Use prefix argument ARG for number of lines, otherwise use default."
   (org-clock-persist t)
   (org-habit-graph-column 100)
   (org-habit-preceding-days 28)
-  (org-src-preserve-indentation t) ;; prevents org src blocks from indenting every new line
   (org-habit-following-days 0)
   (org-indent-mode-turns-off-org-adapt-indentation nil)
   (org-startup-with-inline-images t)
@@ -523,6 +516,7 @@ Use prefix argument ARG for number of lines, otherwise use default."
           ("TABLED" . (:foreground "#ffd700" :distant-foreground "#171717" :weight bold))))
   (org-agenda-start-with-log-mode t)
   (org-log-done 'time)
+  (electric-indent-mode 1)
   (org-log-into-drawer t)
   (org-id-link-to-org-use-id 'create-if-interactive)
   (org-startup-folded 'content)
@@ -1552,7 +1546,7 @@ T - tag prefix
 (use-package which-key
   :ensure t
   :config
-  (which-key-mode)
+  (which-key-mode t)
   :custom
   (which-key-max-description-length 40))
 
@@ -2005,6 +1999,7 @@ Otherwise, call eat."
   :commands (org-gcal--sync-unlock org-todo)
   :init
   (add-hook 'org-gcal-after-update-entry-functions 'my/org-gcal-format)
+  (load (expand-file-name "private/gcal-credentials.el" user-emacs-directory))
   :hook (find-file . my/clear-extra-gcal-timestamps)
   :custom
   (org-gcal-up-days 0)
@@ -2050,13 +2045,9 @@ Otherwise, call eat."
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(column-number-mode t)
+ ;; '(column-number-mode t)
  '(custom-safe-themes
    '("477715cf84159782e44bcea3c90697e4c64896b5af42d0466b2dd44ece279505" "b4c6b60bf5cf727ca62651c0a0147e0e6ba63564215bd3fd9bab771e7914bea8" "c9dba7f4b46497b5bddfab834603fc1748d50f6ea027c347561bb3d81a9c6a32" "57763ac4917fe06157c891fd73fd9a9db340bfe3a04392bb68b2df9032ce14a5" "e9aa348abd3713a75f2c5ba279aa581b1c6ec187ebefbfa33373083ff8004c7c" "7b8f5bbdc7c316ee62f271acf6bcd0e0b8a272fdffe908f8c920b0ba34871d98" default))
- '(js-indent-level 2)
- '(lsp-enable-links nil)
- '(package-selected-packages `(add-hook 'web-mode-hook #'lsp-deferred))
- '(register-preview-delay 0.0)
  '(safe-local-variable-values
    '((eval save-excursion
            (goto-char
@@ -2068,15 +2059,7 @@ Otherwise, call eat."
      (eval outline-next-heading)
      (eval goto-char
            (point-min))))
- '(tool-bar-mode nil)
- '(treesit-font-lock-level 4)
- '(typescript-auto-indent-flag t)
- '(typescript-indent-level 2)
  '(warning-suppress-types '((comp)))
- '(which-key-delay-functions nil)
- '(which-key-echo-keystrokes 0.01)
- '(which-key-idle-delay 0.01)
- '(which-key-mode t))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
