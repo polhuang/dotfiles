@@ -28,7 +28,6 @@
 
 ;; (setq package-enable-at-startup nil)
 
-
 (use-package geiser
   :ensure nil)
 
@@ -210,7 +209,49 @@
         (cherry-seoul256-create 'cherry-seoul256 235)))))
 
 ;; fonts
-(set-face-attribute 'default nil :family "Fira Code" :inherit t :height 125)
+(defvar my/font-options
+  '(("Source Code Pro" . 125)
+    ("DejaVu Sans Mono" . 150)
+    ("Fira Code" . 125)
+    ("IBM Plex Mono" . 150)
+    ("Inconsolata" . 150)
+    ("AcPlus IBM VGA 8x16" . 170)
+    ("JetBrains Mono" . 150)
+    ("mononoki" . 150)
+    ("Random" . nil))
+  "An alist of font names and their corresponding heights.
+Each element is a cons cell (FONT-NAME . HEIGHT).")
+
+(defvar my/current-font-index 0
+  "Index of the currently selected font in `my/font-options`.")
+
+(defun my/set-font (font-name)
+  (let* ((font (if (string= font-name "Random")
+                   (nth (random (length (remove (assoc "Random" my/font-options) my/font-options))) my/font-options)
+                 (assoc font-name my/font-options)))
+         (font-name (car font))
+         (height (cdr font)))
+    (when font
+      (set-face-attribute 'default nil :family font-name :height (or height 120))
+      (message "Font set to: %s with height %d" font-name (or height 120)))))
+
+(defun my/select-font ()
+  (interactive)
+  (let* ((font-names (mapcar #'car my/font-options))
+         (selected-font (completing-read "Select font: " font-names nil t)))
+    (my/set-font selected-font)))
+
+(defun my/cycle-fonts ()
+  "Cycle through the fonts in `my/font-options` and set the next one."
+  (interactive)
+  (let* ((num-fonts (length my/font-options))
+         (new-index (mod (1+ my/current-font-index) num-fonts))
+         (font (nth new-index my/font-options))
+         (font-name (car font)))
+    (setq my/current-font-index new-index)
+    (my/set-font font-name)))
+
+(my/set-font "Fira Code") ;; default
 
 ;; fontify-face
 (use-package fontify-face
@@ -381,13 +422,20 @@ Use prefix argument ARG for number of lines, otherwise use default."
 
 (use-package sublimity
   :ensure t
+  :init
+  (require 'sublimity-scroll)
   :custom
   (sublimity-scroll-weight 10)
   (sublimity-scroll-drift-length 5)
+  (sublimity-scroll-vertical-frame-delay 0.01)
   :config
   (sublimity-mode t))
 
-;; bind scroll-one-line
+(setq mouse-wheel-scroll-amount '(1 ((shift) . 1) ((control) . nil))
+      mouse-wheel-progressive-speed nil
+      ring-bell-function 'ignore)
+
+;; bind scroll-one-line  -  eventually have fast / medium /slow / 1-line scrolling speeds 
 (global-set-key (kbd "C-n") 'scroll-up-line)
 (global-set-key (kbd "C-p") 'scroll-down-line)
 
@@ -445,8 +493,8 @@ Use prefix argument ARG for number of lines, otherwise use default."
 
 ;;;;;;;;;;;;;;
 ;; org mode ;;
-;;;;;;;;;;;;;;
-;; org mode
+;;;;;;;;;;;;;
+                                        ;
 (use-package org
   :ensure t
   :bind
@@ -654,7 +702,7 @@ Use prefix argument ARG for number of lines, otherwise use default."
        (org-habit-stats-alltime-total . "Total Completions")
        (org-habit-stats-alltime-percentage . "Total Percentage"))))
 
-    ;; org-notify
+  ;; org-notify
   (use-package org-notify
     :ensure t
     :custom
@@ -1528,9 +1576,6 @@ T - tag prefix
  (lambda (_ cmd)
    (put cmd 'repeat-map 'org-navigation-map)) org-navigation-map)
 
-
-
-
 ;; persistent scratch
 (use-package persistent-scratch
   :ensure t
@@ -1680,10 +1725,11 @@ Otherwise, call eat."
 (use-package treesit-auto
   :commands (treesit-auto-add-to-auto-mode-alist global-treesit-auto-mode)
   :ensure t
+  :init
+  (treesit-auto-add-to-auto-mode-alist 'all)
   :custom
   (treesit-auto-install 'prompt)
   :config
-  (treesit-auto-add-to-auto-mode-alist 'all)
   (global-treesit-auto-mode))
  
 ;; emmet
@@ -1951,7 +1997,6 @@ Otherwise, call eat."
           (maniac . "You are an intelligent but crazed lunatic that lives to give extravagant but confounding responses.")
           (emacs-addict . "You are extremely obsessed with emacs. You cannot bear to talk about anything but emacs, so you find any kind of opportunity to give answers in a way that has to do with emacs.")
           (sassy . "You are extremely sassy and like to give witty, sardonic answers and insult me.")))
-
   )
 
 ;; spell-checking
@@ -2005,8 +2050,9 @@ Otherwise, call eat."
   (org-gcal-up-days 0)
   (org-gcal-down-days 30)
   :config
-  ;; set delay time in seconds (30 seconds in this case) and start timer
-  (defvar my/org-gcal-sync-delay 30)
+  ;; set delay time in seconds (30 seconds in this case) before running (due to emacs-daemon startup time).
+  ;; run at least every 12 housr
+  (defvar my/org-gcal-sync-delay 15)
   (run-with-timer my/org-gcal-sync-delay 43200 'org-gcal-sync)
 
   (defun my/clear-extra-gcal-timestamps ()
