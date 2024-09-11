@@ -404,6 +404,23 @@ Each element is a cons cell (FONT-NAME . HEIGHT).")
 (defvar my/default-scroll-lines 60)
 (setq scroll-conservatively 5)
 
+;; custom scrolling keybinds
+(defvar my/scroll-unit 20)
+(global-set-key (kbd "C-M-s-3") (lambda () (interactive) (forward-line (* my/scroll-unit -1))))
+(global-set-key (kbd "C-M-s-4") (lambda () (interactive) (forward-line (* my/scroll-unit -2))))
+(global-set-key (kbd "C-M-s-0") (lambda () (interactive) (forward-line (* my/scroll-unit -4))))
+(global-set-key (kbd "C-M-s-1") (lambda () (interactive) (forward-line (* my/scroll-unit -8))))
+(global-set-key (kbd "C-M-s-2") (lambda () (interactive) (forward-line (* my/scroll-unit -16))))
+
+
+(global-set-key (kbd "C-M-s-5") (lambda () (interactive) (forward-line my/scroll-unit)))
+(global-set-key (kbd "C-M-s-6") (lambda () (interactive) (forward-line (* my/scroll-unit 2))))
+(global-set-key (kbd "C-M-s-8") (lambda () (interactive) (forward-line (* my/scroll-unit 8))))
+(global-set-key (kbd "C-M-s-7") (lambda () (interactive) (forward-line (* my/scroll-unit 4))))
+(global-set-key (kbd "C-M-s-9") (lambda () (interactive) (forward-line (* my/scroll-unit 16))))
+
+
+
 ;; keep cursor in same position
 (setq scroll-preserve-screen-position t)
 
@@ -493,10 +510,10 @@ Use prefix argument ARG for number of lines, otherwise use default."
 
 ;;;;;;;;;;;;;;
 ;; org mode ;;
-;;;;;;;;;;;;;
-                                        ;
+;;;;;;;;;;;;;;
+
 (use-package org
-  :ensure t
+-  :ensure t
   :bind
   (("C-c n C-i" . org-id-get-create)
    ("C-c a" . org-agenda)
@@ -1731,7 +1748,20 @@ Otherwise, call eat."
   (treesit-auto-install 'prompt)
   :config
   (global-treesit-auto-mode))
- 
+
+;; combobulate
+(use-package combobulate
+  :straight (combobulate :type git :host github :repo "mickeynp/combobulate" :nonrecursive t)
+  :hook
+  ((python-ts-mode . combobulate-mode)
+   (js-ts-mode . combobulate-mode)
+   (html-ts-mode . combobulate-mode)
+   (css-ts-mode . combobulate-mode)
+   (yaml-ts-mode . combobulate-mode)
+   (typescript-ts-mode . combobulate-mode)
+   (json-ts-mode . combobulate-mode)
+   (tsx-ts-mode . combobulate-mode)))
+
 ;; emmet
 (use-package emmet-mode
   :ensure t
@@ -1996,8 +2026,7 @@ Otherwise, call eat."
           (chat . "You are a large language model and a conversation partner. Respond concisely.")
           (maniac . "You are an intelligent but crazed lunatic that lives to give extravagant but confounding responses.")
           (emacs-addict . "You are extremely obsessed with emacs. You cannot bear to talk about anything but emacs, so you find any kind of opportunity to give answers in a way that has to do with emacs.")
-          (sassy . "You are extremely sassy and like to give witty, sardonic answers and insult me.")))
-  )
+          (sassy . "You are extremely sassy and like to give witty, sardonic answers and insult me."))))
 
 ;; spell-checking
 ;; install external dependencies enchant, pkgconf, and lang dict
@@ -2021,6 +2050,8 @@ Otherwise, call eat."
 (use-package elcord
   :ensure t
   :hook (emacs-startup . elcord-mode)
+
+  sq
   :custom (elcord-idle-message "call me maybe?"))
 
 ;; erc (irc)
