@@ -1,5 +1,3 @@
-
-
 ;;;;;;;;;;;;;;;;;;;;
 ;; emacs settings ;;
 ;;;;;;;;;;;;;;;;;;;;
@@ -30,11 +28,8 @@
 
 ;; (setq package-enable-at-startup nil)
 
-
 (use-package geiser
   :ensure nil)
-
-(use-package guix)
 
 ;; (let ((guix-emacs-dir "/home/polhuang/.guix-profile/share/emacs/site-lisp"))
 ;;   (add-to-list 'load-path guix-emacs-dir))
@@ -214,7 +209,49 @@
         (cherry-seoul256-create 'cherry-seoul256 235)))))
 
 ;; fonts
-(set-face-attribute 'default nil :family "Fira Code" :inherit t :height 125)
+(defvar my/font-options
+  '(("Source Code Pro" . 125)
+    ("DejaVu Sans Mono" . 150)
+    ("Fira Code" . 125)
+    ("IBM Plex Mono" . 150)
+    ("Inconsolata" . 150)
+    ("AcPlus IBM VGA 8x16" . 170)
+    ("JetBrains Mono" . 150)
+    ("mononoki" . 150)
+    ("Random" . nil))
+  "An alist of font names and their corresponding heights.
+Each element is a cons cell (FONT-NAME . HEIGHT).")
+
+(defvar my/current-font-index 0
+  "Index of the currently selected font in `my/font-options`.")
+
+(defun my/set-font (font-name)
+  (let* ((font (if (string= font-name "Random")
+                   (nth (random (length (remove (assoc "Random" my/font-options) my/font-options))) my/font-options)
+                 (assoc font-name my/font-options)))
+         (font-name (car font))
+         (height (cdr font)))
+    (when font
+      (set-face-attribute 'default nil :family font-name :height (or height 120))
+      (message "Font set to: %s with height %d" font-name (or height 120)))))
+
+(defun my/select-font ()
+  (interactive)
+  (let* ((font-names (mapcar #'car my/font-options))
+         (selected-font (completing-read "Select font: " font-names nil t)))
+    (my/set-font selected-font)))
+
+(defun my/cycle-fonts ()
+  "Cycle through the fonts in `my/font-options` and set the next one."
+  (interactive)
+  (let* ((num-fonts (length my/font-options))
+         (new-index (mod (1+ my/current-font-index) num-fonts))
+         (font (nth new-index my/font-options))
+         (font-name (car font)))
+    (setq my/current-font-index new-index)
+    (my/set-font font-name)))
+
+(my/set-font "Fira Code") ;; default
 
 ;; fontify-face
 (use-package fontify-face
@@ -364,8 +401,25 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;; scrolling
-(defvar my/default-scroll-lines 15)
+(defvar my/default-scroll-lines 60)
 (setq scroll-conservatively 5)
+
+;; custom scrolling keybinds
+(defvar my/scroll-unit 20)
+(global-set-key (kbd "C-M-s-3") (lambda () (interactive) (forward-line (* my/scroll-unit -1))))
+(global-set-key (kbd "C-M-s-4") (lambda () (interactive) (forward-line (* my/scroll-unit -2))))
+(global-set-key (kbd "C-M-s-0") (lambda () (interactive) (forward-line (* my/scroll-unit -4))))
+(global-set-key (kbd "C-M-s-1") (lambda () (interactive) (forward-line (* my/scroll-unit -8))))
+(global-set-key (kbd "C-M-s-2") (lambda () (interactive) (forward-line (* my/scroll-unit -16))))
+
+
+(global-set-key (kbd "C-M-s-5") (lambda () (interactive) (forward-line my/scroll-unit)))
+(global-set-key (kbd "C-M-s-6") (lambda () (interactive) (forward-line (* my/scroll-unit 2))))
+(global-set-key (kbd "C-M-s-8") (lambda () (interactive) (forward-line (* my/scroll-unit 8))))
+(global-set-key (kbd "C-M-s-7") (lambda () (interactive) (forward-line (* my/scroll-unit 4))))
+(global-set-key (kbd "C-M-s-9") (lambda () (interactive) (forward-line (* my/scroll-unit 16))))
+
+
 
 ;; keep cursor in same position
 (setq scroll-preserve-screen-position t)
@@ -388,12 +442,17 @@ Use prefix argument ARG for number of lines, otherwise use default."
   :init
   (require 'sublimity-scroll)
   :custom
-  (sublimity-scroll-weight 15)
-  (sublimity-scroll-vertical-frame-delay 0.003)
+  (sublimity-scroll-weight 10)
+  (sublimity-scroll-drift-length 5)
+  (sublimity-scroll-vertical-frame-delay 0.01)
   :config
   (sublimity-mode t))
 
-;; bind scroll-one-line
+(setq mouse-wheel-scroll-amount '(1 ((shift) . 1) ((control) . nil))
+      mouse-wheel-progressive-speed nil
+      ring-bell-function 'ignore)
+
+;; bind scroll-one-line  -  eventually have fast / medium /slow / 1-line scrolling speeds 
 (global-set-key (kbd "C-n") 'scroll-up-line)
 (global-set-key (kbd "C-p") 'scroll-down-line)
 
@@ -452,9 +511,9 @@ Use prefix argument ARG for number of lines, otherwise use default."
 ;;;;;;;;;;;;;;
 ;; org mode ;;
 ;;;;;;;;;;;;;;
-;; org mode
+
 (use-package org
-  :ensure t
+-  :ensure t
   :bind
   (("C-c n C-i" . org-id-get-create)
    ("C-c a" . org-agenda)
@@ -484,7 +543,6 @@ Use prefix argument ARG for number of lines, otherwise use default."
   (org-clock-persist t)
   (org-habit-graph-column 100)
   (org-habit-preceding-days 28)
-  (org-src-preserve-indentation t) ;; prevents org src blocks from indenting every new line
   (org-habit-following-days 0)
   (org-indent-mode-turns-off-org-adapt-indentation nil)
   (org-startup-with-inline-images t)
@@ -523,6 +581,7 @@ Use prefix argument ARG for number of lines, otherwise use default."
           ("TABLED" . (:foreground "#ffd700" :distant-foreground "#171717" :weight bold))))
   (org-agenda-start-with-log-mode t)
   (org-log-done 'time)
+  (electric-indent-mode 1)
   (org-log-into-drawer t)
   (org-id-link-to-org-use-id 'create-if-interactive)
   (org-startup-folded 'content)
@@ -660,7 +719,7 @@ Use prefix argument ARG for number of lines, otherwise use default."
        (org-habit-stats-alltime-total . "Total Completions")
        (org-habit-stats-alltime-percentage . "Total Percentage"))))
 
-    ;; org-notify
+  ;; org-notify
   (use-package org-notify
     :ensure t
     :custom
@@ -1534,9 +1593,6 @@ T - tag prefix
  (lambda (_ cmd)
    (put cmd 'repeat-map 'org-navigation-map)) org-navigation-map)
 
-
-
-
 ;; persistent scratch
 (use-package persistent-scratch
   :ensure t
@@ -1552,7 +1608,7 @@ T - tag prefix
 (use-package which-key
   :ensure t
   :config
-  (which-key-mode)
+  (which-key-mode t)
   :custom
   (which-key-max-description-length 40))
 
@@ -1686,12 +1742,26 @@ Otherwise, call eat."
 (use-package treesit-auto
   :commands (treesit-auto-add-to-auto-mode-alist global-treesit-auto-mode)
   :ensure t
+  :init
+  (treesit-auto-add-to-auto-mode-alist 'all)
   :custom
   (treesit-auto-install 'prompt)
   :config
-  (treesit-auto-add-to-auto-mode-alist 'all)
   (global-treesit-auto-mode))
- 
+
+;; combobulate
+(use-package combobulate
+  :straight (combobulate :type git :host github :repo "mickeynp/combobulate" :nonrecursive t)
+  :hook
+  ((python-ts-mode . combobulate-mode)
+   (js-ts-mode . combobulate-mode)
+   (html-ts-mode . combobulate-mode)
+   (css-ts-mode . combobulate-mode)
+   (yaml-ts-mode . combobulate-mode)
+   (typescript-ts-mode . combobulate-mode)
+   (json-ts-mode . combobulate-mode)
+   (tsx-ts-mode . combobulate-mode)))
+
 ;; emmet
 (use-package emmet-mode
   :ensure t
@@ -1956,9 +2026,7 @@ Otherwise, call eat."
           (chat . "You are a large language model and a conversation partner. Respond concisely.")
           (maniac . "You are an intelligent but crazed lunatic that lives to give extravagant but confounding responses.")
           (emacs-addict . "You are extremely obsessed with emacs. You cannot bear to talk about anything but emacs, so you find any kind of opportunity to give answers in a way that has to do with emacs.")
-          (sassy . "You are extremely sassy and like to give witty, sardonic answers and insult me.")))
-
-  )
+          (sassy . "You are extremely sassy and like to give witty, sardonic answers and insult me."))))
 
 ;; spell-checking
 ;; install external dependencies enchant, pkgconf, and lang dict
@@ -1982,6 +2050,8 @@ Otherwise, call eat."
 (use-package elcord
   :ensure t
   :hook (emacs-startup . elcord-mode)
+
+  sq
   :custom (elcord-idle-message "call me maybe?"))
 
 ;; erc (irc)
@@ -2005,13 +2075,15 @@ Otherwise, call eat."
   :commands (org-gcal--sync-unlock org-todo)
   :init
   (add-hook 'org-gcal-after-update-entry-functions 'my/org-gcal-format)
+  (load (expand-file-name "private/gcal-credentials.el" user-emacs-directory))
   :hook (find-file . my/clear-extra-gcal-timestamps)
   :custom
   (org-gcal-up-days 0)
   (org-gcal-down-days 30)
   :config
-  ;; set delay time in seconds (30 seconds in this case) and start timer
-  (defvar my/org-gcal-sync-delay 30)
+  ;; set delay time in seconds (30 seconds in this case) before running (due to emacs-daemon startup time).
+  ;; run at least every 12 housr
+  (defvar my/org-gcal-sync-delay 15)
   (run-with-timer my/org-gcal-sync-delay 43200 'org-gcal-sync)
 
   (defun my/clear-extra-gcal-timestamps ()
@@ -2050,13 +2122,9 @@ Otherwise, call eat."
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(column-number-mode t)
+ ;; '(column-number-mode t)
  '(custom-safe-themes
    '("477715cf84159782e44bcea3c90697e4c64896b5af42d0466b2dd44ece279505" "b4c6b60bf5cf727ca62651c0a0147e0e6ba63564215bd3fd9bab771e7914bea8" "c9dba7f4b46497b5bddfab834603fc1748d50f6ea027c347561bb3d81a9c6a32" "57763ac4917fe06157c891fd73fd9a9db340bfe3a04392bb68b2df9032ce14a5" "e9aa348abd3713a75f2c5ba279aa581b1c6ec187ebefbfa33373083ff8004c7c" "7b8f5bbdc7c316ee62f271acf6bcd0e0b8a272fdffe908f8c920b0ba34871d98" default))
- '(js-indent-level 2)
- '(lsp-enable-links nil)
- '(package-selected-packages `(add-hook 'web-mode-hook #'lsp-deferred))
- '(register-preview-delay 0.0)
  '(safe-local-variable-values
    '((eval save-excursion
            (goto-char
@@ -2068,15 +2136,7 @@ Otherwise, call eat."
      (eval outline-next-heading)
      (eval goto-char
            (point-min))))
- '(tool-bar-mode nil)
- '(treesit-font-lock-level 4)
- '(typescript-auto-indent-flag t)
- '(typescript-indent-level 2)
  '(warning-suppress-types '((comp)))
- '(which-key-delay-functions nil)
- '(which-key-echo-keystrokes 0.01)
- '(which-key-idle-delay 0.01)
- '(which-key-mode t))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
