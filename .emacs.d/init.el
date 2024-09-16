@@ -8,7 +8,6 @@
 ;; define personal keybinding prefix (an unpragmatic keybinding repurposed for reprogrammed keyboard)
 (defvar my-map (make-sparse-keymap))
 (define-key global-map (kbd "C-M-]") my-map)
-(menu-bar-mode -1)
 
 ;; an all-purpose emacs alarm
 (defun my/alarm (&optional length &rest _)
@@ -25,8 +24,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;
 ;; package settings ;;
 ;;;;;;;;;;;;;;;;;;;;;;
-
-;; (setq package-enable-at-startup nil)
 
 (use-package geiser
   :ensure nil)
@@ -174,7 +171,8 @@
 (with-eval-after-load 'marginalia
   (set-face-attribute 'marginalia-documentation nil :inherit 'doom-mode-line :slant 'italic))
 
-;; misc ui settings
+;; misc ui settingsq
+(menu-bar-mode -1)
 (global-hl-line-mode t)
 (scroll-bar-mode -1)
 (tool-bar-mode -1)
@@ -513,7 +511,7 @@ Use prefix argument ARG for number of lines, otherwise use default."
 ;;;;;;;;;;;;;;
 
 (use-package org
--  :ensure t
+  :ensure t
   :bind
   (("C-c n C-i" . org-id-get-create)
    ("C-c a" . org-agenda)
@@ -720,30 +718,30 @@ Use prefix argument ARG for number of lines, otherwise use default."
        (org-habit-stats-alltime-percentage . "Total Percentage"))))
 
   ;; org-notify
-  (use-package org-notify
-    :ensure t
-    :custom
-    (org-notify-timestamp-types '(:deadline :scheduled))
-    :config
-    (message "hello")
-    (defun my/alarm-long (&rest _)
-      "Wrapper function for alarm to fit :actions list below"
-      (my/alarm "long"))
-    (org-notify-start)
-    (org-notify-add 'default
-                  '(:time "5s" :period "1m" :duration 50 :urgency critical
-                          :actions (my/alarm-long -notify))
-		  '(:time "1m" :duration 55
-                          :actions (my/alarm -notify))
-                  '(:time "5m" :duration 240
-                          :actions (-notify))
-                  '(:time "15m" :duration 600
-                          :actions -notify)
-                  '(:time "30m" :duration 600 :actions -notify))
+  ;; (use-package org-notify
+  ;;   :ensure t
+  ;;   :custom
+  ;;   (org-notify-timestamp-types '(:deadline :scheduled))
+  ;;   :config
+  ;;   (message "hello")
+  ;;   (defun my/alarm-long (&rest _)
+  ;;     "Wrapper function for alarm to fit :actions list below"
+  ;;     (my/alarm "long"))
+  ;;   (org-notify-start)
+  ;;   (org-notify-add 'default
+  ;;                 '(:time "5s" :period "1m" :duration 50 :urgency critical
+  ;;                         :actions (my/alarm-long -notify))
+  ;;       	  '(:time "1m" :duration 55
+  ;;                         :actions (my/alarm -notify))
+  ;;                 '(:time "5m" :duration 240
+  ;;                         :actions (-notify))
+  ;;                 '(:time "15m" :duration 600
+  ;;                         :actions -notify)
+  ;;                 '(:time "30m" :duration 600 :actions -notify))
     
-    (org-notify-add 'habit
-                    '(:time "-1s" :duration 600
-                            :actions (-notify))))
+  ;;   (org-notify-add 'habit
+  ;;                   '(:time "-1s" :duration 600
+;;                           :actions (-notify))))
 
   ;; org-pomodoro
   (defun my/pomodoro-finished-alert ()
@@ -1644,12 +1642,15 @@ Otherwise, call eat."
 ;; spaces over tabs
 (setq-default indent-tabs-mode nil)
 
+;; indent
+(setq standard-indent 2)
+
 ;; projectile
 (use-package projectile
   :ensure t
   :bind-keymap ("C-x p" . projectile-command-map)
   :custom
-  (projectile-indexing-method 'hybrid)
+  (projectile-indexing-method 'alien)
   (projectile-project-search-path '("~/projects/"))
   (projectile-sort-order 'recently-active)
   :config
@@ -1773,7 +1774,10 @@ Otherwise, call eat."
   (html-mode . emmet-mode)
   (js-ts-mode . emmet-mode)
   (typescript-ts-mode . emmet-mode)
-  (tsx-ts-mode . emmet-mode))
+  (tsx-ts-mode . emmet-mode)
+  :custom
+  (emmet-indentation 0)
+  (emmet-indent-after-insert nil))
 
 ;; cargo
 (use-package cargo
@@ -2142,7 +2146,7 @@ Otherwise, call eat."
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- )
+ ))
 
 ;; Local Variables:
 ;; byte-compile-warnings: (not docstrings)
