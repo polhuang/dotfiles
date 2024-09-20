@@ -1388,7 +1388,7 @@ T - tag prefix
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (use-package corfu 
   :ensure t
-  :bind (:map corfu-mapr 
+  :bind (:map corfu-map 
               ("M-TAB" . corfu-insert))
   :init
   (global-corfu-mode)
