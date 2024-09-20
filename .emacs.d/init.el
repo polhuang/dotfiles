@@ -1386,20 +1386,17 @@ T - tag prefix
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; corfu ----------------------------------------------------------------------- ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(use-package corfu
+(use-package corfu 
   :ensure t
-  ;; Optional customizations
-  ;; (:map corfu-map                         
-  ;;       ("TAB" . corfu-insert)           
-  ;;       ("RET" . corfu-insert)           
-  ;;       ("<return>" . corfu-insert))
+  :bind (:map corfu-mapr 
+              ("M-TAB" . corfu-insert))
   :init
   (global-corfu-mode)
   (corfu-popupinfo-mode)
   (add-to-list 'corfu-margin-formatters #'nerd-icons-corfu-formatter)
   :custom
   (corfu-auto t)                    ;; Enable auto completion
-  (corfu-preselect 'prompt)         ;; Don't select first candidate
+  ;; (corfu-preselect 'valid)z      ;; Don't select first candidate
   (corfu-history-mode)
   ;; (corfu-separator ?\s)          ;; Orderless field separator
   ;; (corfu-quit-at-boundary nil)   ;; Never quit at completion boundary
@@ -1415,6 +1412,9 @@ T - tag prefix
   ;; recommended: enable Corfu globally.  recommended since dabbrev can
   ;; be used globally (M-/). see also the customization variable
   ;; `global-corfu-modes' to exclude certain modes
+  :config
+  (keymap-unset corfu-map "RET")          ;; prevent corfu from stealing RET or TAB
+  (keymap-unset corfu-map "TAB")          ;; TAB too
   )
 
 ;; emacs configurations
@@ -1653,6 +1653,7 @@ Otherwise, call eat."
   (projectile-indexing-method 'alien)
   (projectile-project-search-path '("~/projects/"))
   (projectile-sort-order 'recently-active)
+  (projectile-run-use-comint-mode t) ;; this allows input in interactive run mode
   :config
   (define-key projectile-command-map (kbd "e") #'eat-project)
   (define-key projectile-command-map (kbd "b") #'consult-project-buffer)
