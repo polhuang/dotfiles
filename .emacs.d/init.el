@@ -11,6 +11,7 @@
 
 ;; an all-purpose emacs alarm
 (defun my/alarm (&optional length &rest _)
+  (interactive)
   "My Emacs alarm. If optional parameter LENGTH is `long`, plays the longer alarm."
   (let ((file (expand-file-name (if (equal length "long")
                                     "sounds/bell_multiple.wav"
@@ -41,8 +42,8 @@
   :ensure t)
 
 ;; refresh package lists
-(unless package-archive-contents
-  (package-refresh-contents))
+;; (unless package-archive-contents
+;;   (package-refresh-contents))
 
 ;; straight package manager
 (defvar bootstrap-version)
@@ -786,7 +787,7 @@ Use prefix argument ARG for number of lines, otherwise use default."
     (org-clock-reminder-inactive-title "Big Brother says:")
     (org-clock-reminder-active-title "Big Brother says:")
     (org-clock-reminder-inactive-text "%t: You're not clocked in, bro")
-    (org-clock-reminder-active-text "%t: You've been working for %c on <br/>%h.")
+    (org-clock-reminder-active-text "%t: You've been working for %c on w%h.")
     (org-clock-reminder-interval (cons 10 30))
     (org-clock-reminder-inactive-notifications-p nil)
     :config
@@ -1008,7 +1009,7 @@ T - tag prefix
 
 ;; major-mode hydra
 (use-package major-mode-hydra
-  :defer t
+  :ensure t
   :after (org mu4e)
   :bind
   ("C-M-] ." . major-mode-hydra)
@@ -1389,7 +1390,8 @@ T - tag prefix
 (use-package corfu 
   :ensure t
   :bind (:map corfu-map 
-              ("M-TAB" . corfu-insert))
+              ("M-TAB" . corfu-insert)
+              ("C-g" . corfu-quit))
   :init
   (global-corfu-mode)
   (corfu-popupinfo-mode)
