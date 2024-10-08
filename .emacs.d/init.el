@@ -193,7 +193,7 @@
 (fset #'display-startup-echo-area-message #'ignore)
 
 ;; transparency
-(add-to-list 'default-frame-alist '(alpha-background . 85))
+(add-to-list 'default-frame-alist '(alpha-background . 60))
 
 (defun my/toggle-frametransparency ()
   "Toggle frame transparency."
@@ -254,7 +254,7 @@ Each element is a cons cell (FONT-NAME . HEIGHT).")
 
 ;; fontify-face
 (use-package fontify-face
-  :defer t)
+  :ensure t)
 
 ;; define non-breaking space
 (defface my/non-breaking-space
@@ -1124,7 +1124,7 @@ T - tag prefix
   (read-minibuffer-restore-windows t) ; restore window configurations on exit from minibuffer
   (read-answer-short t) ; accept single character answers
   (resize-mini-windows 'grow-only)
-
+  :config
   (defun my/focus-minibuffer ()
     "Focus the active minibuffer."
     (interactive)
@@ -1143,6 +1143,7 @@ T - tag prefix
 (setq auth-sources '("~/.authinfo"))
 
 ;; gpg
+(load (expand-file-name "private/gpg.el" user-emacs-directory))
 (use-package pinentry :ensure t)
 (use-package epa
   :ensure nil
@@ -1151,8 +1152,6 @@ T - tag prefix
   (epa-file-cache-passphrase-for-symmetric-encryption t)
   :config
   (pinentry-start))
-
-(load (expand-file-name "private/gpg.el" user-emacs-directory))
 
 ;; plist store
 (require 'plstore)
@@ -1647,6 +1646,53 @@ Otherwise, call eat."
 ;; indent
 (setq standard-indent 2)
 
+;; ;; indent bars
+;; (use-package indent-bars
+;;   :ensure t
+;;   :config
+;;   (require 'indent-bars-ts)
+;;   :custom
+;;   ;; (indent-bars-no-descend-lists nil) ; no extra bars in continued func arg lists
+;;   ;; (indent-bars-no-descend-string nil)
+
+  
+  
+  
+;;   :hook
+;;   ((python-base-mode yaml-mode typescripts-) . indent-bars-mode))
+
+(use-package indent-bars
+  :config
+  (require 'indent-bars-ts)
+  :custom
+  (indent-bars-no-descend-lists nil)
+  (indent-bars-no-descend-string nil)
+  (indent-bars-treesit-support t)
+  (indent-bars-treesit-ignore-blank-lines-types '("module"))
+  (indent-bars-treesit-wrap '((c argument_list parameter_list init_declarator))) 
+  (indent-bars-treesit-scope '((python function_definition class_definition for_statement
+	                               if_statement with_statement while_statement)))
+  (indent-bars-treesit-wrap '((rust arguments parameters)))
+  (indent-bars-treesit-scope '((rust trait_item impl_item 
+                                     macro_definition macro_invocation 
+                                     struct_item enum_item mod_item 
+                                     const_item let_declaration 
+                                     function_item for_expression 
+                                     if_expression loop_expression 
+                                     while_expression match_expression 
+                                     match_arm call_expression 
+                                     token_tree token_tree_pattern 
+                                     token_repetition)))
+    (indent-bars-pattern " . .")
+    (indent-bars-width-frac 0.2)
+    (indent-bars-pad-frac 0.1)
+    (indent-bars-zigzag nil)
+    (indent-bars-color-by-depth  '(:regexp "org-level-\\([1-8]+\\)" :blend 1))
+    (indent-bars-highlight-current-depth '(:width 0.3 :pattern ".")) ; pump up the BG blend on current
+    (indent-bars-display-on-blank-lines t)
+    :hook ((python-base-mode yaml-mode typescript-ts-base-mode) . indent-bars-mode))
+
+
 ;; projectile
 (use-package projectile
   :ensure t
@@ -2010,15 +2056,8 @@ Otherwise, call eat."
   :ensure t
   :bind
   (("C-c c" . gptel-menu))
-  :init
-  (gptel-make-openai "Perplexity"   
-  :host "api.perplexity.ai"
-  :key "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"
-  :endpoint "/chat/completions"
-  :stream t
-  :models '(
-            "llama-3-sonar-small-32k-online"
-            "llama-3-sonar-large-32k-online"))
+  :hook
+  (gptel-post-response-functions . gptel-end-of-response)
   :custom
   (gptel-model "gpt-4o")
   (gptel-default-mode 'org-mode)
@@ -2122,6 +2161,7 @@ Otherwise, call eat."
 (load "~/projects/scratchpad/scratchpad.el")
 
 (global-set-key (kbd "C-M-z") 'scratchpad-toggle)
+(global-set-key (kbd "C-M-s-s") 'scratchpad-new)
 
 
 (custom-set-variables
@@ -2129,28 +2169,30 @@ Otherwise, call eat."
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- ;; '(column-number-mode t)
  '(custom-safe-themes
-   '("477715cf84159782e44bcea3c90697e4c64896b5af42d0466b2dd44ece279505" "b4c6b60bf5cf727ca62651c0a0147e0e6ba63564215bd3fd9bab771e7914bea8" "c9dba7f4b46497b5bddfab834603fc1748d50f6ea027c347561bb3d81a9c6a32" "57763ac4917fe06157c891fd73fd9a9db340bfe3a04392bb68b2df9032ce14a5" "e9aa348abd3713a75f2c5ba279aa581b1c6ec187ebefbfa33373083ff8004c7c" "7b8f5bbdc7c316ee62f271acf6bcd0e0b8a272fdffe908f8c920b0ba34871d98" default))
+   '("7142a20d65513972790584a98dcfa2925126383817399438dcf133cb4eea96e3"
+     "477715cf84159782e44bcea3c90697e4c64896b5af42d0466b2dd44ece279505"
+     "b4c6b60bf5cf727ca62651c0a0147e0e6ba63564215bd3fd9bab771e7914bea8"
+     "c9dba7f4b46497b5bddfab834603fc1748d50f6ea027c347561bb3d81a9c6a32"
+     "57763ac4917fe06157c891fd73fd9a9db340bfe3a04392bb68b2df9032ce14a5"
+     "e9aa348abd3713a75f2c5ba279aa581b1c6ec187ebefbfa33373083ff8004c7c"
+     "7b8f5bbdc7c316ee62f271acf6bcd0e0b8a272fdffe908f8c920b0ba34871d98"
+     default))
+ '(nil nil t)
  '(safe-local-variable-values
-   '((eval save-excursion
-           (goto-char
-            (point-min))
-           (while
-               (re-search-forward "^\\(<\\([^>]+\\)>\\)" nil t)
+   '((eval save-excursion (goto-char (point-min))
+           (while (re-search-forward "^\\(<\\([^>]+\\)>\\)" nil t)
              (replace-match "SCHEDULED: \\1")))
-     (eval org-columns)
-     (eval outline-next-heading)
-     (eval goto-char
-           (point-min))))
- '(warning-suppress-types '((comp)))
+     (eval org-columns) (eval outline-next-heading)
+     (eval goto-char (point-min))))
+ '(warning-suppress-types '((comp))))
+
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- ))
-
+ )
 ;; Local Variables:
 ;; byte-compile-warnings: (not docstrings)
 ;; End:
