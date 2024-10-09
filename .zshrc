@@ -29,3 +29,4 @@ eval "$(starship init zsh)"
 
 # Generated for envman. Do not edit.
 [ -s "$HOME/.config/envman/load.sh" ] && source "$HOME/.config/envman/load.sh"
+export PATH=$PATH:/home/polhuang/Downloads/kontroll/target/release
