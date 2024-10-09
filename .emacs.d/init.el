@@ -2,9 +2,6 @@
 ;; emacs settings ;;
 ;;;;;;;;;;;;;;;;;;;;
 
-;; set gc threshold for startup performance
-(setq gc-cons-threshold (* 50 1000 1000))
-
 ;; define personal keybinding prefix (an unpragmatic keybinding repurposed for reprogrammed keyboard)
 (defvar my-map (make-sparse-keymap))
 (define-key global-map (kbd "C-M-]") my-map)
@@ -96,21 +93,27 @@
 ;;;;;;;;;;;;;;;;;
 
 ;; everforest
-(add-to-list 'custom-theme-load-path "~/.emacs.d/everforest-emacs")
+;; (add-to-list 'custom-theme-load-path "~/.emacs.d/everforest-emacs")
+;; (load-theme 'everforest-hard-dark t)
+
+(straight-use-package
+ '(everforest :repo "https://git.sr.ht/~theorytoe/everforest-theme"))
+
 (load-theme 'everforest-hard-dark t)
 (set-face-attribute 'line-number nil :foreground "#7e968d")
 (set-face-attribute 'line-number-current-line nil :weight 'bold)
 
+
 ;; cherry-seoul
 ;; (load "~/projects/cherry-seoul256")
-(use-package cherry-seoul256-theme
-  :load-path "~/projects/cherry-seoul256"
-  :commands cherry-seoul256-create
-  :custom
-  (cherry-seoul256-background 233)
-  ;; :config
-  ;;(load-theme 'cherry-seoul256 t)
-  )
+;; (use-package cherry-seoul256-theme
+;;   :load-path "~/projects/cherry-seoul256"
+;;   :commands cherry-seoul256-create
+;;   :custom
+;;   (cherry-seoul256-background 233)
+;;   ;; :config
+;;   ;;(load-theme 'cherry-seoul256 t)
+;;   )
 
 ;; theme
 ;; (use-package seoul256-theme
@@ -210,13 +213,14 @@
 ;; fonts
 (defvar my/font-options
   '(("Source Code Pro" . 125)
-    ("DejaVu Sans Mono" . 150)
+    ("DejaVu Sans Mono" . 125)
     ("Fira Code" . 125)
-    ("IBM Plex Mono" . 150)
+    ("IBM Plex Mono" . 125)
     ("Inconsolata" . 150)
+    ("Noto Sans Mono" . 110)
     ("AcPlus IBM VGA 8x16" . 170)
-    ("JetBrains Mono" . 150)
-    ("mononoki" . 150)
+    ("JetBrains Mono" . 125)
+    ("mononoki" . 125)
     ("Random" . nil))
   "An alist of font names and their corresponding heights.
 Each element is a cons cell (FONT-NAME . HEIGHT).")
@@ -537,7 +541,7 @@ Use prefix argument ARG for number of lines, otherwise use default."
   (display-line-numbers-mode 1)
   :custom
   (org-directory "~/org")
-  (org-agenda-files '("/home/polhuang/org/tasks.org" "/home/polhuang/org/schedule.org" "/home/polhuang/org/backmatter-tasks.org"))
+  (org-agenda-files '("/home/polhuang/org/tasks.org" "/home/polhuang/org/schedule.org" "/home/polhuang/org/projects.org" "/home/polhuang/org/habits.org"))
   (org-clock-idle-time 10)
   (org-clock-persist t)
   (org-habit-graph-column 100)
@@ -1776,6 +1780,7 @@ Otherwise, call eat."
 (setq major-mode-remap-alist
       '((yaml-mode . yaml-ts-mode)
         (bash-mode . bash-ts-mode)
+        (c-mode . c-ts-mode)
         (javascript-mode . tsx-ts-mode)
         (js-mode . tsx-ts-mode)
         (js2-mode . tsx-ts-mode)
@@ -2170,7 +2175,8 @@ Otherwise, call eat."
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(custom-safe-themes
-   '("7142a20d65513972790584a98dcfa2925126383817399438dcf133cb4eea96e3"
+   '("67f6b0de6f60890db4c799b50c0670545c4234f179f03e757db5d95e99bac332"
+     "7142a20d65513972790584a98dcfa2925126383817399438dcf133cb4eea96e3"
      "477715cf84159782e44bcea3c90697e4c64896b5af42d0466b2dd44ece279505"
      "b4c6b60bf5cf727ca62651c0a0147e0e6ba63564215bd3fd9bab771e7914bea8"
      "c9dba7f4b46497b5bddfab834603fc1748d50f6ea027c347561bb3d81a9c6a32"
@@ -2193,6 +2199,7 @@ Otherwise, call eat."
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  )
+
 ;; Local Variables:
 ;; byte-compile-warnings: (not docstrings)
 ;; End:
