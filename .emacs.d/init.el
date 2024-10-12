@@ -2,9 +2,18 @@
 ;; emacs settings ;;
 ;;;;;;;;;;;;;;;;;;;;
 
+(setq package-enable-at-startup nil)
+
+;; set gc threshold for startup performance
+(setq gc-cons-threshold (* 50 1000 1000))
+
+
 ;; define personal keybinding prefix (an unpragmatic keybinding repurposed for reprogrammed keyboard)
 (defvar my-map (make-sparse-keymap))
 (define-key global-map (kbd "C-M-]") my-map)
+
+;; remap keyboard-quit for qmk keyboards
+(global-set-key (kbd "C-M-s-]") 'keyboard-quit)
 
 ;; an all-purpose emacs alarm
 (defun my/alarm (&optional length &rest _)
@@ -23,8 +32,8 @@
 ;; package settings ;;
 ;;;;;;;;;;;;;;;;;;;;;;
 
-(use-package geiser
-  :ensure nil)
+;; (use-package geiser
+;;   :ensure nil)
 
 ;; (let ((guix-emacs-dir "/home/polhuang/.guix-profile/share/emacs/site-lisp"))
 ;;   (add-to-list 'load-path guix-emacs-dir))
@@ -93,18 +102,12 @@
 ;;;;;;;;;;;;;;;;;
 
 ;; everforest
-;; (add-to-list 'custom-theme-load-path "~/.emacs.d/everforest-emacs")
-;; (load-theme 'everforest-hard-dark t)
-
-(straight-use-package
- '(everforest :repo "https://git.sr.ht/~theorytoe/everforest-theme"))
-
+(add-to-list 'custom-theme-load-path "~/.emacs.d/everforest-emacs")
 (load-theme 'everforest-hard-dark t)
 (set-face-attribute 'line-number nil :foreground "#7e968d")
 (set-face-attribute 'line-number-current-line nil :weight 'bold)
 
 
-;; cherry-seoul
 ;; (load "~/projects/cherry-seoul256")
 ;; (use-package cherry-seoul256-theme
 ;;   :load-path "~/projects/cherry-seoul256"
@@ -112,8 +115,8 @@
 ;;   :custom
 ;;   (cherry-seoul256-background 233)
 ;;   ;; :config
-;;   ;;(load-theme 'cherry-seoul256 t)
-;;   )
+;;    )
+  ;;(load-theme 'cherry-seoul256 t)
 
 ;; theme
 ;; (use-package seoul256-theme
@@ -196,7 +199,7 @@
 (fset #'display-startup-echo-area-message #'ignore)
 
 ;; transparency
-(add-to-list 'default-frame-alist '(alpha-background . 60))
+(add-to-list 'default-frame-alist '(alpha-background . 65))
 
 (defun my/toggle-frametransparency ()
   "Toggle frame transparency."
@@ -396,7 +399,7 @@ Each element is a cons cell (FONT-NAME . HEIGHT).")
 (setq display-line-numbers-width-start t)                   ; uses width necessary to display all line numbers
 (defun display-line-numbers--turn-on ()                     ; do not display in pdf-mode or in minibuffer
   "Turn on `display-line-numbers-mode`."
-  (unless (or (minibufferp) (eq major-mode 'pdf-view-mode))
+   (unless (or (minibufferp) (eq major-mode 'pdf-view-mode))
     (display-line-numbers-mode)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -439,17 +442,6 @@ Use prefix argument ARG for number of lines, otherwise use default."
                                  (my/scroll orig-func 'up arg)))
 (advice-add 'scroll-down :around (lambda (orig-func &optional arg)
                                    (my/scroll orig-func 'down arg)))
-
-(use-package sublimity
-  :ensure t
-  :init
-  (require 'sublimity-scroll)
-  :custom
-  (sublimity-scroll-weight 10)
-  (sublimity-scroll-drift-length 5)
-  (sublimity-scroll-vertical-frame-delay 0.01)
-  :config
-  (sublimity-mode t))
 
 (setq mouse-wheel-scroll-amount '(1 ((shift) . 1) ((control) . nil))
       mouse-wheel-progressive-speed nil
@@ -723,30 +715,26 @@ Use prefix argument ARG for number of lines, otherwise use default."
        (org-habit-stats-alltime-percentage . "Total Percentage"))))
 
   ;; org-notify
-  ;; (use-package org-notify
-  ;;   :ensure t
-  ;;   :custom
-  ;;   (org-notify-timestamp-types '(:deadline :scheduled))
-  ;;   :config
-  ;;   (message "hello")
-  ;;   (defun my/alarm-long (&rest _)
-  ;;     "Wrapper function for alarm to fit :actions list below"
-  ;;     (my/alarm "long"))
-  ;;   (org-notify-start)
-  ;;   (org-notify-add 'default
-  ;;                 '(:time "5s" :period "1m" :duration 50 :urgency critical
-  ;;                         :actions (my/alarm-long -notify))
-  ;;       	  '(:time "1m" :duration 55
-  ;;                         :actions (my/alarm -notify))
-  ;;                 '(:time "5m" :duration 240
-  ;;                         :actions (-notify))
-  ;;                 '(:time "15m" :duration 600
-  ;;                         :actions -notify)
-  ;;                 '(:time "30m" :duration 600 :actions -notify))
-    
-  ;;   (org-notify-add 'habit
-  ;;                   '(:time "-1s" :duration 600
-;;                           :actions (-notify))))
+  (use-package org-notify
+    :ensure t
+    :custom
+    (org-notify-timestamp-types '(:deadline :scheduled))
+    :config
+    (message "hello")
+    (defun my/alarm-long (&rest _)
+      "Wrapper function for alarm to fit :actions list below"
+      (my/alarm "long"))
+    (org-notify-start)
+    (org-notify-add 'default
+                  '(:time "5s" :period "1m" :duration 50 :urgency critical
+                          :actions (my/alarm-long -notify))
+        	  '(:time "1m" :duration 55
+                          :actions (my/alarm -notify))
+                  '(:time "5m" :duration 240
+                          :actions (-notify))
+                  '(:time "15m" :duration 600
+                          :actions -notify)
+                  '(:time "30m" :duration 600 :actions -notify)))
 
   ;; org-pomodoro
   (defun my/pomodoro-finished-alert ()
@@ -1638,7 +1626,7 @@ Otherwise, call eat."
          ("C-c e p" . eat-project))
   :custom 
   (eat-kill-buffer-on-exit t)
-  (eat-term-name "xterm-256color"))
+  (eat-term-name "xterm-kitty"))
 
 ;;;;;;;;;;;;
 ;; coding ;;
@@ -2175,7 +2163,8 @@ Otherwise, call eat."
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(custom-safe-themes
-   '("67f6b0de6f60890db4c799b50c0670545c4234f179f03e757db5d95e99bac332"
+   '("a53c7ff4570e23d7c5833cd342c461684aa55ddba09b7788d6ae70e7645c12b4"
+     "67f6b0de6f60890db4c799b50c0670545c4234f179f03e757db5d95e99bac332"
      "7142a20d65513972790584a98dcfa2925126383817399438dcf133cb4eea96e3"
      "477715cf84159782e44bcea3c90697e4c64896b5af42d0466b2dd44ece279505"
      "b4c6b60bf5cf727ca62651c0a0147e0e6ba63564215bd3fd9bab771e7914bea8"
