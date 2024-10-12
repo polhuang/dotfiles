@@ -39,8 +39,8 @@
 ;;   (add-to-list 'load-path guix-emacs-dir))
 
 (setq package-archives '(("melpa" . "https://melpa.org/packages/")
- 			 ("elpa" . "https://elpa.gnu.org/packages/")
- 			 ("nongnu" . "https://elpa.nongnu.org/nongnu/")))
+ 			 ("elpa" . "https://elpa.gnu.orgpackages/")
+  			 ("nongnu" . "https://elpa.nongnu.org/nongnu/")))
 
 
 ;; enable packages from quelpa
