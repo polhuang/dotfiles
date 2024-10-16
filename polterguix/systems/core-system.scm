@@ -1,7 +1,7 @@
 (define-module (polterguix systems core-system)
   #:use-module (gnu)
   #:use-module (gnu system)
-  #:use-module (nongznu packages linux))
+  #:use-module (nongnu packages linux))
   
 (use-service-modules guix admin sysctl pm nix avahi dbus cups desktop linux
 		     mcron networking xorg ssh docker audio virtualization)
@@ -107,8 +107,7 @@
                                              (terminal-vt "1")
                                              (terminal-switch #t)
                                              (greetd-terminal-configuration (terminal-vt"2"))
-                                             (greetd-terminal-configruation (terminal0-vt "3"))))))
+                                             (greetd-terminal-configuration (terminal0-vt "3"))))))
 
                       )
-                     %base-services)))
-
+                     %base-services))))
