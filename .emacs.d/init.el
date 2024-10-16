@@ -42,7 +42,6 @@
  			 ("elpa" . "https://elpa.gnu.orgpackages/")
   			 ("nongnu" . "https://elpa.nongnu.org/nongnu/")))
 
-
 ;; enable packages from quelpa
 (use-package quelpa
   :ensure t)

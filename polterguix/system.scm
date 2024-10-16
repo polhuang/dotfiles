@@ -45,7 +45,7 @@
  (kernel linux)
  (initrd microcode-initrd)
  (firmware (list linux-firmware))
-  (locale "en_US.utf8")
+ (locale "en_US.utf8")
   (timezone "America/Chicago")
   (keyboard-layout (keyboard-layout "us"))
   (host-name "akhetaten")
