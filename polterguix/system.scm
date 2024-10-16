@@ -57,7 +57,7 @@
                   (group "users")
                   (shell "/run/current-system/profile/bin/zsh")
                   (home-directory "/home/polhuang")
-                  (supplementary-groups '("wheel" "netdev" "audio" "video")))
+                  (supplementary-groups '("wheel" "netdev" "audio" "video" "kvm")))
                 (user-account
                   (name "admin")
                   (comment "Admin")

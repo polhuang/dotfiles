@@ -73,6 +73,7 @@
                    emacs-guix
                    emacs-jinx
                    firefox
+                   asciiquarium
                    kitty
                    qutebrowser
                    font-fira-code
