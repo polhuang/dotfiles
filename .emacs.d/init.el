@@ -726,7 +726,7 @@ Use prefix argument ARG for number of lines, otherwise use default."
       (my/alarm "long"))
     (org-notify-start)
     (org-notify-add 'default
-                  '(:time "5s" :period "1m" :duration 50 :urgency critical
+                  '(:time "5s" :duration 50 :urgency critical
                           :actions (my/alarm-long -notify))
         	  '(:time "1m" :duration 55
                           :actions (my/alarm -notify))
