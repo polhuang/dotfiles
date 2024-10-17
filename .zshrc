@@ -36,7 +36,7 @@ znap source rupa/z
 [ -f "$HOME/.aliasrc" ] && . "$HOME/.aliasrc"
 
 # env variables
-export EDITOR=nvim
+export EDITOR=emacsclient
 
 # asciiquarium
 TMOUT=600

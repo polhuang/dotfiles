@@ -14,7 +14,7 @@
 		     networking wm fonts libusb cups freedesktop file-systems
 		     version-control package-management vim)
 
-(define-public base-operating-system
+(define-public core-operating-system
   (operating-system
    (host-name "hackstock")
    (kernel linux)
@@ -100,4 +100,4 @@
                                       (delete mingetty-service-type)
                                       (delete console-font-service-type))))))
 
-base-operating-system
+core-operating-system
