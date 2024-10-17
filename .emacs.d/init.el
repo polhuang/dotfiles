@@ -2067,6 +2067,10 @@ Otherwise, call eat."
           (sassy . "You are extremely sassy and like to give witty, sardonic answers and insult me."))))
 
 ;; spell-checking
+(require 'ispell)
+(setq ispell-local-dictionary "/usr/share/hunspell/en_US-large.dic")
+(setq ispell-alternate-dictionary "/usr/share/hunspell/en_US.dic")
+
 ;; install external dependencies enchant, pkgconf, and lang dict
 ;; pacman: enchant, pkgconf, hunspell-en_us
 (use-package jinx
@@ -2088,8 +2092,6 @@ Otherwise, call eat."
 (use-package elcord
   :ensure t
   :hook (emacs-startup . elcord-mode)
-
-  sq
   :custom (elcord-idle-message "call me maybe?"))
 
 ;; erc (irc)

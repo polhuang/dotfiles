@@ -223,4 +223,5 @@
                                       (delete login-service-type)
                                       (delete mingetty-service-type)
                                       (delete console-font-service-type))))))
+
 core-operating-system
