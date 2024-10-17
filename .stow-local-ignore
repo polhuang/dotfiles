@@ -2,5 +2,5 @@
 \.gitignore
 misc
 LICENSE
-
+hyprland.conf
 ^/.*\.org
