@@ -101,7 +101,7 @@
 ;;;;;;;;;;;;;;;;;
 
 ;; everforest
-(add-to-list 'custom-theme-load-path "~/.emacs.d/everforest-emacs")
+(load "~/.emacs.d/everforest-emacs/everforest-hard-dark-theme.el")
 (load-theme 'everforest-hard-dark t)
 (set-face-attribute 'line-number nil :foreground "#7e968d")
 (set-face-attribute 'line-number-current-line nil :weight 'bold)
@@ -2175,6 +2175,9 @@ Otherwise, call eat."
      "7b8f5bbdc7c316ee62f271acf6bcd0e0b8a272fdffe908f8c920b0ba34871d98"
      default))
  '(nil nil t)
+ '(org-agenda-files
+   '("/home/polhuang/org/tasks.org" "/home/polhuang/org/schedule.org"
+     "/home/polhuang/org/habits.org") nil nil "Customized with use-package org")
  '(safe-local-variable-values
    '((eval save-excursion (goto-char (point-min))
            (while (re-search-forward "^\\(<\\([^>]+\\)>\\)" nil t)

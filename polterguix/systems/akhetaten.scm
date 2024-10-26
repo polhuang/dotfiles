@@ -24,6 +24,7 @@
    #:use-module (gnu packages wm)
    #:use-module (gnu packages web-browsers)
    #:use-module (gnu packages terminals)
+   #:use-module (gnu packages admin)
    #:use-module (nongnu packages mozilla)
    #:use-module (gnu services)
    #:use-module (guix gexp)
@@ -31,7 +32,8 @@
    #:use-module (polterguix packages hyprland)
    #:use-module (polterguix packages desktop)
    #:use-module (polterguix packages security)
-   #:use-module (polterguix packages cli))
+   #:use-module (polterguix packages cli)
+   #:use-module (polterguix systems core-system))
 
 ;; (use-modules (gnu home)
 ;;              (gnu packages)
@@ -63,6 +65,12 @@
 ;;              (polterguix packages security)
 ;;              (polterguix packages cli))
 
+(define system
+  (operating-system
+   (inherit core-operating-system)
+   (host-name "akhetaten")
+   ))
+
 (define home
   (home-environment
  ;; Below is the list of packages that will show up in your ;; Home profile, under ~/.guix-home/profile.
@@ -72,6 +80,7 @@
                    emacs-desktop-environment
                    emacs-guix
                    emacs-jinx
+                   neofetch
                    firefox
                    asciiquarium
                    kitty
@@ -126,4 +135,7 @@
                    (zprofile (list (local-file
                                     "/home/polhuang/polterguix/files/.zprofile"
                                     "zprofile")))))))))
-home
+
+(if (equal? (getenv "GUIX_TARGET") "home")
+    home
+    system)

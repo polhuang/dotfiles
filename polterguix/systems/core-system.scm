@@ -21,7 +21,6 @@
   #:use-module (gnu packages ssh)
   #:use-module (gnu packages cups)
   #:use-module (gnu packages libusb)
-  #:use-module (polterguix packages hyprland)
   #:use-module (rosenthal packages wm)
   
   #:use-module (gnu services desktop)
@@ -44,7 +43,7 @@
    (firmware (list linux-firmware))
    (initrd microcode-initrd)
    (timezone "America/Chicago")
-   (locale "en_US.utf8")
+   (locale "en_us.utf8")
    (keyboard-layout (keyboard-layout "us"))
 
    ;; uefi grub with efi
