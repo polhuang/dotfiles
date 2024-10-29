@@ -25,8 +25,11 @@
                                 user-emacs-directory)))
     (start-process-shell-command "org" nil (concat "aplay " file))))
 
-;; load private emacs config section
-(load (expand-file-name "private.el" user-emacs-directory))
+;; load private emacs config section - if it doesn't exist, create one
+(let ((private-file (expand-file-name "private.el" user-emacs-directory)))
+  (unless (file-exists-p private-file)
+    (make-empty-file private-file))
+  (load private-file))
 
 ;;;;;;;;;;;;;;;;;;;;;;
 ;; package settings ;;
@@ -389,7 +392,7 @@ Each element is a cons cell (FONT-NAME . HEIGHT).")
 (add-hook 'after-change-major-mode-hook 'clean-mode-line)
 
 ;; notifications
-(require 'alert)
+;; (require 'alert)
 (setq alert-default-style "notifications")
 
 ;; display line numbers
