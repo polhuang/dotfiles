@@ -25,12 +25,6 @@
                                 user-emacs-directory)))
     (start-process-shell-command "org" nil (concat "aplay " file))))
 
-;; load private emacs config section - if it doesn't exist, create one
-(let ((private-file (expand-file-name "private.el" user-emacs-directory)))
-  (unless (file-exists-p private-file)
-    (make-empty-file private-file))
-  (load private-file))
-
 ;;;;;;;;;;;;;;;;;;;;;;
 ;; package settings ;;
 ;;;;;;;;;;;;;;;;;;;;;;
@@ -1137,7 +1131,11 @@ T - tag prefix
 (setq auth-sources '("~/.authinfo"))
 
 ;; gpg
-(load (expand-file-name "private/gpg.el" user-emacs-directory))
+(let ((gpg-file (expand-file-name "private/gpg.el" user-emacs-directory)))
+  (unless (file-exists-p gpg-file)
+    (make-directory (file-name-directory gpg-file) t)
+    (write-region "" nil gpg-file))
+  (load gpg-file))
 (use-package pinentry :ensure t)
 (use-package epa
   :ensure nil
