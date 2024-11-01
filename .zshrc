@@ -48,6 +48,10 @@ TRAPALRM() {
 # starship
 eval "$(starship init zsh)"
 
+# guix package manager
+GUIX_PROFILE="$HOME/.guix-profile"
+. "$GUIX_PROFILE/etc/profile"
+
 # Generated for envman. Do not edit.
 # [ -s "$HOME/.config/envman/load.sh" ] && source "$HOME/.config/envman/load.sh"
 # export PATH=$PATH:/home/polhuang/Downloads/kontroll/target/release

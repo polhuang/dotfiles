@@ -45,6 +45,7 @@
     (service home-bash-service-type
              (home-bash-configuration
               (guix-defaults? #t)
+              
               (bashrc (list (local-file
                              "/home/polhuang/polterguix/files/.bashrc" "bashrc")))
               (bash-profile (list (local-file

@@ -25,9 +25,6 @@
                                 user-emacs-directory)))
     (start-process-shell-command "org" nil (concat "aplay " file))))
 
-;; load private emacs config section
-(load (expand-file-name "private.el" user-emacs-directory))
-
 ;;;;;;;;;;;;;;;;;;;;;;
 ;; package settings ;;
 ;;;;;;;;;;;;;;;;;;;;;;
@@ -35,7 +32,7 @@
 ;; (use-package geiser
 ;;   :ensure nil)
 
-;; (let ((guix-emacs-dir "/home/polhuang/.guix-profile/share/emacs/site-lisp"))
+;; (let ((guix-emacs-dir "/home/pol/.guix-profile/share/emacs/site-lisp"))
 ;;   (add-to-list 'load-path guix-emacs-dir))
 
 (setq package-archives '(("melpa" . "https://melpa.org/packages/")
@@ -389,7 +386,7 @@ Each element is a cons cell (FONT-NAME . HEIGHT).")
 (add-hook 'after-change-major-mode-hook 'clean-mode-line)
 
 ;; notifications
-(require 'alert)
+;; (require 'alert)
 (setq alert-default-style "notifications")
 
 ;; display line numbers
@@ -1134,7 +1131,11 @@ T - tag prefix
 (setq auth-sources '("~/.authinfo"))
 
 ;; gpg
-(load (expand-file-name "private/gpg.el" user-emacs-directory))
+(let ((gpg-file (expand-file-name "private/gpg.el" user-emacs-directory)))
+  (unless (file-exists-p gpg-file)
+    (make-directory (file-name-directory gpg-file) t)
+    (write-region "" nil gpg-file))
+  (load gpg-file))
 (use-package pinentry :ensure t)
 (use-package epa
   :ensure nil
