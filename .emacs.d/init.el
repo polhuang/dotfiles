@@ -2,6 +2,11 @@
 ;; emacs settings ;;
 ;;;;;;;;;;;;;;;;;;;;
 
+(defvar is-guix nil
+  "Varible indicating whether system is managed by guix.")
+
+(setq is-guix (not (string-equal (system-name) "nineveh")))
+
 (setq package-enable-at-startup nil)
 
 ;; set gc threshold for startup performance
@@ -29,11 +34,12 @@
 ;; package settings ;;
 ;;;;;;;;;;;;;;;;;;;;;;
 
-;; (use-package geiser
-;;   :ensure nil)
+(when is-guix
+  (let ((guix-emacs-dir "/home/pol/.guix-profile/share/emacs/site-lisp"))
+    (add-to-list 'load-path guix-emacs-dir))
 
-;; (let ((guix-emacs-dir "/home/pol/.guix-profile/share/emacs/site-lisp"))
-;;   (add-to-list 'load-path guix-emacs-dir))
+  (use-package geiser
+  :ensure nil))
 
 (setq package-archives '(("melpa" . "https://melpa.org/packages/")
  			 ("elpa" . "https://elpa.gnu.orgpackages/")
@@ -529,7 +535,7 @@ Use prefix argument ARG for number of lines, otherwise use default."
   (display-line-numbers-mode 1)
   :custom
   (org-directory "~/org")
-  (org-agenda-files '("/home/polhuang/org/tasks.org" "/home/polhuang/org/schedule.org" "/home/polhuang/org/projects.org" "/home/polhuang/org/habits.org"))
+  (org-agenda-files '("~/org/tasks.org" "~/org/schedule.org" "~/org/projects.org" "~/org/habits.org"))
   (org-clock-idle-time 10)
   (org-clock-persist t)
   (org-habit-graph-column 100)
