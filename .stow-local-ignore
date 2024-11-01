@@ -3,4 +3,5 @@
 misc
 LICENSE
 /.config/hypr/hyprland.conf
+.zshrc
 ^/.*\.org
