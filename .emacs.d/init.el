@@ -2181,10 +2181,10 @@ Otherwise, call eat."
      "e9aa348abd3713a75f2c5ba279aa581b1c6ec187ebefbfa33373083ff8004c7c"
      "7b8f5bbdc7c316ee62f271acf6bcd0e0b8a272fdffe908f8c920b0ba34871d98"
      default))
+ '(epg-pinentry-mode 'loopback nil nil "Customized with use-package epa")
  '(nil nil t)
  '(org-agenda-files
-   '("/home/polhuang/org/tasks.org" "/home/polhuang/org/schedule.org"
-     "/home/polhuang/org/habits.org") nil nil "Customized with use-package org")
+   '("~/org/schedule.org" "~/org/habits.org") nil nil "Customized with use-package org")
  '(safe-local-variable-values
    '((eval save-excursion (goto-char (point-min))
            (while (re-search-forward "^\\(<\\([^>]+\\)>\\)" nil t)
