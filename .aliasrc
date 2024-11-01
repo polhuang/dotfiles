@@ -1,0 +1,5 @@
+alias pj='cd ~/projects/'
+alias pg='cd ~/polterguix/'
+alias dl='cd ~/Downloads/'
+alias docs='cd ~/Documents/'
+alias vim='nvim'

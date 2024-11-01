@@ -1,19 +1,23 @@
-
-
 ;;;;;;;;;;;;;;;;;;;;
 ;; emacs settings ;;
 ;;;;;;;;;;;;;;;;;;;;
 
+(setq package-enable-at-startup nil)
+
 ;; set gc threshold for startup performance
 (setq gc-cons-threshold (* 50 1000 1000))
+
 
 ;; define personal keybinding prefix (an unpragmatic keybinding repurposed for reprogrammed keyboard)
 (defvar my-map (make-sparse-keymap))
 (define-key global-map (kbd "C-M-]") my-map)
-(menu-bar-mode -1)
+
+;; remap keyboard-quit for qmk keyboards
+(global-set-key (kbd "C-M-s-]") 'keyboard-quit)
 
 ;; an all-purpose emacs alarm
 (defun my/alarm (&optional length &rest _)
+  (interactive)
   "My Emacs alarm. If optional parameter LENGTH is `long`, plays the longer alarm."
   (let ((file (expand-file-name (if (equal length "long")
                                     "sounds/bell_multiple.wav"
@@ -21,36 +25,27 @@
                                 user-emacs-directory)))
     (start-process-shell-command "org" nil (concat "aplay " file))))
 
-;; load private emacs config section
-(load (expand-file-name "private.el" user-emacs-directory))
-
 ;;;;;;;;;;;;;;;;;;;;;;
 ;; package settings ;;
 ;;;;;;;;;;;;;;;;;;;;;;
 
-;; (setq package-enable-at-startup nil)
+;; (use-package geiser
+;;   :ensure nil)
 
-
-(use-package geiser
-  :ensure nil)
-
-(use-package guix)
-
-;; (let ((guix-emacs-dir "/home/polhuang/.guix-profile/share/emacs/site-lisp"))
+;; (let ((guix-emacs-dir "/home/pol/.guix-profile/share/emacs/site-lisp"))
 ;;   (add-to-list 'load-path guix-emacs-dir))
 
 (setq package-archives '(("melpa" . "https://melpa.org/packages/")
- 			 ("elpa" . "https://elpa.gnu.org/packages/")
- 			 ("nongnu" . "https://elpa.nongnu.org/nongnu/")))
-
+ 			 ("elpa" . "https://elpa.gnu.orgpackages/")
+  			 ("nongnu" . "https://elpa.nongnu.org/nongnu/")))
 
 ;; enable packages from quelpa
 (use-package quelpa
   :ensure t)
 
 ;; refresh package lists
-(unless package-archive-contents
-  (package-refresh-contents))
+;; (unless package-archive-contents
+;;   (package-refresh-contents))
 
 ;; straight package manager
 (defvar bootstrap-version)
@@ -103,21 +98,21 @@
 ;;;;;;;;;;;;;;;;;
 
 ;; everforest
-(add-to-list 'custom-theme-load-path "~/.emacs.d/everforest-emacs")
+(load "~/.emacs.d/everforest-emacs/everforest-hard-dark-theme.el")
 (load-theme 'everforest-hard-dark t)
 (set-face-attribute 'line-number nil :foreground "#7e968d")
 (set-face-attribute 'line-number-current-line nil :weight 'bold)
 
-;; cherry-seoul
+
 ;; (load "~/projects/cherry-seoul256")
-(use-package cherry-seoul256-theme
-  :load-path "~/projects/cherry-seoul256"
-  :commands cherry-seoul256-create
-  :custom
-  (cherry-seoul256-background 233)
-  ;; :config
+;; (use-package cherry-seoul256-theme
+;;   :load-path "~/projects/cherry-seoul256"
+;;   :commands cherry-seoul256-create
+;;   :custom
+;;   (cherry-seoul256-background 233)
+;;   ;; :config
+;;    )
   ;;(load-theme 'cherry-seoul256 t)
-  )
 
 ;; theme
 ;; (use-package seoul256-theme
@@ -179,7 +174,8 @@
 (with-eval-after-load 'marginalia
   (set-face-attribute 'marginalia-documentation nil :inherit 'doom-mode-line :slant 'italic))
 
-;; misc ui settings
+;; misc ui settingsq
+(menu-bar-mode -1)
 (global-hl-line-mode t)
 (scroll-bar-mode -1)
 (tool-bar-mode -1)
@@ -199,7 +195,7 @@
 (fset #'display-startup-echo-area-message #'ignore)
 
 ;; transparency
-(add-to-list 'default-frame-alist '(alpha-background . 85))
+(add-to-list 'default-frame-alist '(alpha-background . 65))
 
 (defun my/toggle-frametransparency ()
   "Toggle frame transparency."
@@ -214,11 +210,54 @@
         (cherry-seoul256-create 'cherry-seoul256 235)))))
 
 ;; fonts
-(set-face-attribute 'default nil :family "Fira Code" :inherit t :height 125)
+(defvar my/font-options
+  '(("Source Code Pro" . 125)
+    ("DejaVu Sans Mono" . 125)
+    ("Fira Code" . 125)
+    ("IBM Plex Mono" . 125)
+    ("Inconsolata" . 150)
+    ("Noto Sans Mono" . 110)
+    ("AcPlus IBM VGA 8x16" . 170)
+    ("JetBrains Mono" . 125)
+    ("mononoki" . 125)
+    ("Random" . nil))
+  "An alist of font names and their corresponding heights.
+Each element is a cons cell (FONT-NAME . HEIGHT).")
+
+(defvar my/current-font-index 0
+  "Index of the currently selected font in `my/font-options`.")
+
+(defun my/set-font (font-name)
+  (let* ((font (if (string= font-name "Random")
+                   (nth (random (length (remove (assoc "Random" my/font-options) my/font-options))) my/font-options)
+                 (assoc font-name my/font-options)))
+         (font-name (car font))
+         (height (cdr font)))
+    (when font
+      (set-face-attribute 'default nil :family font-name :height (or height 120))
+      (message "Font set to: %s with height %d" font-name (or height 120)))))
+
+(defun my/select-font ()
+  (interactive)
+  (let* ((font-names (mapcar #'car my/font-options))
+         (selected-font (completing-read "Select font: " font-names nil t)))
+    (my/set-font selected-font)))
+
+(defun my/cycle-fonts ()
+  "Cycle through the fonts in `my/font-options` and set the next one."
+  (interactive)
+  (let* ((num-fonts (length my/font-options))
+         (new-index (mod (1+ my/current-font-index) num-fonts))
+         (font (nth new-index my/font-options))
+         (font-name (car font)))
+    (setq my/current-font-index new-index)
+    (my/set-font font-name)))
+
+(my/set-font "Fira Code") ;; default
 
 ;; fontify-face
 (use-package fontify-face
-  :defer t)
+  :ensure t)
 
 ;; define non-breaking space
 (defface my/non-breaking-space
@@ -347,7 +386,7 @@
 (add-hook 'after-change-major-mode-hook 'clean-mode-line)
 
 ;; notifications
-(require 'alert)
+;; (require 'alert)
 (setq alert-default-style "notifications")
 
 ;; display line numbers
@@ -356,7 +395,7 @@
 (setq display-line-numbers-width-start t)                   ; uses width necessary to display all line numbers
 (defun display-line-numbers--turn-on ()                     ; do not display in pdf-mode or in minibuffer
   "Turn on `display-line-numbers-mode`."
-  (unless (or (minibufferp) (eq major-mode 'pdf-view-mode))
+   (unless (or (minibufferp) (eq major-mode 'pdf-view-mode))
     (display-line-numbers-mode)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -364,8 +403,25 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;; scrolling
-(defvar my/default-scroll-lines 15)
+(defvar my/default-scroll-lines 60)
 (setq scroll-conservatively 5)
+
+;; custom scrolling keybinds
+(defvar my/scroll-unit 20)
+(global-set-key (kbd "C-M-s-3") (lambda () (interactive) (forward-line (* my/scroll-unit -1))))
+(global-set-key (kbd "C-M-s-4") (lambda () (interactive) (forward-line (* my/scroll-unit -2))))
+(global-set-key (kbd "C-M-s-0") (lambda () (interactive) (forward-line (* my/scroll-unit -4))))
+(global-set-key (kbd "C-M-s-1") (lambda () (interactive) (forward-line (* my/scroll-unit -8))))
+(global-set-key (kbd "C-M-s-2") (lambda () (interactive) (forward-line (* my/scroll-unit -16))))
+
+
+(global-set-key (kbd "C-M-s-5") (lambda () (interactive) (forward-line my/scroll-unit)))
+(global-set-key (kbd "C-M-s-6") (lambda () (interactive) (forward-line (* my/scroll-unit 2))))
+(global-set-key (kbd "C-M-s-8") (lambda () (interactive) (forward-line (* my/scroll-unit 8))))
+(global-set-key (kbd "C-M-s-7") (lambda () (interactive) (forward-line (* my/scroll-unit 4))))
+(global-set-key (kbd "C-M-s-9") (lambda () (interactive) (forward-line (* my/scroll-unit 16))))
+
+
 
 ;; keep cursor in same position
 (setq scroll-preserve-screen-position t)
@@ -383,17 +439,11 @@ Use prefix argument ARG for number of lines, otherwise use default."
 (advice-add 'scroll-down :around (lambda (orig-func &optional arg)
                                    (my/scroll orig-func 'down arg)))
 
-(use-package sublimity
-  :ensure t
-  :init
-  (require 'sublimity-scroll)
-  :custom
-  (sublimity-scroll-weight 15)
-  (sublimity-scroll-vertical-frame-delay 0.003)
-  :config
-  (sublimity-mode t))
+(setq mouse-wheel-scroll-amount '(1 ((shift) . 1) ((control) . nil))
+      mouse-wheel-progressive-speed nil
+      ring-bell-function 'ignore)
 
-;; bind scroll-one-line
+;; bind scroll-one-line  -  eventually have fast / medium /slow / 1-line scrolling speeds 
 (global-set-key (kbd "C-n") 'scroll-up-line)
 (global-set-key (kbd "C-p") 'scroll-down-line)
 
@@ -452,7 +502,7 @@ Use prefix argument ARG for number of lines, otherwise use default."
 ;;;;;;;;;;;;;;
 ;; org mode ;;
 ;;;;;;;;;;;;;;
-;; org mode
+
 (use-package org
   :ensure t
   :bind
@@ -479,12 +529,11 @@ Use prefix argument ARG for number of lines, otherwise use default."
   (display-line-numbers-mode 1)
   :custom
   (org-directory "~/org")
-  (org-agenda-files '("/home/polhuang/org/tasks.org" "/home/polhuang/org/schedule.org" "/home/polhuang/org/backmatter-tasks.org"))
+  (org-agenda-files '("/home/polhuang/org/tasks.org" "/home/polhuang/org/schedule.org" "/home/polhuang/org/projects.org" "/home/polhuang/org/habits.org"))
   (org-clock-idle-time 10)
   (org-clock-persist t)
   (org-habit-graph-column 100)
   (org-habit-preceding-days 28)
-  (org-src-preserve-indentation t) ;; prevents org src blocks from indenting every new line
   (org-habit-following-days 0)
   (org-indent-mode-turns-off-org-adapt-indentation nil)
   (org-startup-with-inline-images t)
@@ -523,6 +572,7 @@ Use prefix argument ARG for number of lines, otherwise use default."
           ("TABLED" . (:foreground "#ffd700" :distant-foreground "#171717" :weight bold))))
   (org-agenda-start-with-log-mode t)
   (org-log-done 'time)
+  (electric-indent-mode 1)
   (org-log-into-drawer t)
   (org-id-link-to-org-use-id 'create-if-interactive)
   (org-startup-folded 'content)
@@ -660,7 +710,7 @@ Use prefix argument ARG for number of lines, otherwise use default."
        (org-habit-stats-alltime-total . "Total Completions")
        (org-habit-stats-alltime-percentage . "Total Percentage"))))
 
-    ;; org-notify
+  ;; org-notify
   (use-package org-notify
     :ensure t
     :custom
@@ -672,19 +722,15 @@ Use prefix argument ARG for number of lines, otherwise use default."
       (my/alarm "long"))
     (org-notify-start)
     (org-notify-add 'default
-                  '(:time "5s" :period "1m" :duration 50 :urgency critical
+                  '(:time "5s" :duration 50 :urgency critical
                           :actions (my/alarm-long -notify))
-		  '(:time "1m" :duration 55
+        	  '(:time "1m" :duration 55
                           :actions (my/alarm -notify))
                   '(:time "5m" :duration 240
                           :actions (-notify))
                   '(:time "15m" :duration 600
                           :actions -notify)
-                  '(:time "30m" :duration 600 :actions -notify))
-    
-    (org-notify-add 'habit
-                    '(:time "-1s" :duration 600
-                            :actions (-notify))))
+                  '(:time "30m" :duration 600 :actions -notify)))
 
   ;; org-pomodoro
   (defun my/pomodoro-finished-alert ()
@@ -729,7 +775,7 @@ Use prefix argument ARG for number of lines, otherwise use default."
     (org-clock-reminder-inactive-title "Big Brother says:")
     (org-clock-reminder-active-title "Big Brother says:")
     (org-clock-reminder-inactive-text "%t: You're not clocked in, bro")
-    (org-clock-reminder-active-text "%t: You've been working for %c on <br/>%h.")
+    (org-clock-reminder-active-text "%t: You've been working for %c on w%h.")
     (org-clock-reminder-interval (cons 10 30))
     (org-clock-reminder-inactive-notifications-p nil)
     :config
@@ -951,7 +997,7 @@ T - tag prefix
 
 ;; major-mode hydra
 (use-package major-mode-hydra
-  :defer t
+  :ensure t
   :after (org mu4e)
   :bind
   ("C-M-] ." . major-mode-hydra)
@@ -1066,7 +1112,7 @@ T - tag prefix
   (read-minibuffer-restore-windows t) ; restore window configurations on exit from minibuffer
   (read-answer-short t) ; accept single character answers
   (resize-mini-windows 'grow-only)
-
+  :config
   (defun my/focus-minibuffer ()
     "Focus the active minibuffer."
     (interactive)
@@ -1085,6 +1131,11 @@ T - tag prefix
 (setq auth-sources '("~/.authinfo"))
 
 ;; gpg
+(let ((gpg-file (expand-file-name "private/gpg.el" user-emacs-directory)))
+  (unless (file-exists-p gpg-file)
+    (make-directory (file-name-directory gpg-file) t)
+    (write-region "" nil gpg-file))
+  (load gpg-file))
 (use-package pinentry :ensure t)
 (use-package epa
   :ensure nil
@@ -1093,8 +1144,6 @@ T - tag prefix
   (epa-file-cache-passphrase-for-symmetric-encryption t)
   :config
   (pinentry-start))
-
-(load (expand-file-name "private/gpg.el" user-emacs-directory))
 
 ;; plist store
 (require 'plstore)
@@ -1329,20 +1378,18 @@ T - tag prefix
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; corfu ----------------------------------------------------------------------- ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(use-package corfu
+(use-package corfu 
   :ensure t
-  ;; Optional customizations
-  ;; (:map corfu-map                         
-  ;;       ("TAB" . corfu-insert)           
-  ;;       ("RET" . corfu-insert)           
-  ;;       ("<return>" . corfu-insert))
+  :bind (:map corfu-map 
+              ("M-TAB" . corfu-insert)
+              ("C-g" . corfu-quit))
   :init
   (global-corfu-mode)
   (corfu-popupinfo-mode)
   (add-to-list 'corfu-margin-formatters #'nerd-icons-corfu-formatter)
   :custom
   (corfu-auto t)                    ;; Enable auto completion
-  (corfu-preselect 'prompt)         ;; Don't select first candidate
+  ;; (corfu-preselect 'valid)z      ;; Don't select first candidate
   (corfu-history-mode)
   ;; (corfu-separator ?\s)          ;; Orderless field separator
   ;; (corfu-quit-at-boundary nil)   ;; Never quit at completion boundary
@@ -1358,6 +1405,9 @@ T - tag prefix
   ;; recommended: enable Corfu globally.  recommended since dabbrev can
   ;; be used globally (M-/). see also the customization variable
   ;; `global-corfu-modes' to exclude certain modes
+  :config
+  (keymap-unset corfu-map "RET")          ;; prevent corfu from stealing RET or TAB
+  (keymap-unset corfu-map "TAB")          ;; TAB too
   )
 
 ;; emacs configurations
@@ -1534,9 +1584,6 @@ T - tag prefix
  (lambda (_ cmd)
    (put cmd 'repeat-map 'org-navigation-map)) org-navigation-map)
 
-
-
-
 ;; persistent scratch
 (use-package persistent-scratch
   :ensure t
@@ -1552,7 +1599,7 @@ T - tag prefix
 (use-package which-key
   :ensure t
   :config
-  (which-key-mode)
+  (which-key-mode t)
   :custom
   (which-key-max-description-length 40))
 
@@ -1579,7 +1626,7 @@ Otherwise, call eat."
          ("C-c e p" . eat-project))
   :custom 
   (eat-kill-buffer-on-exit t)
-  (eat-term-name "xterm-256color"))
+  (eat-term-name "xterm-kitty"))
 
 ;;;;;;;;;;;;
 ;; coding ;;
@@ -1588,14 +1635,65 @@ Otherwise, call eat."
 ;; spaces over tabs
 (setq-default indent-tabs-mode nil)
 
+;; indent
+(setq standard-indent 2)
+
+;; ;; indent bars
+;; (use-package indent-bars
+;;   :ensure t
+;;   :config
+;;   (require 'indent-bars-ts)
+;;   :custom
+;;   ;; (indent-bars-no-descend-lists nil) ; no extra bars in continued func arg lists
+;;   ;; (indent-bars-no-descend-string nil)
+
+  
+  
+  
+;;   :hook
+;;   ((python-base-mode yaml-mode typescripts-) . indent-bars-mode))
+
+(use-package indent-bars
+  :config
+  (require 'indent-bars-ts)
+  :custom
+  (indent-bars-no-descend-lists nil)
+  (indent-bars-no-descend-string nil)
+  (indent-bars-treesit-support t)
+  (indent-bars-treesit-ignore-blank-lines-types '("module"))
+  (indent-bars-treesit-wrap '((c argument_list parameter_list init_declarator))) 
+  (indent-bars-treesit-scope '((python function_definition class_definition for_statement
+	                               if_statement with_statement while_statement)))
+  (indent-bars-treesit-wrap '((rust arguments parameters)))
+  (indent-bars-treesit-scope '((rust trait_item impl_item 
+                                     macro_definition macro_invocation 
+                                     struct_item enum_item mod_item 
+                                     const_item let_declaration 
+                                     function_item for_expression 
+                                     if_expression loop_expression 
+                                     while_expression match_expression 
+                                     match_arm call_expression 
+                                     token_tree token_tree_pattern 
+                                     token_repetition)))
+    (indent-bars-pattern " . .")
+    (indent-bars-width-frac 0.2)
+    (indent-bars-pad-frac 0.1)
+    (indent-bars-zigzag nil)
+    (indent-bars-color-by-depth  '(:regexp "org-level-\\([1-8]+\\)" :blend 1))
+    (indent-bars-highlight-current-depth '(:width 0.3 :pattern ".")) ; pump up the BG blend on current
+    (indent-bars-display-on-blank-lines t)
+    :hook ((python-base-mode yaml-mode typescript-ts-base-mode) . indent-bars-mode))
+
+
 ;; projectile
 (use-package projectile
   :ensure t
   :bind-keymap ("C-x p" . projectile-command-map)
   :custom
-  (projectile-indexing-method 'hybrid)
+  (projectile-indexing-method 'alien)
   (projectile-project-search-path '("~/projects/"))
   (projectile-sort-order 'recently-active)
+  (projectile-run-use-comint-mode t) ;; this allows input in interactive run mode
   :config
   (define-key projectile-command-map (kbd "e") #'eat-project)
   (define-key projectile-command-map (kbd "b") #'consult-project-buffer)
@@ -1670,6 +1768,7 @@ Otherwise, call eat."
 (setq major-mode-remap-alist
       '((yaml-mode . yaml-ts-mode)
         (bash-mode . bash-ts-mode)
+        (c-mode . c-ts-mode)
         (javascript-mode . tsx-ts-mode)
         (js-mode . tsx-ts-mode)
         (js2-mode . tsx-ts-mode)
@@ -1686,12 +1785,26 @@ Otherwise, call eat."
 (use-package treesit-auto
   :commands (treesit-auto-add-to-auto-mode-alist global-treesit-auto-mode)
   :ensure t
+  :init
+  (treesit-auto-add-to-auto-mode-alist 'all)
   :custom
   (treesit-auto-install 'prompt)
   :config
-  (treesit-auto-add-to-auto-mode-alist 'all)
   (global-treesit-auto-mode))
- 
+
+;; combobulate
+(use-package combobulate
+  :straight (combobulate :type git :host github :repo "mickeynp/combobulate" :nonrecursive t)
+  :hook
+  ((python-ts-mode . combobulate-mode)
+   (js-ts-mode . combobulate-mode)
+   (html-ts-mode . combobulate-mode)
+   (css-ts-mode . combobulate-mode)
+   (yaml-ts-mode . combobulate-mode)
+   (typescript-ts-mode . combobulate-mode)
+   (json-ts-mode . combobulate-mode)
+   (tsx-ts-mode . combobulate-mode)))
+
 ;; emmet
 (use-package emmet-mode
   :ensure t
@@ -1703,7 +1816,10 @@ Otherwise, call eat."
   (html-mode . emmet-mode)
   (js-ts-mode . emmet-mode)
   (typescript-ts-mode . emmet-mode)
-  (tsx-ts-mode . emmet-mode))
+  (tsx-ts-mode . emmet-mode)
+  :custom
+  (emmet-indentation 0)
+  (emmet-indent-after-insert nil))
 
 ;; cargo
 (use-package cargo
@@ -1933,15 +2049,8 @@ Otherwise, call eat."
   :ensure t
   :bind
   (("C-c c" . gptel-menu))
-  :init
-  (gptel-make-openai "Perplexity"   
-  :host "api.perplexity.ai"
-  :key "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"
-  :endpoint "/chat/completions"
-  :stream t
-  :models '(
-            "llama-3-sonar-small-32k-online"
-            "llama-3-sonar-large-32k-online"))
+  :hook
+  (gptel-post-response-functions . gptel-end-of-response)
   :custom
   (gptel-model "gpt-4o")
   (gptel-default-mode 'org-mode)
@@ -1956,11 +2065,13 @@ Otherwise, call eat."
           (chat . "You are a large language model and a conversation partner. Respond concisely.")
           (maniac . "You are an intelligent but crazed lunatic that lives to give extravagant but confounding responses.")
           (emacs-addict . "You are extremely obsessed with emacs. You cannot bear to talk about anything but emacs, so you find any kind of opportunity to give answers in a way that has to do with emacs.")
-          (sassy . "You are extremely sassy and like to give witty, sardonic answers and insult me.")))
-
-  )
+          (sassy . "You are extremely sassy and like to give witty, sardonic answers and insult me."))))
 
 ;; spell-checking
+(require 'ispell)
+(setq ispell-local-dictionary "/usr/share/hunspell/en_US-large.dic")
+(setq ispell-alternate-dictionary "/usr/share/hunspell/en_US.dic")
+
 ;; install external dependencies enchant, pkgconf, and lang dict
 ;; pacman: enchant, pkgconf, hunspell-en_us
 (use-package jinx
@@ -2005,13 +2116,15 @@ Otherwise, call eat."
   :commands (org-gcal--sync-unlock org-todo)
   :init
   (add-hook 'org-gcal-after-update-entry-functions 'my/org-gcal-format)
+  (load (expand-file-name "private/gcal-credentials.el" user-emacs-directory))
   :hook (find-file . my/clear-extra-gcal-timestamps)
   :custom
   (org-gcal-up-days 0)
   (org-gcal-down-days 30)
   :config
-  ;; set delay time in seconds (30 seconds in this case) and start timer
-  (defvar my/org-gcal-sync-delay 30)
+  ;; set delay time in seconds (30 seconds in this case) before running (due to emacs-daemon startup time).
+  ;; run at least every 12 housr
+  (defvar my/org-gcal-sync-delay 15)
   (run-with-timer my/org-gcal-sync-delay 43200 'org-gcal-sync)
 
   (defun my/clear-extra-gcal-timestamps ()
@@ -2043,6 +2156,7 @@ Otherwise, call eat."
 (load "~/projects/scratchpad/scratchpad.el")
 
 (global-set-key (kbd "C-M-z") 'scratchpad-toggle)
+(global-set-key (kbd "C-M-s-s") 'scratchpad-new)
 
 
 (custom-set-variables
@@ -2050,33 +2164,29 @@ Otherwise, call eat."
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(column-number-mode t)
  '(custom-safe-themes
-   '("477715cf84159782e44bcea3c90697e4c64896b5af42d0466b2dd44ece279505" "b4c6b60bf5cf727ca62651c0a0147e0e6ba63564215bd3fd9bab771e7914bea8" "c9dba7f4b46497b5bddfab834603fc1748d50f6ea027c347561bb3d81a9c6a32" "57763ac4917fe06157c891fd73fd9a9db340bfe3a04392bb68b2df9032ce14a5" "e9aa348abd3713a75f2c5ba279aa581b1c6ec187ebefbfa33373083ff8004c7c" "7b8f5bbdc7c316ee62f271acf6bcd0e0b8a272fdffe908f8c920b0ba34871d98" default))
- '(js-indent-level 2)
- '(lsp-enable-links nil)
- '(package-selected-packages `(add-hook 'web-mode-hook #'lsp-deferred))
- '(register-preview-delay 0.0)
+   '("a53c7ff4570e23d7c5833cd342c461684aa55ddba09b7788d6ae70e7645c12b4"
+     "67f6b0de6f60890db4c799b50c0670545c4234f179f03e757db5d95e99bac332"
+     "7142a20d65513972790584a98dcfa2925126383817399438dcf133cb4eea96e3"
+     "477715cf84159782e44bcea3c90697e4c64896b5af42d0466b2dd44ece279505"
+     "b4c6b60bf5cf727ca62651c0a0147e0e6ba63564215bd3fd9bab771e7914bea8"
+     "c9dba7f4b46497b5bddfab834603fc1748d50f6ea027c347561bb3d81a9c6a32"
+     "57763ac4917fe06157c891fd73fd9a9db340bfe3a04392bb68b2df9032ce14a5"
+     "e9aa348abd3713a75f2c5ba279aa581b1c6ec187ebefbfa33373083ff8004c7c"
+     "7b8f5bbdc7c316ee62f271acf6bcd0e0b8a272fdffe908f8c920b0ba34871d98"
+     default))
+ '(nil nil t)
+ '(org-agenda-files
+   '("/home/polhuang/org/tasks.org" "/home/polhuang/org/schedule.org"
+     "/home/polhuang/org/habits.org") nil nil "Customized with use-package org")
  '(safe-local-variable-values
-   '((eval save-excursion
-           (goto-char
-            (point-min))
-           (while
-               (re-search-forward "^\\(<\\([^>]+\\)>\\)" nil t)
+   '((eval save-excursion (goto-char (point-min))
+           (while (re-search-forward "^\\(<\\([^>]+\\)>\\)" nil t)
              (replace-match "SCHEDULED: \\1")))
-     (eval org-columns)
-     (eval outline-next-heading)
-     (eval goto-char
-           (point-min))))
- '(tool-bar-mode nil)
- '(treesit-font-lock-level 4)
- '(typescript-auto-indent-flag t)
- '(typescript-indent-level 2)
- '(warning-suppress-types '((comp)))
- '(which-key-delay-functions nil)
- '(which-key-echo-keystrokes 0.01)
- '(which-key-idle-delay 0.01)
- '(which-key-mode t))
+     (eval org-columns) (eval outline-next-heading)
+     (eval goto-char (point-min))))
+ '(warning-suppress-types '((comp))))
+
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
