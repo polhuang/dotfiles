@@ -32,7 +32,7 @@
 ;; (use-package geiser
 ;;   :ensure nil)
 
-;; (let ((guix-emacs-dir "/home/polhuang/.guix-profile/share/emacs/site-lisp"))
+;; (let ((guix-emacs-dir "/home/pol/.guix-profile/share/emacs/site-lisp"))
 ;;   (add-to-list 'load-path guix-emacs-dir))
 
 (setq package-archives '(("melpa" . "https://melpa.org/packages/")
