@@ -8,7 +8,6 @@
    #:use-module (gnu packages package-management)
    #:use-module (gnu packages emacs-xyz)
    #:use-module (gnu packages emacs)
-   #:use-module (gnu packages gnupg)
    #:use-module (gnu packages librewolf)
    #:use-module (gnu packages video)
    #:use-module (gnu packages fonts)
@@ -20,6 +19,7 @@
    #:use-module (gnu packages gnupg)
    #:use-module (gnu packages vim)
    #:use-module (gnu packages mail)
+   #:use-module (gnu packages shellutils)
    #:use-module (gnu packages password-utils)
    #:use-module (gnu packages wm)
    #:use-module (gnu packages web-browsers)
@@ -74,10 +74,9 @@
 (define home
   (home-environment
  ;; Below is the list of packages that will show up in your ;; Home profile, under ~/.guix-home/profile.
-   (packages (list pinentry
-                   pinentry-emacs
+   (packages (list pinentry ;;new
+                   pinentry-emacs ;new
                    emacs-next-pgtk-xwidgets
-                   emacs-desktop-environment
                    emacs-guix
                    emacs-jinx
                    neofetch
@@ -91,49 +90,51 @@
                    font-google-noto-emoji
                    font-google-noto-sans-cjk 
                    mu
-                   gnupg-new
-		   automake
+		   ;;automake
                    emacs-jinx
                    btop
-		   libtool
-                   librewolf
+		   ;;libtool
+                   ;;librewolf
 		   flatpak
 		   font-fira-code
-		   password-store
-		   binutils
-		   pkg-config
+		   password-store ;;new
+		   binutils ;;new
+		   ;;pkg-config
                    waybar
 		   font-ghostscript
 		   font-dejavu
 		   font-gnu-freefont
                    swaynotificationcenter
                    neovim
-                   obs
-                   rust
-                   rust-cargo
+                   ;;obs
+                   ;;rust
+                   ;;rust-cargo
                    hyprpaper
                    hypridle
-                   starship-bin))
+                   ripgrep
+                   zsh-autosuggestions
+                   zsh-completions
+                   zsh-syntax-highlighting
+                   sh-z
+                   fzf
+                   ))
    ;; Below is the list of Home services.  To search for available
    ;; services, run 'guix home search KEYWORD' in a terminal.
    (services
-   (list (service home-bash-service-type
-                  (home-bash-configuration
-                   (guix-defaults? #t)
-                   (aliases '(("grep" . "grep --color=auto") ("ll" . "ls -l")
-                              ("ls" . "ls -p --color=auto")))
-                   (bashrc (list (local-file
-                                  "/home/polhuang/polterguix/files/.bashrc" "bashrc")))
-                   (bash-profile (list (local-file
-                                        "/home/polhuang/polterguix/files/.bash_profile"
-                                        "bash_profile"))))
-                  )
-         (service home-zsh-service-type
+   (list (service home-zsh-service-type
                   (home-zsh-configuration
-                   (zshrc (list (local-file
-                                 "/home/polhuang/polterguix/files/.zshrc" "zshrc")))
+                   (zshrc (list 
+                                (mixed-text-file "zsh-autosuggestions"
+                                                 "source $HOME/.guix-home/profile/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh")
+                                (mixed-text-file "zsh-syntax-highlighting"
+                                                 "source $HOME/.guix-home/profile/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh")
+                                (mixed-text-file "zsh-completions"
+                                                 "fpath=($HOME/.guix-home/share/zsh/site-functions $fpath)")
+                                (local-file
+                                 "/home/pol/polterguix/files/.zshrc" "zshrc")
+))
                    (zprofile (list (local-file
-                                    "/home/polhuang/polterguix/files/.zprofile"
+                                    "/home/pol/polterguix/files/.zprofile"
                                     "zprofile")))))))))
 
 (if (equal? (getenv "GUIX_TARGET") "home")

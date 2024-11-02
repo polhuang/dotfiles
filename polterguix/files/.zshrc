@@ -1,35 +1,31 @@
+# history
 HISTFILE=~/.histfile
-HISTSIZE=1000
-SAVEHIST=1000
-
+HISTSIZE=5000
+SAVEHIST=$HISTSIZE
+setopt APPEND_HISTORY
 setopt SHARE_HISTORY
 setopt EXTENDED_HISTORY
+
+# autocompletion
+autoload -Uz compinit
+compinit
+zstyle ':completion:*' format 'Presenting the compleat and unabridged %d'
+zstyle ':completion:*' list-prompt '%S%F{blue} %p: %f%k'
+zstyle ':completion:*' use-cache yes
+zstyle ':completion:*:default' menu select=1
+
+# emacs bindings
 bindkey -e
 
-zstyle :compinstall filename '/home/polhuang/.zshrc'
+# prompt
+PROMPT="🦂 [%*] > %1~ > "
 
-export PATH="$PATH:/home/polhuang/.local/bin"
-export PATH="$PATH:/home/polhuang/.bin"
+# env variables
+export PATH="$PATH:$HOME/.local/bin"
+export PATH="$PATH:$HOME/.bin"
+export XDG_DATA_DIRS="$HOME/.local/share:$HOME/.local/share/flatpak/exports/share:/var/lib/flatpak/exports/share:$XDG_DATA_DIRS"
 
-export GUIX_LOCPATH=$HOME/.guix-profile/lib/locale
-
-GUIX_PROFILE="$HOME/.config/guix/current"
-. "$GUIX_PROFILE/etc/profile"
-
-GUIX_PROFILE="$HOME/.guix-profile"
-. "$GUIX_PROFILE/etc/profile"
-
-# # Download Znap, if it's not there yet.
-[[ -r ~/.zsh/znap/znap.zsh ]] ||
-    git clone --depth 1 -- \
-        https://github.com/marlonrichert/zsh-snap.git ~/.zsh/znap
-
-source ~/.zsh/znap/znap.zsh  # Start Znap
-
-znap source marlonrichert/zsh-autocomplete
-znap source zsh-users/zsh-syntax-highlighting
-znap source zsh-users/zsh-autosuggestions
-znap source rupa/z
+# on guix systems, go to ~/.config/zsh/ and delete the cache to reconfigure if using a package manager. avoiding here.
 
 TMOUT=600
 
@@ -37,5 +33,11 @@ TRAPALRM() {
     asciiquarium
 }
 
-eval "$(starship init zsh)"
-
+# aliases
+alias ll="ls -alh --color=auto"
+alias ls="ls -aF --color=auto"
+alias config="cd ~/.config/"
+alias dotfiles="cd ~/.dotfiles/"
+alias downloads="cd ~/Downloads/"
+alias documents="cd ~/Documents/"
+alias vim="nvim"

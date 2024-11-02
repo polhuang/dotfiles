@@ -2,6 +2,11 @@
 ;; emacs settings ;;
 ;;;;;;;;;;;;;;;;;;;;
 
+(defvar is-guix nil
+  "Varible indicating whether system is managed by guix.")
+
+(setq is-guix (not (string-equal (system-name) "nineveh")))
+
 (setq package-enable-at-startup nil)
 
 ;; set gc threshold for startup performance
@@ -29,11 +34,12 @@
 ;; package settings ;;
 ;;;;;;;;;;;;;;;;;;;;;;
 
-;; (use-package geiser
-;;   :ensure nil)
+(when is-guix
+  (let ((guix-emacs-dir "/home/pol/.guix-profile/share/emacs/site-lisp"))
+    (add-to-list 'load-path guix-emacs-dir))
 
-;; (let ((guix-emacs-dir "/home/pol/.guix-profile/share/emacs/site-lisp"))
-;;   (add-to-list 'load-path guix-emacs-dir))
+  (use-package geiser
+  :ensure nil))
 
 (setq package-archives '(("melpa" . "https://melpa.org/packages/")
  			 ("elpa" . "https://elpa.gnu.orgpackages/")
@@ -292,6 +298,9 @@ Each element is a cons cell (FONT-NAME . HEIGHT).")
 (use-package all-the-icons-completion
   :ensure t)
 
+;; uncomment on new systems / move to guix
+;; (nerd-icons-install-fonts) 
+
 (use-package nerd-icons-corfu
   :ensure t
   ;; nerd-icons-corfu-formatter added to corfu-margin-formatters in corfu section
@@ -529,7 +538,7 @@ Use prefix argument ARG for number of lines, otherwise use default."
   (display-line-numbers-mode 1)
   :custom
   (org-directory "~/org")
-  (org-agenda-files '("/home/polhuang/org/tasks.org" "/home/polhuang/org/schedule.org" "/home/polhuang/org/projects.org" "/home/polhuang/org/habits.org"))
+  (org-agenda-files '("~/org/tasks.org" "~/org/schedule.org" "~/org/projects.org" "~/org/habits.org"))
   (org-clock-idle-time 10)
   (org-clock-persist t)
   (org-habit-graph-column 100)
@@ -2175,10 +2184,10 @@ Otherwise, call eat."
      "e9aa348abd3713a75f2c5ba279aa581b1c6ec187ebefbfa33373083ff8004c7c"
      "7b8f5bbdc7c316ee62f271acf6bcd0e0b8a272fdffe908f8c920b0ba34871d98"
      default))
+ '(epg-pinentry-mode 'loopback nil nil "Customized with use-package epa")
  '(nil nil t)
  '(org-agenda-files
-   '("/home/polhuang/org/tasks.org" "/home/polhuang/org/schedule.org"
-     "/home/polhuang/org/habits.org") nil nil "Customized with use-package org")
+   '("~/org/schedule.org" "~/org/habits.org") nil nil "Customized with use-package org")
  '(safe-local-variable-values
    '((eval save-excursion (goto-char (point-min))
            (while (re-search-forward "^\\(<\\([^>]+\\)>\\)" nil t)
