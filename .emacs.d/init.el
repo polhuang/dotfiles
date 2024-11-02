@@ -298,6 +298,9 @@ Each element is a cons cell (FONT-NAME . HEIGHT).")
 (use-package all-the-icons-completion
   :ensure t)
 
+;; uncomment on new systems / move to guix
+;; (nerd-icons-install-fonts) 
+
 (use-package nerd-icons-corfu
   :ensure t
   ;; nerd-icons-corfu-formatter added to corfu-margin-formatters in corfu section
