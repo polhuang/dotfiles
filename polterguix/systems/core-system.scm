@@ -75,7 +75,7 @@
 			 (comment "Paul Huang")
 			 (group "users")
 			 (home-directory "/home/pol")
-			 ;; (shell (file-append zsh "/bin/zsh"))
+			 (shell (file-append zsh "/bin/zsh"))
 			 (supplementary-groups '("wheel"
 						 "netdev"
 						 "kvm"
