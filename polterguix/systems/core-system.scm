@@ -2,6 +2,7 @@
   #:use-module (gnu)
   #:use-module (gnu system)
   #:use-module (nongnu system linux-initrd)
+
   #:use-module (gnu packages linux)
   #:use-module (gnu packages audio)
   #:use-module (gnu packages emacs)
@@ -67,7 +68,6 @@
 
    (swap-devices (list (swap-space
 			(target "/swap/swapfile"))))
-   
 
    ;; users
    (users (append (list (user-account
@@ -117,13 +117,12 @@
    (services
  (append (modify-services %desktop-services
               (guix-service-type config => (guix-configuration
-                                               (inherit config)
-                                               (substitute-urls
-                                                (append (list "https://substitutes.nonguix.org")
-                                                        %default-substitute-urls))
-                                               (authorized-keys
-                                                (append (list (local-file "../files/signing-key.pub"))
-                                                        %default-authorized-guix-keys)))))
+                                            (inherit config)
+                                            (substitute-urls
+                                             (append (list "https://substitutes.nonguix.org")
+                                                     %default-substitute-urls))
+                                            (authorized-keys
+                                             (append (list (local-file "../files/signing-key.pub"))                                                        %default-authorized-guix-keys)))))
          (list
           (service gnome-desktop-service-type)
           (service openssh-service-type)
