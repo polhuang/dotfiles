@@ -45,11 +45,10 @@
     (service home-bash-service-type
              (home-bash-configuration
               (guix-defaults? #t)
-              
               (bashrc (list (local-file
-                             "/home/polhuang/polterguix/files/.bashrc" "bashrc")))
+                             "/home/pol/polterguix/files/.bashrc" "bashrc")))
               (bash-profile (list (local-file
-                                   "/home/polhuang/polterguix/files/.bash_profile"
+                                   "/home/pol/polterguix/files/.bash_profile"
                                    "bash_profile")))))
 
     (service home-zsh-service-type
@@ -57,9 +56,9 @@
               (aliases '(("grep" . "grep --color=auto") ("ll" . "ls -l")
                          ("ls" . "ls -p --color=auto")))
               (zshrc (list (local-file
-                            "/home/polhuang/polterguix/files/.zshrc" "zshrc")))
+                            "/home/pol/polterguix/files/.zshrc" "zshrc")))
               (zprofile (list (local-file
-                               "/home/polhuang/polterguix/files/.zprofile"
+                               "/home/pol/polterguix/files/.zprofile"
                                "zprofile")))))
 
     (service home-gpg-agent-service-type
