@@ -17,9 +17,6 @@ zstyle ':completion:*:default' menu select=1
 # emacs bindings
 bindkey -e
 
-# prompt
-PROMPT="🦂 [%*] > %1~ > "
-
 # env variables
 export PATH="$PATH:$HOME/.local/bin"
 export PATH="$PATH:$HOME/.bin"
@@ -41,3 +38,7 @@ alias dotfiles="cd ~/.dotfiles/"
 alias downloads="cd ~/Downloads/"
 alias documents="cd ~/Documents/"
 alias vim="nvim"
+
+# starship
+eval "$(starship init zsh)"
+
