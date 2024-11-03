@@ -53,12 +53,18 @@
 
     (service home-zsh-service-type
              (home-zsh-configuration
-              (aliases '(("grep" . "grep --color=auto") ("ll" . "ls -l")
-                         ("ls" . "ls -p --color=auto")))
-              (zshrc (list (local-file
-                            "/home/pol/polterguix/files/.zshrc" "zshrc")))
+              (zshrc (list
+                      (mixed-text-file "zsh-autosuggestions"
+                                       "source $HOME/.guix-home/profile/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh")
+                      (mixed-text-file "zsh-syntax-highlighting"
+                                       "source $HOME/.guix-home/profile/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh")
+                      (mixed-text-file "zsh-completions"
+                                       "fpath=($HOME/.guix-home/share/zsh/site-functions $fpath)")
+                      (local-file
+                       "/home/polhuang/polterguix/files/.zshrc" "zshrc")
+                      ))
               (zprofile (list (local-file
-                               "/home/pol/polterguix/files/.zprofile"
+                               "/home/polhuang/polterguix/files/.zprofile"
                                "zprofile")))))
 
     (service home-gpg-agent-service-type
