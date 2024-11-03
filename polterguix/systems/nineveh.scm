@@ -36,8 +36,12 @@
                                 (mixed-text-file "zsh-completions"
                                                  "fpath=($HOME/.guix-home/share/zsh/site-functions $fpath)")
                                 (local-file
-                                 "/home/polhuang/polterguix/files/.zshrc" "zshrc")
+                                 "../files/.zshrc" "zshrc")
 ))
                    (zprofile (list (local-file
-                                    "/home/polhuang/polterguix/files/.zprofile"
-                                    "zprofile"))))))))
+                                    "../files/.zprofile"
+                                    "zprofile")))))
+
+         (simple-service 'dotfiles
+                         home-xdg-configuration-files-service-type
+                         `(("hypr/hyprland.conf"  ,(local-file "../files/hypr/hyprland-akhetaten.conf")))))))
