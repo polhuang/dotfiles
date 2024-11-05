@@ -1,9 +1,9 @@
 (define-module (polterguix systems akhetaten)
+   #:use-module (polterguix systems core-system)
    #:use-module (gnu)
    #:use-module (gnu home)
    #:use-module (gnu packages)
    #:use-module (gnu packages admin)
-   #:use-module (gnu packages xdisorg)
    #:use-module (gnu packages autotools)
    #:use-module (gnu packages package-management)
    #:use-module (gnu packages emacs-xyz)
@@ -25,9 +25,16 @@
    #:use-module (gnu packages wm)
    #:use-module (gnu packages web-browsers)
    #:use-module (gnu packages terminals)
-   #:use-module (gnu packages admin)
+   #:use-module (gnu packages xdisorg)
    #:use-module (nongnu packages mozilla)
    #:use-module (gnu services)
+   #:use-module (gnu services networking)
+   
+   #:use-module (gnu services ssh)
+  
+  #:use-module (gnu services xorg)
+
+   
    #:use-module (guix gexp)
    #:use-module (polterguix packages hyprland)
    #:use-module (polterguix packages desktop)
@@ -35,14 +42,36 @@
    #:use-module (polterguix packages cli)
    #:use-module (gnu home services)
    #:use-module (gnu home services shells)
-   #:use-module (gnu home services ssh)
-   #:use-module (polterguix systems core-system))
+   #:use-module (gnu home services ssh))
 
 (define system
   (operating-system
    (inherit core-operating-system)
    (host-name "akhetaten")
-   ))
+   (mapped-devices (list (mapped-device
+                          (source (uuid
+                                   "29df3858-a0bb-46c1-8d52-64a11734a789"))
+                          (target "crypt-akhetaten")
+                          (type luks-device-mapping))))
+   (file-systems (cons* (file-system
+                         (mount-point "/")
+                         (device "/dev/mapper/crypt-akhetaten")
+                         (type "btrfs")
+                         (dependencies mapped-devices))
+                       (file-system
+                         (mount-point "/boot/efi")
+                         (device (uuid "6CCB-3E30"
+                                       'fat32))
+                         (type "vfat"))
+                       %base-file-systems))
+   (swap-devices (list (swap-space
+			(target "/swap/swapfile"))))   
+   (services (append core-services
+                     (list (service openssh-service-type
+                                    (openssh-configuration
+                                     (x11-forwarding? #t)
+                                     (port-number 39903)
+                                     (password-authentication? #f))))))))
 
 (define home
   (home-environment
