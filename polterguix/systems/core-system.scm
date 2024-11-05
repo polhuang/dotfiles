@@ -75,7 +75,7 @@
                        %base-file-systems))
 
    (swap-devices (list (swap-space
-			(target "/swap/swapfile"))))
+			(target "/swap/swapfile")))
 
    ;; users
    (users (append (list (user-account

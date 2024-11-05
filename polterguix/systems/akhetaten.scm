@@ -32,13 +32,16 @@
    #:use-module (polterguix packages desktop)
    #:use-module (polterguix packages security)
    #:use-module (polterguix packages cli)
+   #:use-module (gnu home services)
    #:use-module (gnu home services shells)
+   #:use-module (gnu home services ssh)
    #:use-module (polterguix systems core-system))
 
 (define system
   (operating-system
    (inherit core-operating-system)
-   (host-name "akhetaten")))
+   (host-name "akhetaten")
+   ))
 
 (define home
   (home-environment
@@ -101,7 +104,19 @@
                             ))
                     (zprofile (list (local-file
                                      "/home/pol/polterguix/files/.zprofile"
-                                     "zprofile")))))))))
+                                     "zprofile")))))
+          (service home-openssh-service-type
+                   (home-openssh-configuration
+                    (hosts
+                     (list (openssh-host (name "babylon")
+                                         (host-name "192.168.0.111")
+                                         (user "pol")
+                                         (identity-file "/home/pol/.ssh/babylon")
+                                         (port 39902))))))
+          (simple-service 'dotfiles
+                          home-xdg-configuration-files-service-type
+                          `(("hypr/hyprland.conf"  ,(local-file "../files/hypr/hyprland-akhetaten.conf"))))
+          ))))
 
 (if (equal? (getenv "GUIX_TARGET") "home")
     home
