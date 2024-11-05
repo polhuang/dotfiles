@@ -1635,7 +1635,7 @@ Otherwise, call eat."
          ("C-c e p" . eat-project))
   :custom 
   (eat-kill-buffer-on-exit t)
-  (eat-term-name "xterm-kitty"))
+  (eat-term-name "xterm-256color"))
 
 ;;;;;;;;;;;;
 ;; coding ;;
@@ -2084,6 +2084,7 @@ Otherwise, call eat."
 ;; install external dependencies enchant, pkgconf, and lang dict
 ;; pacman: enchant, pkgconf, hunspell-en_us
 (use-package jinx
+  :ensure nil
   :hook (emacs-startup . global-jinx-mode)
   :bind (("M-$" . jinx-correct)
          ("C-M-$" . jinx-languages)))

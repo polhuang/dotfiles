@@ -19,6 +19,7 @@
   #:use-module (gnu packages audio)
   #:use-module (gnu packages emacs)
   #:use-module (gnu packages file-systems)
+  #:use-module (gnu packages fonts)
   #:use-module (gnu packages version-control)
   #:use-module (gnu packages gnome)
   #:use-module (gnu packages video)
@@ -75,7 +76,7 @@
                        %base-file-systems))
 
    (swap-devices (list (swap-space
-			(target "/swap/swapfile")))
+			(target "/swap/swapfile"))))
 
    ;; users
    (users (append (list (user-account
@@ -114,6 +115,7 @@
                     emacs-desktop-environment
                     hyprland
                     exfat-utils
+                    font-awesome
                     fuse-exfat
                     git
                     libva-utils

@@ -17,6 +17,7 @@
    #:use-module (gnu packages rust)
    #:use-module (gnu packages rust-apps)
    #:use-module (gnu packages gnupg)
+   #:use-module (gnu packages hunspell)
    #:use-module (gnu packages vim)
    #:use-module (gnu packages mail)
    #:use-module (gnu packages shellutils)
@@ -61,25 +62,20 @@
                    font-google-noto-emoji
                    font-google-noto-sans-cjk 
                    mu
-		   ;;automake
-                   emacs-jinx
+		   emacs-jinx
                    btop
-		   ;;libtool
-                   ;;librewolf
+		   librewolf
+                   hunspell
 		   flatpak
 		   font-fira-code
-		   password-store ;;new
-		   binutils ;;new
-		   ;;pkg-config
-                   waybar
+		   password-store
+		   waybar
 		   font-ghostscript
 		   font-dejavu
 		   font-gnu-freefont
                    swaynotificationcenter
                    neovim
-                   ;;obs
-                   ;;rust
-                   ;;rust-cargo
+                   obs
                    hyprpaper
                    hypridle
                    ripgrep
@@ -115,7 +111,8 @@
                                          (port 39902))))))
           (simple-service 'dotfiles
                           home-xdg-configuration-files-service-type
-                          `(("hypr/hyprland.conf"  ,(local-file "../files/hypr/hyprland-akhetaten.conf"))))
+                          `(("hypr/hyprland.conf"  ,(local-file "../files/hypr/hyprland-akhetaten.conf"))
+                            ("hypr/hyprland-base.conf"  ,(local-file "../files/hypr/hyprland-base.conf"))))
           ))))
 
 (if (equal? (getenv "GUIX_TARGET") "home")

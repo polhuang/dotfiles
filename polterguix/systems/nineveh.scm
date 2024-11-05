@@ -43,5 +43,6 @@
                                     "zprofile")))))
 
          (simple-service 'dotfiles
-                         home-xdg-configuration-files-service-type
-                         `(("hypr/hyprland.conf"  ,(local-file "../files/hypr/hyprland-akhetaten.conf")))))))
+                          home-xdg-configuration-files-service-type
+                          `(("hypr/hyprland.conf"  ,(local-file "../files/hypr/hyprland-nineveh.conf"))
+                            ("hypr/hyprland-base.conf"  ,(local-file "../files/hypr/hyprland-base.conf")))))))
