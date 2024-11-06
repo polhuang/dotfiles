@@ -9,8 +9,6 @@
   #:use-module (gnu packages pth)
   #:use-module (gnu packages openldap)
   #:use-module (gnu packages readline))
-
-
  
 (define-public gnupg-new
   (package
