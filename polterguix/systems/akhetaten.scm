@@ -3,6 +3,7 @@
   #:use-module (gnu home)
   ;;  #:use-module (gnu packages)
   ;;  #:use-module (gnu packages autotools)
+  #:use-module (gnu packages admin)
   #:use-module (gnu packages emacs)
   #:use-module (gnu packages emacs-xyz)
   ;;  #:use-module (gnu packages librewolf)
@@ -49,19 +50,14 @@
   (operating-system
    (inherit core-operating-system)
    (host-name "akhetaten")
-  
-  (mapped-devices (list (mapped-device
+
+   (mapped-devices (list (mapped-device
                           (source (uuid
                                    "29df3858-a0bb-46c1-8d52-64a11734a789"))
                           (target "crypt-akhetaten")
                           (type luks-device-mapping)))) 
    ;; placeholder file system
    (file-systems (cons* (file-system
-                         (mount-point "/tmp")
-                         (device "none")
-                         (type "tmpfs")
-                         (check? #f))
-                        (file-system
                          (mount-point "/")
                          (device "/dev/mapper/crypt-akhetaten")
                          (type "btrfs")
@@ -71,8 +67,7 @@
                          (device (uuid "6CCB-3E30"
                                        'fat32))
                          (type "vfat"))
-                        %base-file-systems))
-))
+                        %base-file-systems))))
 
 
 (define home
