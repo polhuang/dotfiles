@@ -1,4 +1,4 @@
-In the process of moving dotfiles management to [[https://guix.gnu.org/z][GNU Guix]] for reproducibility across four machines.
+In the process of moving dotfiles management to [[https://guix.gnu.org/][GNU Guix]] for reproducibility across four machines.
 
 Top-level module path is at [[https://github.com/polhuang/dotfiles/tree/master/polterguix][polterguix]].
 
