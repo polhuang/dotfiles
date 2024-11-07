@@ -1,0 +1,8 @@
+In the process of moving dotfiles management to [[https://guix.gnu.org/z][GNU Guix]].
+
+* To do:
+- [ ] Add zsh and hyper symlinks to stow ignore
+- [ ] Create hyprland module instead of using external channel
+- [ ] Move emacs package management from use-package to guix
+- [ ] Move rest of xdg dotfiles
+- [ ] Create system for babylon 
