@@ -141,8 +141,7 @@
           (simple-service 'dotfiles
                           home-xdg-configuration-files-service-type
                           `(("hypr/hyprland.conf"  ,(local-file "../files/hypr/hyprland-akhetaten.conf"))
-                            ("hypr/hyprland-base.conf"  ,(local-file "../files/hypr/hyprland-base.conf"))))
-          ))))
+                            ("hypr/hyprland-base.conf"  ,(local-file "../files/hypr/hyprland-base.conf"))))))))
 
 (if (equal? (getenv "GUIX_TARGET") "home")
     home

@@ -466,7 +466,7 @@ Use prefix argument ARG for number of lines, otherwise use default."
 (set-register ?a (cons 'file "~/.dotfiles/.config/"))
 (set-register ?d (cons 'file "~/org/daily-tracker.org"))
 (set-register ?e (cons 'file "~/.dotfiles/.emacs.d/init.el"))
-(set-register ?h (cons 'file "~/.dotfiles/.config/hypr/hyprland.conf"))
+(set-register ?h (cons 'file "~/polterguix/files/hypr/hyprland-base.conf"))
 (set-register ?s (cons 'file "~/org/schedule.org"))
 (set-register ?S (cons 'file "~/projects/cherry-seoul256/cherry-seoul256-theme.el"))
 (set-register ?t (cons 'file "~/org/tasks.org"))
@@ -2186,9 +2186,6 @@ Otherwise, call eat."
      "7b8f5bbdc7c316ee62f271acf6bcd0e0b8a272fdffe908f8c920b0ba34871d98"
      default))
  '(epg-pinentry-mode 'loopback nil nil "Customized with use-package epa")
- '(nil nil t)
- '(org-agenda-files
-   '("~/org/schedule.org" "~/org/habits.org") nil nil "Customized with use-package org")
  '(safe-local-variable-values
    '((eval save-excursion (goto-char (point-min))
            (while (re-search-forward "^\\(<\\([^>]+\\)>\\)" nil t)
