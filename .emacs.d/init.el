@@ -3,7 +3,7 @@
 ;;;;;;;;;;;;;;;;;;;;
 
 (defvar is-guix nil
-  "Varible indicating whether system is managed by guix.")
+  "Variable indicating whether system is managed by guix.")
 
 (setq is-guix (not (string-equal (system-name) "nineveh")))
 
@@ -42,7 +42,7 @@
   :ensure nil))
 
 (setq package-archives '(("melpa" . "https://melpa.org/packages/")
- 			 ("elpa" . "https://elpa.gnu.orgpackages/")
+ 			 ("elpa" . "https://elpa.gnu.org/packages/")
   			 ("nongnu" . "https://elpa.nongnu.org/nongnu/")))
 
 ;; enable packages from quelpa
