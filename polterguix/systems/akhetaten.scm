@@ -137,7 +137,11 @@
                                          (host-name "192.168.0.111")
                                          (user "pol")
                                          (identity-file "/home/pol/.ssh/babylon")
-                                         (port 39902))))))
+                                         (port 39902))
+                           (openssh-host (name "github.com")
+                                         (host-name "github.com")
+                                         (user "git")
+                                         (identity-file "/home/pol/.ssh/github"))))))
           (simple-service 'dotfiles
                           home-xdg-configuration-files-service-type
                           `(("hypr/hyprland.conf"  ,(local-file "../files/hypr/hyprland-akhetaten.conf"))
