@@ -12,7 +12,6 @@
 ;; set gc threshold for startup performance
 (setq gc-cons-threshold (* 50 1000 1000))
 
-
 ;; define personal keybinding prefix (an unpragmatic keybinding repurposed for reprogrammed keyboard)
 (defvar my-map (make-sparse-keymap))
 (define-key global-map (kbd "C-M-]") my-map)
@@ -429,8 +428,6 @@ Each element is a cons cell (FONT-NAME . HEIGHT).")
 (global-set-key (kbd "C-M-s-8") (lambda () (interactive) (forward-line (* my/scroll-unit 8))))
 (global-set-key (kbd "C-M-s-7") (lambda () (interactive) (forward-line (* my/scroll-unit 4))))
 (global-set-key (kbd "C-M-s-9") (lambda () (interactive) (forward-line (* my/scroll-unit 16))))
-
-
 
 ;; keep cursor in same position
 (setq scroll-preserve-screen-position t)
@@ -2062,19 +2059,7 @@ Otherwise, call eat."
   (gptel-post-response-functions . gptel-end-of-response)
   :custom
   (gptel-model "gpt-4o")
-  (gptel-default-mode 'org-mode)
-  (gptel-directives
-        '(
-          (default . "You are a large language model living in Emacs. You are a helpful assistant. Provide concise answers.")
-          (detailed . "You are a large language model living in Emacs. You are a helpful assistant but also a thorough researcher. Provide thorough answers in outline form and section headers.")
-          (programming . "You are a large language model and a careful programmer. Provide code and only code as output without any additional text, prompt or note.")
-          (debugging . "You are a large language model and a careful programmer. Analyze this code and concisely explain any bugs you find.")
-          (teaching . "You are a large language model and a patient teacher. Walk me through your answers slowly step-by-step.")
-          (writing . "You are a large language model and a writing assistant. Respond concisely.")
-          (chat . "You are a large language model and a conversation partner. Respond concisely.")
-          (maniac . "You are an intelligent but crazed lunatic that lives to give extravagant but confounding responses.")
-          (emacs-addict . "You are extremely obsessed with emacs. You cannot bear to talk about anything but emacs, so you find any kind of opportunity to give answers in a way that has to do with emacs.")
-          (sassy . "You are extremely sassy and like to give witty, sardonic answers and insult me."))))
+  (gptel-default-mode 'org-mode))
 
 ;; spell-checking
 (require 'ispell)
