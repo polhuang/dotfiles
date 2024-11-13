@@ -795,15 +795,7 @@ Use prefix argument ARG for number of lines, otherwise use default."
 
     ;; define duration based on time since latest clock-in, not total clocked time
     ;; add current
-    (org-clock-reminder-mode))
-
-  (use-package org-ai
-    :ensure t
-    :commands (org-ai-mode
-               org-ai-global-mode)
-    :hook (org-mode . org-ai-mode)
-    :init (org-ai-global-mode)
-    :custom (org-ai-default-chat-model "gpt-4o")))
+    (org-clock-reminder-mode)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; hydra ----------------------------------------------------------------------- ;;

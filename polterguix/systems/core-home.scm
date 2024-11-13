@@ -1,4 +1,4 @@
-(define-module (polterguix systems akhetaten)
+(define-module (polterguix systems core-home)
    #:use-module (gnu)
    #:use-module (gnu home)
    #:use-module (gnu packages)
@@ -27,7 +27,10 @@
    #:use-module (nongnu packages mozilla)
    #:use-module (gnu services)
    #:use-module (guix gexp)
+   #:use-module (gnu home services)
    #:use-module (gnu home services shells)
+   #:use-module (gnu home services pm)
+   #:use-module (gnu home services gnupg)
    #:use-module (polterguix packages hyprland)
    #:use-module (polterguix packages desktop)
    #:use-module (polterguix packages security)
@@ -86,53 +89,50 @@
     ;;                '(next-hour (range 0 24 4))
     ;;                "~/.dotfiles/.bin/script.sh")))))
 
-    ;; File synchronization
-    (service home-syncthing-service-type)
-
     ;; Monitor battery levels
     (service home-batsignal-service-type)))
 
-(define home
-  (home-environment
-   (services (cons* (service example)
-                    core-home-services))
-   (packages (list pinentry
-                   pinentry-emacs
-                   emacs-next-pgtk-xwidgets
-                   emacs-desktop-environment
-                   emacs-guix
-                   emacs-jinx
-                   firefox
-                   asciiquarium
-                   kitty
-                   qutebrowser
-                   font-fira-code
-                   rofi-wayland
-                   font-google-noto
-                   font-google-noto-emoji
-                   font-google-noto-sans-cjk 
-                   mu
-                   gnupg-new
-		   automake
-                   emacs-jinx
-                   btop
-		   libtool
-                   librewolf
-		   flatpak
-		   font-fira-code
-		   password-store
-		   binutils
-		   pkg-config
-                   waybar
-		   font-ghostscript
-		   font-dejavu
-		   font-gnu-freefont
-                   swaynotificationcenter
-                   neovim
-                   obs
-                   rust
-                   rust-cargo
-                   hyprpaper
-                   hypridle
-                   starship-bin))))
-home
+;; (define home
+;;   (home-environment
+;;    (services (cons* (service example)
+;;                     core-home-services))
+;;    (packages (list pinentry
+;;                    pinentry-emacs
+;;                    emacs-next-pgtk-xwidgets
+;;                    emacs-desktop-environment
+;;                    emacs-guix
+;;                    emacs-jinx
+;;                    firefox
+;;                    asciiquarium
+;;                    kitty
+;;                    qutebrowser
+;;                    font-fira-code
+;;                    rofi-wayland
+;;                    font-google-noto
+;;                    font-google-noto-emoji
+;;                    font-google-noto-sans-cjk 
+;;                    mu
+;;                    gnupg-new
+;; 		   automake
+;;                    emacs-jinx
+;;                    btop
+;; 		   libtool
+;;                    librewolf
+;; 		   flatpak
+;; 		   font-fira-code
+;; 		   password-store
+;; 		   binutils
+;; 		   pkg-config
+;;                    waybar
+;; 		   font-ghostscript
+;; 		   font-dejavu
+;; 		   font-gnu-freefont
+;;                    swaynotificationcenter
+;;                    neovim
+;;                    obs
+;;                    rust
+;;                    rust-cargo
+;;                    hyprpaper
+;;                    hypridle
+;;                    starship-bin))))
+;; home
