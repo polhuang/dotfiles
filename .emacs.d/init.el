@@ -461,7 +461,7 @@ Use prefix argument ARG for number of lines, otherwise use default."
 
 ;; registers
 (set-register ?a (cons 'file "~/.dotfiles/.config/"))
-(set-register ?d (cons 'file "~/org/daily-tracker.org"))
+(set-register ?d (cons 'file "~/org/dictionary"))
 (set-register ?e (cons 'file "~/.dotfiles/.emacs.d/init.el"))
 (set-register ?h (cons 'file "~/polterguix/files/hypr/hyprland-base.conf"))
 (set-register ?s (cons 'file "~/org/schedule.org"))
@@ -732,11 +732,11 @@ Use prefix argument ARG for number of lines, otherwise use default."
                           :actions (my/alarm-long -notify))
         	  '(:time "1m" :duration 55
                           :actions (my/alarm -notify))
-                  '(:time "5m" :duration 240
+                  '(:time "5m" :duration 60
                           :actions (-notify))
-                  '(:time "15m" :duration 600
+                  '(:time "15m" :duration 60
                           :actions -notify)
-                  '(:time "30m" :duration 600 :actions -notify)))
+                  '(:time "30m" :duration 1200 :actions -notify)))
 
   ;; org-pomodoro
   (defun my/pomodoro-finished-alert ()
@@ -2122,22 +2122,22 @@ Otherwise, call eat."
       (replace-match "")))
 
   (defun my/org-gcal-format (_calendar-id event _update-mode)
-    "Format org-gcal events"
+    "Format org-gcal events in the schedule.org buffer."
     (if (eq _update-mode 'newly-fetched)
-        (progn
-          (when-let* ((stime (plist-get (plist-get event :start) :dateTime))
-                      (etime (plist-get (plist-get event :end) :dateTime))
-                      (start-time (date-to-time stime))
-                      (end-time (date-to-time etime))
-                      (formatted-stime (format-time-string "%Y-%m-%d %a %H:%M" start-time))
-                      (formatted-etime (format-time-string "%H:%M" end-time)))
-          (org-todo "UPCOMING")
-          (org-schedule nil (format "<%s-%s>" formatted-stime formatted-etime)))
-          (when-let* ((stime (plist-get (plist-get event :start) :date)))
-            (if (string= _calendar-id "997d9ee06bb6de8790f30e0fe0e8a52e60a15bf1301173490f0e92247a2eb4ad@group.calendar.google.com")
-                (org-todo "TODO")
-            (org-todo "UPCOMING"))
-            (org-schedule nil (format "<%s>" stime)))))))
+          (progn
+            (when-let* ((stime (plist-get (plist-get event :start) :dateTime))
+                        (etime (plist-get (plist-get event :end) :dateTime))
+                        (start-time (date-to-time stime))
+                        (end-time (date-to-time etime))
+                        (formatted-stime (format-time-string "%Y-%m-%d %a %H:%M" start-time))
+                        (formatted-etime (format-time-string "%H:%M" end-time)))
+              (org-todo "UPCOMING")
+              (org-schedule nil (format "<%s-%s>" formatted-stime formatted-etime)))
+            (when-let* ((stime (plist-get (plist-get event :start) :date)))
+              (if (string= _calendar-id "997d9ee06bb6de8790f30e0fe0e8a52e60a15bf1301173490f0e92247a2eb4ad@group.calendar.google.com")
+                  (org-todo "TODO")
+              (org-todo "UPCOMING"))
+              (org-schedule nil (format "<%s>" stime)))))))
 
 ;; scratchpad in scratch buffers
 (load "~/projects/scratchpad/scratchpad.el")
@@ -2178,6 +2178,5 @@ Otherwise, call eat."
  ;; If there is more than one, they won't work right.
  )
 
-;; Local Variables:
 ;; byte-compile-warnings: (not docstrings)
 ;; End:
