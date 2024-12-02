@@ -30,7 +30,7 @@
     (start-process-shell-command "org" nil (concat "aplay " file))))
 
 ;;;;;;;;;;;;;;;;;;;;;;
-;; package settings ;;
+;; package settings ;; 
 ;;;;;;;;;;;;;;;;;;;;;;
 
 (when is-guix
