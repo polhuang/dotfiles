@@ -12,7 +12,6 @@
 ;; set gc threshold for startup performance
 (setq gc-cons-threshold (* 50 1000 1000))
 
-
 ;; define personal keybinding prefix (an unpragmatic keybinding repurposed for reprogrammed keyboard)
 (defvar my-map (make-sparse-keymap))
 (define-key global-map (kbd "C-M-]") my-map)
@@ -31,7 +30,7 @@
     (start-process-shell-command "org" nil (concat "aplay " file))))
 
 ;;;;;;;;;;;;;;;;;;;;;;
-;; package settings ;;
+;; package settings ;; 
 ;;;;;;;;;;;;;;;;;;;;;;
 
 (when is-guix
@@ -430,8 +429,6 @@ Each element is a cons cell (FONT-NAME . HEIGHT).")
 (global-set-key (kbd "C-M-s-7") (lambda () (interactive) (forward-line (* my/scroll-unit 4))))
 (global-set-key (kbd "C-M-s-9") (lambda () (interactive) (forward-line (* my/scroll-unit 16))))
 
-
-
 ;; keep cursor in same position
 (setq scroll-preserve-screen-position t)
 
@@ -464,7 +461,7 @@ Use prefix argument ARG for number of lines, otherwise use default."
 
 ;; registers
 (set-register ?a (cons 'file "~/.dotfiles/.config/"))
-(set-register ?d (cons 'file "~/org/daily-tracker.org"))
+(set-register ?d (cons 'file "~/org/dictionary"))
 (set-register ?e (cons 'file "~/.dotfiles/.emacs.d/init.el"))
 (set-register ?h (cons 'file "~/polterguix/files/hypr/hyprland-base.conf"))
 (set-register ?s (cons 'file "~/org/schedule.org"))
@@ -735,11 +732,11 @@ Use prefix argument ARG for number of lines, otherwise use default."
                           :actions (my/alarm-long -notify))
         	  '(:time "1m" :duration 55
                           :actions (my/alarm -notify))
-                  '(:time "5m" :duration 240
+                  '(:time "5m" :duration 60
                           :actions (-notify))
-                  '(:time "15m" :duration 600
+                  '(:time "15m" :duration 60
                           :actions -notify)
-                  '(:time "30m" :duration 600 :actions -notify)))
+                  '(:time "30m" :duration 1200 :actions -notify)))
 
   ;; org-pomodoro
   (defun my/pomodoro-finished-alert ()
@@ -798,15 +795,7 @@ Use prefix argument ARG for number of lines, otherwise use default."
 
     ;; define duration based on time since latest clock-in, not total clocked time
     ;; add current
-    (org-clock-reminder-mode))
-
-  (use-package org-ai
-    :ensure t
-    :commands (org-ai-mode
-               org-ai-global-mode)
-    :hook (org-mode . org-ai-mode)
-    :init (org-ai-global-mode)
-    :custom (org-ai-default-chat-model "gpt-4o")))
+    (org-clock-reminder-mode)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; hydra ----------------------------------------------------------------------- ;;
@@ -2062,19 +2051,7 @@ Otherwise, call eat."
   (gptel-post-response-functions . gptel-end-of-response)
   :custom
   (gptel-model "gpt-4o")
-  (gptel-default-mode 'org-mode)
-  (gptel-directives
-        '(
-          (default . "You are a large language model living in Emacs. You are a helpful assistant. Provide concise answers.")
-          (detailed . "You are a large language model living in Emacs. You are a helpful assistant but also a thorough researcher. Provide thorough answers in outline form and section headers.")
-          (programming . "You are a large language model and a careful programmer. Provide code and only code as output without any additional text, prompt or note.")
-          (debugging . "You are a large language model and a careful programmer. Analyze this code and concisely explain any bugs you find.")
-          (teaching . "You are a large language model and a patient teacher. Walk me through your answers slowly step-by-step.")
-          (writing . "You are a large language model and a writing assistant. Respond concisely.")
-          (chat . "You are a large language model and a conversation partner. Respond concisely.")
-          (maniac . "You are an intelligent but crazed lunatic that lives to give extravagant but confounding responses.")
-          (emacs-addict . "You are extremely obsessed with emacs. You cannot bear to talk about anything but emacs, so you find any kind of opportunity to give answers in a way that has to do with emacs.")
-          (sassy . "You are extremely sassy and like to give witty, sardonic answers and insult me."))))
+  (gptel-default-mode 'org-mode))
 
 ;; spell-checking
 (require 'ispell)
@@ -2145,22 +2122,22 @@ Otherwise, call eat."
       (replace-match "")))
 
   (defun my/org-gcal-format (_calendar-id event _update-mode)
-    "Format org-gcal events"
+    "Format org-gcal events in the schedule.org buffer."
     (if (eq _update-mode 'newly-fetched)
-        (progn
-          (when-let* ((stime (plist-get (plist-get event :start) :dateTime))
-                      (etime (plist-get (plist-get event :end) :dateTime))
-                      (start-time (date-to-time stime))
-                      (end-time (date-to-time etime))
-                      (formatted-stime (format-time-string "%Y-%m-%d %a %H:%M" start-time))
-                      (formatted-etime (format-time-string "%H:%M" end-time)))
-          (org-todo "UPCOMING")
-          (org-schedule nil (format "<%s-%s>" formatted-stime formatted-etime)))
-          (when-let* ((stime (plist-get (plist-get event :start) :date)))
-            (if (string= _calendar-id "997d9ee06bb6de8790f30e0fe0e8a52e60a15bf1301173490f0e92247a2eb4ad@group.calendar.google.com")
-                (org-todo "TODO")
-            (org-todo "UPCOMING"))
-            (org-schedule nil (format "<%s>" stime)))))))
+          (progn
+            (when-let* ((stime (plist-get (plist-get event :start) :dateTime))
+                        (etime (plist-get (plist-get event :end) :dateTime))
+                        (start-time (date-to-time stime))
+                        (end-time (date-to-time etime))
+                        (formatted-stime (format-time-string "%Y-%m-%d %a %H:%M" start-time))
+                        (formatted-etime (format-time-string "%H:%M" end-time)))
+              (org-todo "UPCOMING")
+              (org-schedule nil (format "<%s-%s>" formatted-stime formatted-etime)))
+            (when-let* ((stime (plist-get (plist-get event :start) :date)))
+              (if (string= _calendar-id "997d9ee06bb6de8790f30e0fe0e8a52e60a15bf1301173490f0e92247a2eb4ad@group.calendar.google.com")
+                  (org-todo "TODO")
+              (org-todo "UPCOMING"))
+              (org-schedule nil (format "<%s>" stime)))))))
 
 ;; scratchpad in scratch buffers
 (load "~/projects/scratchpad/scratchpad.el")
@@ -2201,6 +2178,5 @@ Otherwise, call eat."
  ;; If there is more than one, they won't work right.
  )
 
-;; Local Variables:
 ;; byte-compile-warnings: (not docstrings)
 ;; End:

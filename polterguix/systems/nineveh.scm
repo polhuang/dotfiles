@@ -1,5 +1,7 @@
 ;; Unlike the others, this machine does not run on guix system. It only uses the guix package manager.
 
+(define-module (polterguix systems nineveh))
+
 (use-modules (gnu home)
              (gnu packages)
              (gnu packages emacs)
@@ -35,6 +37,8 @@
                                                  "source $HOME/.guix-home/profile/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh")
                                 (mixed-text-file "zsh-completions"
                                                  "fpath=($HOME/.guix-home/share/zsh/site-functions $fpath)")
+                                (mixed-text-file "nix-daemon"
+                                                 "if [ -e /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh ]; then\n  . /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh\nfi")
                                 (local-file
                                  "../files/.zshrc" "zshrc")
 ))

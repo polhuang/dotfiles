@@ -19,8 +19,10 @@ bindkey -e
 
 # env variables
 export PATH="$PATH:$HOME/.local/bin"
+export PATH="$PATH:$HOME/.nix-profile/bin"
 export PATH="$PATH:$HOME/.bin"
-export XDG_DATA_DIRS="$HOME/.local/share:$HOME/.local/share/flatpak/exports/share:/var/lib/flatpak/exports/share:$XDG_DATA_DIRS"
+export XDG_DATA_DIRS="$HOME/.local/share:$HOME/.nix-profile/share:$HOME/.local/share/flatpak/exports/share:/var/lib/flatpak/exports/share:$XDG_DATA_DIRS"
+
 
 # on guix systems, go to ~/.config/zsh/ and delete the cache to reconfigure if using a package manager. avoiding here.
 
@@ -35,10 +37,15 @@ alias ll="ls -alh --color=auto"
 alias ls="ls -aF --color=auto"
 alias config="cd ~/.config/"
 alias dotfiles="cd ~/.dotfiles/"
-alias downloads="cd ~/Downloads/"
-alias documents="cd ~/Documents/"
+alias dl="cd ~/Downloads/"
+alias docs="cd ~/Documents/"
 alias vim="nvim"
 
 # starship
-eval "$(starship init zsh)"
-
+# use starship only in kitty
+# since starship causes formatting errors in eat (terminal emulator)
+if [[ "$TERM" == "xterm-kitty" ]]; then
+    eval "$(starship init zsh)"
+else
+    PROMPT="🦂 [eat] > %~ > "
+fi
