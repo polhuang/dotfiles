@@ -6,6 +6,7 @@
              (gnu packages)
              (gnu packages emacs)
              (gnu packages emacs-xyz)
+             (gnu packages librewolf)
              (gnu packages shellutils)
              (gnu packages terminals)
              (gnu services)
@@ -19,6 +20,7 @@
              emacs-next-pgtk-xwidgets
              emacs-guix
              kitty ;; locale errors (tab-completion problem with unicode characters) when not kitty isn't installed with guix package manager
+             librewolf
              zsh-completions
              zsh-autosuggestions
              zsh-syntax-highlighting
