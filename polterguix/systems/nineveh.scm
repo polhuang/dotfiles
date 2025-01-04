@@ -19,7 +19,7 @@
   (packages (list
              emacs-next-pgtk-xwidgets
              emacs-guix
-             kitty ;; locale errors (tab-completion problem with unicode characters) when not kitty isn't installed with guix package manager
+             kitty ;; locale errors (tab-completion problem with unicode characters) when kitty isn't installed with guix package manager
              librewolf
              zsh-completions
              zsh-autosuggestions
@@ -42,8 +42,7 @@
                                 (mixed-text-file "nix-daemon"
                                                  "if [ -e /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh ]; then\n  . /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh\nfi")
                                 (local-file
-                                 "../files/.zshrc" "zshrc")
-))
+                                 "../files/.zshrc" "zshrc")))
                    (zprofile (list (local-file
                                     "../files/.zprofile"
                                     "zprofile")))))
