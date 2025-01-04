@@ -612,6 +612,7 @@ Use prefix argument ARG for number of lines, otherwise use default."
   (org-src-tab-acts-natively t)
   (org-babel-python-command "python3")
   :config
+  (global-set-key (kbd "C-'") 'org-cycle-agenda-files)
   (plist-put org-format-latex-options :scale 1.5)
   (set-face-attribute 'org-ellipsis nil :underline nil)
   (org-clock-persistence-insinuate)
@@ -1051,7 +1052,7 @@ T - tag prefix
 ;; buffers / windows / frames  ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;; kill this buffer
+;; kill this frame
 (defun my/kill-this-window ()
   (interactive)
   (unless (string= (buffer-name) "*scratch*")
@@ -1060,7 +1061,7 @@ T - tag prefix
       (kill-this-buffer))))
 
 (global-set-key (kbd "C-M-] k") 'my/kill-this-window)
-(global-set-key (kbd "C-M-] <delete>") 'kill-this-buffer)
+(global-set-key (kbd "C-M-] <delete>") 'kill-current-buffer)
 
 ;; disable recursive minibuffers
 (setq enable-recursive-minibuffers nil)
@@ -1080,6 +1081,7 @@ T - tag prefix
   :ensure t
   :bind (("M-o" . ace-window))
   :custom
+  (aw-scope 'frame)
   (aw-keys '(?a ?s ?d ?f)))
 
 ;; toggle vertical/horizontal split
@@ -2056,7 +2058,7 @@ Otherwise, call eat."
   (gptel-model "gpt-4o")
   (gptel-default-mode 'org-mode))
 
-;; add text block markers around gptel responses
+;; add text block markers around gptel responses with-editor
 (add-hook 'gptel-post-response-functions
           (lambda (beg end)
             (goto-char beg)
