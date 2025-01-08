@@ -1480,6 +1480,11 @@ T - tag prefix
   :config
   (corfu-prescient-mode))
 
+(use-package vertico-prescient
+  :ensure t
+  :config
+  (vertico-prescient-mode))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; embark----------------------------------------------------------------------- ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -2164,6 +2169,14 @@ Otherwise, call eat."
 (load "~/projects/tick.el/tick.el")
 (setq ticktick-client-id "uxXCDqEv3nV3C2M1hn")
 (setq ticktick-client-secret "6eh+gE#66+3lKHJv56d)EU8&eru_k$*8")
+
+(use-package org-jira
+  :ensure t
+  :custom
+  (jiralib-update-issue-fields-exclude-list '(priority components))
+  :config
+  (setq jiralib-url "https://polhuang.atlassian.net")
+  (setq org-jira-working-dir "~/jira"))
 
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
