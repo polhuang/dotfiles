@@ -107,7 +107,7 @@
 (load-theme 'everforest-hard-dark t)
 (set-face-attribute 'line-number nil :foreground "#7e968d")
 (set-face-attribute 'line-number-current-line nil :weight 'bold)
-
+(set-face-attribute 'org-priority nil :weight 'bold)
 
 ;; (load "~/projects/cherry-seoul256")
 ;; (use-package cherry-seoul256-theme
