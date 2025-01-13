@@ -107,7 +107,7 @@
 (load-theme 'everforest-hard-dark t)
 (set-face-attribute 'line-number nil :foreground "#7e968d")
 (set-face-attribute 'line-number-current-line nil :weight 'bold)
-
+(set-face-attribute 'org-priority nil :weight 'bold)
 
 ;; (load "~/projects/cherry-seoul256")
 ;; (use-package cherry-seoul256-theme
@@ -538,7 +538,7 @@ Use prefix argument ARG for number of lines, otherwise use default."
   (org-agenda-files '("~/org/tasks.org" "~/org/schedule.org" "~/org/projects.org" "~/org/habits.org"))
   (org-clock-idle-time 10)
   (org-clock-persist t)
-  (org-habit-graph-column 100)
+  (org-habit-graph-column 60)
   (org-habit-preceding-days 28)
   (org-habit-following-days 0)
   (org-indent-mode-turns-off-org-adapt-indentation nil)
@@ -547,21 +547,24 @@ Use prefix argument ARG for number of lines, otherwise use default."
   (org-clock-persist 'history)
   (org-startup-with-latex-preview t)
   (org-preview-latex-default-process 'dvipng)
+  (org-habit-show-all-today t) ; need this in order for completed habits to show up in org-agenda daily view
   (org-agenda-custom-commands 
       '(("d" "Daily view (grouped)" agenda ""
-         ((org-agenda-span 1)
-          (org-habit-show-all-today t)
+         ((org-agenda-span 'day)
+          (org-habit-show-habits t)
           (org-super-agenda-groups
-         '((:name "Tasks"
-                  :and (:todo ("TODO" "IN PROGRESS")))
-           (:name "Schedule"  ; Optionally specify section name
-                  :and (:todo ("TODO" "UPCOMING") :time-grid t))
-           (:order-multi (2 (:name "Habits (complete)"
-                                   :and (:habit t :scheduled future))
-                            (:name "Habits (remaining)"
-                                   :habit t)
-                            (:name "Shopping"
-                                   :tag "shopping")))
+           '((:name "Tasks"
+                    :todo ("TODO" "IN PROGRESS")
+                    :order 0)
+             (:name "Habits (remaining)"
+                    :and (:habit t :scheduled today)
+                    :order 2)
+             (:name "Habits (complete)"
+                    :habit t
+                    :order 3)
+             (:name "Schedule"
+                    :order 1
+                    :time-grid t)
          (:priority<= "B"
                       ;; Show this section after "Today" and "Important", because
                       ;; their order is unspecified, defaulting to 0. Sections
@@ -612,6 +615,7 @@ Use prefix argument ARG for number of lines, otherwise use default."
   (org-src-tab-acts-natively t)
   (org-babel-python-command "python3")
   :config
+  (global-set-key (kbd "C-'") 'org-cycle-agenda-files)
   (plist-put org-format-latex-options :scale 1.5)
   (set-face-attribute 'org-ellipsis nil :underline nil)
   (org-clock-persistence-insinuate)
@@ -626,6 +630,13 @@ Use prefix argument ARG for number of lines, otherwise use default."
     (add-to-list 'org-structure-template-alist '("el" . "src emacs-lisp"))
     (add-to-list 'org-structure-template-alist '("py" . "src python :results output"))
     (add-to-list 'org-structure-template-alist '("jp" . "src jupyter-python :session py"))
+
+  (defun suppress-org-element-warning (orig-fun &rest args)
+    "Suppress ‘org-element-at-point’ warning in non-Org buffers."
+    (let ((warning-minimum-level :error))
+      (apply orig-fun args)))
+  
+  (advice-add 'org-element-at-point :around #'suppress-org-element-warning)
 
   (defun my/org-syntax-table-modify ()
     "Modify `org-mode-syntax-table' to treat < and > characters as punctuation."
@@ -661,6 +672,7 @@ Use prefix argument ARG for number of lines, otherwise use default."
     (org-roam-v2-ack t)
     (org-roam-directory (file-truename "~/org/roam/"))
     (org-roam-completion-everywhere t)
+    (org-roam-node-default-sort 'file-atime)
     (org-roam-node-display-template
      (concat "${title:*} "
              (propertize "${tags:20}" 'face 'org-tag)))
@@ -1023,7 +1035,7 @@ T - tag prefix
       ("i" org-clock-in "Clock in")
       ("o" org-clock-out "Clock out")
       ("a" org-archive-subtree-default "Archive")
-      ("A" org-agenda-file-to-front "Add as agenda file"))
+      ("x" org-cut-special "Cut/Delete"))
      "Org"
      (("h" consult-org-heading "Headings")))))
 
@@ -1043,7 +1055,7 @@ T - tag prefix
 ;; buffers / windows / frames  ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;; kill this buffer
+;; kill this frame
 (defun my/kill-this-window ()
   (interactive)
   (unless (string= (buffer-name) "*scratch*")
@@ -1052,7 +1064,7 @@ T - tag prefix
       (kill-this-buffer))))
 
 (global-set-key (kbd "C-M-] k") 'my/kill-this-window)
-(global-set-key (kbd "C-M-] <delete>") 'kill-this-buffer)
+(global-set-key (kbd "C-M-] <delete>") 'kill-current-buffer)
 
 ;; disable recursive minibuffers
 (setq enable-recursive-minibuffers nil)
@@ -1072,6 +1084,7 @@ T - tag prefix
   :ensure t
   :bind (("M-o" . ace-window))
   :custom
+  (aw-scope 'frame)
   (aw-keys '(?a ?s ?d ?f)))
 
 ;; toggle vertical/horizontal split
@@ -1465,15 +1478,15 @@ T - tag prefix
   :config
   (prescient-persist-mode))
 
-(use-package vertico-prescient
-  :ensure t
-  :config
-  (vertico-prescient-mode))
-
 (use-package corfu-prescient
   :ensure t
   :config
   (corfu-prescient-mode))
+
+(use-package vertico-prescient
+  :ensure t
+  :config
+  (vertico-prescient-mode))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; embark----------------------------------------------------------------------- ;;
@@ -1886,18 +1899,18 @@ Otherwise, call eat."
   (mu4e-use-fancy-chars t)
   (mu4e-bookmarks
      '(( :name  "Unread messages"
-      :query "flag:unread AND NOT flag:trashed AND NOT \"maildir:/All Mail\""
-      :key ?u)
-    ( :name "Today's messages"
-      :query "date:today..now"
-      :key ?t)
-    ( :name "Last 7 days"
-      :query "date:7d..now"
-      :hide-unread t
-      :key ?w)
-    ( :name "Messages with images"
-      :query "mime:image/*"
-      :key ?p)))
+         :query "flag:unread AND NOT flag:trashed AND NOT \"maildir:/All Mail\""
+         :key ?u)
+       (:name "Today's messages"
+              :query "date:today..now"
+              :key ?t)
+       (:name "Last 7 days"
+              :query "date:7d..now"
+              :hide-unread t
+              :key ?w)
+       (:name "Messages with images"
+              :query "mime:image/*"
+              :key ?p)))
   (mail-user-agent 'mu4e-user-agent)
   (user-mail-address "paulleehuang@proton.me")
   (mu4e-update-interval (* 5 60))
@@ -1906,6 +1919,7 @@ Otherwise, call eat."
   (mu4e-sent-folder "/Sent")
   (mu4e-refile-folder "/Archive")
   (mu4e-trash-folder "/Trash")
+  (mu4e-mu-version "1.12.8")
   (mu4e-maildir-shortcuts
    '((:maildir "/inbox"     :key ?i)
      (:maildir "/Sent"      :key ?s)
@@ -2045,13 +2059,23 @@ Otherwise, call eat."
 ;; gptel
 (use-package gptel
   :ensure t
+  :commands gptel-end-of-response
   :bind
   (("C-c c" . gptel-menu))
-  :hook
-  (gptel-post-response-functions . gptel-end-of-response)
   :custom
   (gptel-model "gpt-4o")
   (gptel-default-mode 'org-mode))
+
+;; add text block markers around gptel responses with-editor
+(add-hook 'gptel-post-response-functions
+          (lambda (beg end)
+            (goto-char beg)
+            (save-excursion
+              (backward-char)
+              (insert "\n#+BEGIN_RESPONSE"))
+            (gptel-end-of-response)
+            (insert "\n#+END_RESPONSE")
+            (insert "\n\n")))
 
 ;; spell-checking
 (require 'ispell)
@@ -2099,12 +2123,10 @@ Otherwise, call eat."
 
 ;; org-gcal
 (use-package org-gcal
-  :defer t
   :commands (org-gcal--sync-unlock org-todo)
   :init
   (add-hook 'org-gcal-after-update-entry-functions 'my/org-gcal-format)
   (load (expand-file-name "private/gcal-credentials.el" user-emacs-directory))
-  :hook (find-file . my/clear-extra-gcal-timestamps)
   :custom
   (org-gcal-up-days 0)
   (org-gcal-down-days 30)
@@ -2114,16 +2136,9 @@ Otherwise, call eat."
   (defvar my/org-gcal-sync-delay 15)
   (run-with-timer my/org-gcal-sync-delay 43200 'org-gcal-sync)
 
-  (defun my/clear-extra-gcal-timestamps ()
-    "Remove all lines in the current buffer that start with the character '<'."
-    (interactive)
-    (goto-char (point-min))
-    (while (re-search-forward "^<.*$" nil t)
-      (replace-match "")))
-
   (defun my/org-gcal-format (_calendar-id event _update-mode)
-    "Format org-gcal events in the schedule.org buffer."
-    (if (eq _update-mode 'newly-fetched)
+      "Format org-gcal events in the schedule.org buffer."
+      (if (eq _update-mode 'newly-fetched)
           (progn
             (when-let* ((stime (plist-get (plist-get event :start) :dateTime))
                         (etime (plist-get (plist-get event :end) :dateTime))
@@ -2136,15 +2151,35 @@ Otherwise, call eat."
             (when-let* ((stime (plist-get (plist-get event :start) :date)))
               (if (string= _calendar-id "997d9ee06bb6de8790f30e0fe0e8a52e60a15bf1301173490f0e92247a2eb4ad@group.calendar.google.com")
                   (org-todo "TODO")
-              (org-todo "UPCOMING"))
-              (org-schedule nil (format "<%s>" stime)))))))
+                (org-todo "UPCOMING"))
+              (org-schedule nil (format "<%s>" stime))))
+        (org-sort-entries nil ?o))))
+
+;; this function is used as a local variable in schedule.org to remove the
+;; timestamps org-gcal puts into the org-gcal drawer after sync
+(defun my/clear-extra-gcal-timestamps ()
+  "Remove all lines in the current buffer that start with the character '<'."
+  (interactive)
+  (goto-char (point-min))
+  (while (re-search-forward "^<.*$" nil t)
+    (replace-match "")))
 
 ;; scratchpad in scratch buffers
 (load "~/projects/scratchpad/scratchpad.el")
-
 (global-set-key (kbd "C-M-z") 'scratchpad-toggle)
-(global-set-key (kbd "C-M-s-s") 'scratchpad-new)
+(setq scratchpad-save-directory "~/org/scratchpad")
 
+(load "~/projects/tick.el/tick.el")
+(setq ticktick-client-id "uxXCDqEv3nV3C2M1hn")
+(setq ticktick-client-secret "6eh+gE#66+3lKHJv56d)EU8&eru_k$*8")
+
+(use-package org-jira
+  :ensure t
+  :custom
+  (jiralib-update-issue-fields-exclude-list '(priority components))
+  :config
+  (setq jiralib-url "https://polhuang.atlassian.net")
+  (setq org-jira-working-dir "~/jira"))
 
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
@@ -2164,7 +2199,12 @@ Otherwise, call eat."
      default))
  '(epg-pinentry-mode 'loopback nil nil "Customized with use-package epa")
  '(safe-local-variable-values
-   '((eval save-excursion (goto-char (point-min))
+   '((eval progn (my/clear-extra-gcal-timestamps) (goto-char (point-min))
+           (org-sort-entries t 115))
+     (eval progn (my/clear-extra-gcal-timestamps)
+           (goto-char (point-min)) (org-sort-entries t 111))
+     (eval my/clear-extra-gcal-timestamps)
+     (eval save-excursion (goto-char (point-min))
            (while (re-search-forward "^\\(<\\([^>]+\\)>\\)" nil t)
              (replace-match "SCHEDULED: \\1")))
      (eval org-columns) (eval outline-next-heading)
