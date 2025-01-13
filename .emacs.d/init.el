@@ -538,7 +538,7 @@ Use prefix argument ARG for number of lines, otherwise use default."
   (org-agenda-files '("~/org/tasks.org" "~/org/schedule.org" "~/org/projects.org" "~/org/habits.org"))
   (org-clock-idle-time 10)
   (org-clock-persist t)
-  (org-habit-graph-column 100)
+  (org-habit-graph-column 60)
   (org-habit-preceding-days 28)
   (org-habit-following-days 0)
   (org-indent-mode-turns-off-org-adapt-indentation nil)
@@ -547,21 +547,24 @@ Use prefix argument ARG for number of lines, otherwise use default."
   (org-clock-persist 'history)
   (org-startup-with-latex-preview t)
   (org-preview-latex-default-process 'dvipng)
+  (org-habit-show-all-today t) ; need this in order for completed habits to show up in org-agenda daily view
   (org-agenda-custom-commands 
       '(("d" "Daily view (grouped)" agenda ""
-         ((org-agenda-span 1)
-          (org-habit-show-habits nil)
+         ((org-agenda-span 'day)
+          (org-habit-show-habits t)
           (org-super-agenda-groups
-         '((:name "Tasks"
-                  :and (:todo ("TODO" "IN PROGRESS")))
-           (:name "Schedule"  ; Optionally specify section name
-                  :and (:todo ("TODO" "UPCOMING") :time-grid t))
-           (:order-multi (2 (:name "Habits (complete)"
-                                   :and (:habit t :scheduled future))
-                            (:name "Habits (remaining)"
-                                   :habit t)
-                            (:name "Shopping"
-                                   :tag "shopping")))
+           '((:name "Tasks"
+                    :todo ("TODO" "IN PROGRESS")
+                    :order 0)
+             (:name "Habits (remaining)"
+                    :and (:habit t :scheduled today)
+                    :order 2)
+             (:name "Habits (complete)"
+                    :habit t
+                    :order 3)
+             (:name "Schedule"
+                    :order 1
+                    :time-grid t)
          (:priority<= "B"
                       ;; Show this section after "Today" and "Important", because
                       ;; their order is unspecified, defaulting to 0. Sections
