@@ -1942,26 +1942,9 @@ Otherwise, call eat."
   (smtpmail-smtp-service 1025)
    
   :config
+  (setq message-signature
+      "Paul Huang\n[[https://github.com/polhuang][Github]] | [[https://linkedin.com/in/paulleehuang][LinkedIn]]\n")
   (set-face-attribute 'mu4e-highlight-face nil :inherit 'mu4e-title-face)
-  ;; signature
-  ;;   (setq message-signature "<#multipart type=alternative>
-  ;; <#part type=text/plain>
-  ;; [[https://linkedin.com/in/paulleehuang][LinkedIn]] | [[https://github.com/polhuang][Github]]
-  
-  ;; Sent using [[https://google.com][mu4e]]
-  ;; <#/part>
-  
-  ;; <#part type=text/html>
-  ;; <p>
-  ;; <a href=\"https://linkedin.com/in/paulleehuang\">LinkedIn</a> | <a href=\"https://github.com/polhuang\">Github</a>
-  ;; </p>
-  
-  ;; <p>
-  ;; Sent from <a href=\"https://www.djcbsoftware.nl/code/mu/\">mu</a>
-  ;; </p>
-  ;; <#/part>
-  ;; <#/multipart>
-  ;; ")
   ;; fancy header marks
   (setq mu4e-headers-draft-mark     '("D" . "💈")
         mu4e-headers-flagged-mark   '("F" . "📍")
@@ -1982,7 +1965,14 @@ Otherwise, call eat."
 
 ;; org-mime
 (use-package org-mime
-  :ensure t)
+  :ensure t
+  :custom
+  (setq org-mime-mail-signature-separator "a string preventing separating signature from email body")
+  :config
+  (setq org-mime-export-options '(:section-numbers nil
+				:with-author nil
+				:with-toc nil
+				:preserve-breaks t)))
 
 ;;;;;;;;;;;;;;;;;;;
 ;; miscellaneous ;;
