@@ -107,7 +107,9 @@
 (load-theme 'everforest-hard-dark t)
 (set-face-attribute 'line-number nil :foreground "#7e968d")
 (set-face-attribute 'line-number-current-line nil :weight 'bold)
-(set-face-attribute 'org-priority nil :weight 'bold)
+(with-eval-after-load 'org
+  (set-face-attribute 'org-priority nil :weight 'bold)
+  (set-face-attribute 'org-agenda-structure nil :weight 'bold))
 
 ;; (load "~/projects/cherry-seoul256")
 ;; (use-package cherry-seoul256-theme
@@ -536,6 +538,11 @@ Use prefix argument ARG for number of lines, otherwise use default."
   :custom
   (org-directory "~/org")
   (org-agenda-files '("~/org/tasks.org" "~/org/schedule.org" "~/org/projects.org" "~/org/habits.org"))
+  (org-agenda-format-date (lambda (date)
+                               (concat "\n"
+                                       (make-string (- (window-width) 4) ?-)
+                                       "\n"
+                                       (format-time-string "%A, %B %d" date))))
   (org-clock-idle-time 10)
   (org-clock-persist t)
   (org-habit-graph-column 60)
@@ -594,7 +601,7 @@ Use prefix argument ARG for number of lines, otherwise use default."
 	   "* %? [[%:link][%:description]] \nCaptured On: %U")
           ("s")
           ("t" "Task" entry
-           (file+headline ,(concat org-directory "/tasks.org") "Daily inbox")
+           (file ,(concat org-directory "/tasks.org"))
            "* TODO %?\nSCHEDULED: <%(org-read-date nil nil)>
 :PROPERTIES:
 :notify: nil
@@ -793,11 +800,11 @@ Use prefix argument ARG for number of lines, otherwise use default."
     (org-clock-reminder-inactive-title "Big Brother says:")
     (org-clock-reminder-active-title "Big Brother says:")
     (org-clock-reminder-inactive-text "%t: You're not clocked in, bro")
-    (org-clock-reminder-active-text "%t: You've been working for %c on w%h.")
+    (org-clock-reminder-active-text "%t: You've been working for %c on %h.")
     (org-clock-reminder-interval (cons 10 30))
     (org-clock-reminder-inactive-notifications-p nil)
     :config
-    ;; replace function to configure urgency
+    ;; replace function to configure urgency, timeout
     (defun org-clock-reminder-notify (title message)
       (let ((icon-path (org-clock-reminder--icon)))
         (notifications-notify :title title
@@ -1147,7 +1154,9 @@ T - tag prefix
     (make-directory (file-name-directory gpg-file) t)
     (write-region "" nil gpg-file))
   (load gpg-file))
+
 (use-package pinentry :ensure t)
+
 (use-package epa
   :ensure nil
   :custom
@@ -1400,11 +1409,10 @@ T - tag prefix
   (add-to-list 'corfu-margin-formatters #'nerd-icons-corfu-formatter)
   :custom
   (corfu-auto t)                    ;; Enable auto completion
-  ;; (corfu-preselect 'valid)z      ;; Don't select first candidate
   (corfu-history-mode)
   ;; (corfu-separator ?\s)          ;; Orderless field separator
   ;; (corfu-quit-at-boundary nil)   ;; Never quit at completion boundary
-  (corfu-quit-no-match 'separator)           ;; Never quit, even if there is no match
+  (corfu-quit-no-match 'separator)  ;; Never quit, even if there is no match
   ;; (corfu-on-exact-match nil)     ;; Configure handling of exact matches
   ;; (corfu-scroll-margin 5)        ;; Use scroll margin
 
@@ -1459,7 +1467,6 @@ T - tag prefix
   ;; completion functions takes precedence over the global list.
   (add-to-list 'completion-at-point-functions #'cape-dabbrev)
   (add-to-list 'completion-at-point-functions #'cape-file)
-  (add-to-list 'completion-at-point-functions #'cape-elisp-block)
   (add-to-list 'completion-at-point-functions #'cape-history)
   (add-to-list 'completion-at-point-functions #'cape-keyword)
   (add-to-list 'completion-at-point-functions #'cape-tex)
@@ -1467,9 +1474,11 @@ T - tag prefix
   ;;(add-to-list 'completion-at-point-functions #'cape-rfc1345)
   (add-to-list 'completion-at-point-functions #'cape-abbrev)
   (add-to-list 'completion-at-point-functions #'cape-dict)
-  (add-to-list 'completion-at-point-functions #'cape-elisp-symbol)
   ;;(add-to-list 'completion-at-point-functions #'cape-line)`
-  )
+
+  (add-hook 'emacs-lisp-mode-hook (lambda ()
+                                    (add-to-list (make-local-variable 'completion-at-point-functions) 'cape-elisp-block)
+                                    (add-to-list (make-local-variable 'completion-at-point-functions) 'cape-elisp-symbol))))
 
 ;; prescient
 (use-package prescient
@@ -2077,13 +2086,10 @@ Otherwise, call eat."
             (insert "\n#+END_RESPONSE")
             (insert "\n\n")))
 
-;; spell-checking
-(require 'ispell)
-(setq ispell-local-dictionary "/usr/share/hunspell/en_US-large.dic")
-(setq ispell-alternate-dictionary "/usr/share/hunspell/en_US.dic")
-
 ;; install external dependencies enchant, pkgconf, and lang dict
 ;; pacman: enchant, pkgconf, hunspell-en_us
+;; personal dictionary is located at =~/.config/enchant/en_US.dic=
+
 (use-package jinx
   :ensure nil
   :hook (emacs-startup . global-jinx-mode)
