@@ -535,26 +535,56 @@ Use prefix argument ARG for number of lines, otherwise use default."
                  (window-width . 0.33)
                  (window-height . fit-window-to-buffer)))
   (display-line-numbers-mode 1)
+  
   :custom
   (org-directory "~/org")
-  (org-agenda-files '("~/org/tasks.org" "~/org/schedule.org" "~/org/projects.org" "~/org/habits.org"))
-  (org-agenda-format-date (lambda (date)
-                               (concat "\n"
-                                       (make-string (- (window-width) 4) ?-)
-                                       "\n"
-                                       (format-time-string "%A, %B %d" date))))
-  (org-clock-idle-time 10)
-  (org-clock-persist t)
-  (org-habit-graph-column 60)
-  (org-habit-preceding-days 28)
-  (org-habit-following-days 0)
   (org-indent-mode-turns-off-org-adapt-indentation nil)
   (org-startup-with-inline-images t)
-  (org-ellipsis " ▾")
-  (org-clock-persist 'history)
   (org-startup-with-latex-preview t)
   (org-preview-latex-default-process 'dvipng)
-  (org-habit-show-all-today t) ; need this in order for completed habits to show up in org-agenda daily view
+
+  (org-agenda-start-with-archives-mode t)
+  (org-agenda-files '("~/org/tasks.org" "~/org/work-tasks.org" "~/org/projects.org" "~/org/work-projects.org" "~/org/habits.org" "~/org/schedule.org"))
+  (org-agenda-format-date (lambda (date)
+                            (require 'cal-iso)
+                            (let* ((dayname (calendar-day-name date))
+	                           (day (cadr date))
+	                           (day-of-week (calendar-day-of-week date))
+	                           (month (car date))
+	                           (monthname (calendar-month-name month))
+	                           (year (nth 2 date))
+	                           (iso-week (org-days-to-iso-week
+		                              (calendar-absolute-from-gregorian date)))
+	                           ;; (weekyear (cond ((and (= month 1) (>= iso-week 52))
+	                           ;;        	  (1- year))
+	                           ;;        	 ((and (= month 12) (<= iso-week 1))
+	                           ;;        	  (1+ year))
+	                           ;;        	 (t year)))
+	                           (weekstring (if (= day-of-week 1)
+			                           (format " W%02d" iso-week)
+		                                 "")))
+                              (concat "\n"
+                                      (make-string (- (window-width) 5) ?-)
+                                      "\n"
+                                      (format "%-10s %2d %s %4d%s"
+	                                      dayname day monthname year weekstring)))))
+  (org-super-agenda-groups
+   '((:name "Tasks"
+            :and (:todo ("TODO" "IN PROGRESS"))
+            :order 0)
+     (:name "Habits (remaining)"
+            :and (:habit t :scheduled today)
+            :order 2)
+     (:name "Habits (complete)"
+            :habit t
+            :order 3)
+     (:name "Schedule" ; remove closed tasks in schedule.org; time of close is irrelevant
+            :order 1
+            :and (:time-grid t :not (:and (:category "schedule" :log closed))))
+     (:discard (:anything))
+             ;; After the last group, the agenda will display items that didn't
+             ;; match any of these groups, with the default order position of 99
+             ))
   (org-agenda-custom-commands 
       '(("d" "Daily view (grouped)" agenda ""
          ((org-agenda-span 'day)
@@ -572,21 +602,29 @@ Use prefix argument ARG for number of lines, otherwise use default."
              (:name "Schedule"
                     :order 1
                     :time-grid t)
-         (:priority<= "B"
-                      ;; Show this section after "Today" and "Important", because
-                      ;; their order is unspecified, defaulting to 0. Sections
-                      ;; are displayed lowest-number-first.
-                      :order 1)
+             
          ;; After the last group, the agenda will display items that didn't
          ;; match any of these groups, with the default order position of 99
          ))))))
-  (org-agenda-sorting-strategy '(time-up))
+  (org-agenda-sorting-strategy '(time-up priority-down))
+  (org-agenda-start-with-log-mode t)
+
+
+  (org-clock-idle-time 10)
+  (org-clock-persist t)  (org-ellipsis " ▾")
+  (org-clock-persist 'history)
+
+  (org-habit-show-all-today t) ; need this in order for completed habits to show up in org-agenda daily view
+  (org-habit-show-habits t)
+  (org-habit-graph-column 60)
+  (org-habit-preceding-days 28)
+  (org-habit-following-days 0)
+  
   (org-todo-keyword-faces
         '(("IN PROGRESS" . (:foreground "#F1C40F" :distant-foreground "e6dfb8" :weight bold))
           ("UPCOMING" . (:foreground "#cddbf9" :weight bold))
           ("HABIT" . (:foreground "#f6bbe7" :weight bold))
           ("TABLED" . (:foreground "#ffd700" :distant-foreground "#171717" :weight bold))))
-  (org-agenda-start-with-log-mode t)
   (org-log-done 'time)
   (electric-indent-mode 1)
   (org-log-into-drawer t)
@@ -621,6 +659,7 @@ Use prefix argument ARG for number of lines, otherwise use default."
   (org-confirm-babel-evaluate nil)
   (org-src-tab-acts-natively t)
   (org-babel-python-command "python3")
+  
   :config
   (global-set-key (kbd "C-'") 'org-cycle-agenda-files)
   (plist-put org-format-latex-options :scale 1.5)
@@ -789,6 +828,8 @@ Use prefix argument ARG for number of lines, otherwise use default."
   ;; remind me to clock in/out
   (use-package org-clock-reminder
     :ensure t
+    :commands org-clock-reminder-mode
+    :init (org-clock-reminder-mode)
     :custom
     (org-clock-reminder-formatters
      '((?c . (org-duration-from-minutes (floor (org-time-convert-to-integer
@@ -809,8 +850,7 @@ Use prefix argument ARG for number of lines, otherwise use default."
       (let ((icon-path (org-clock-reminder--icon)))
         (notifications-notify :title title
                               :body message
-                              :timeout 540000
-                              :urgency 'critical)))
+                              :timeout 54000)))
 
     ;; define duration based on time since latest clock-in, not total clocked time
     ;; add current
@@ -826,24 +866,22 @@ Use prefix argument ARG for number of lines, otherwise use default."
 ;; hydra-colossa
 (defhydra hydra-colossa (:color amaranth :hint nil)
   "
-  _c_: copilot
-  _d_: codeium
   _e_: eat
   _E_: erc
+  _g_: gptel
   _k_: save and kill emacs
   _m_: mu4e
   _n_: new scratchpad
   _p_: pomodoro
   _q_: go away
   _s_: search org files
-  _t_: tasks
   _w_: windows + frames
 "
-  ("c" hydra-cheat/body :color blue)
   ("C" copilot-mode :color blue)
-  ("d" my/codeium :color blue)
   ("e" eat :color blue)
   ("E" erc-switch-to-buffer :color blue)
+  ("g" gptel-send :color blue)
+  ("G" gptel-menu :color blue)
   ("k" save-buffers-kill-emacs :color blue)
   ("m" mu4e :color blue)
   ("n" scratchpad-new :color blue)
@@ -851,7 +889,6 @@ Use prefix argument ARG for number of lines, otherwise use default."
   ("q" nil :color blue)
   ("r" restart-emacs :color blue)
   ("s" my/org-search :color blue)
-  ("t" consult-org-agenda :color blue)
   ("w" hydra-windows/body :color blue)
   ("." nil :color blue)
   ("C-M-G" nil :color blue))
@@ -965,16 +1002,16 @@ Use prefix argument ARG for number of lines, otherwise use default."
 (require 'dired)
 (require 'dired-x)
 (require 'dired-aux)
-(defhydra hydra-dired (:hint nil :color pink)
+(defhydra dired-hydra (:hint nil)
   "
 _+_ mkdir          _v_iew           _m_ark             _(_ details        _i_nsert-subdir    wdired
-_c_opy             _O_ view other   _U_nmark all       _)_ omit-mode                         C-x C-q : edit
-_d_elete           _o_pen other     _u_nmark           _l_ redisplay      _w_ kill-subdir    C-c C-c : commit
-_R_ename           _M_ chmod        _t_oggle           _g_ revert buf     _e_ ediff          C-c ESC : abort
-_y_ rel symlink    _G_ chgrp        _e_xtension mark   _s_ort             _S_ymlink          ^ ^              _f_ind marked      _._ toggle hydra   \\ flyspell
-                   ^ ^              ^ ^                ^ ^                _?_ summary
-_z_ compress-file  _a_ find regexp
-                   _Q_ repl regexp
+_C_opy             _O_ view other   _U_nmark all       _)_ omit-mode      _w_ kill-subdir    C-x C-q: edit
+_D_elete           _o_pen other     _u_nmark           _l_ redisplay      _?_ summary        C-c C-c: commit
+_R_ename           _M_ chmod        _t_oggle           _g_ revert buf     ^ ^                C-c C-k: abort
+_Y_ rel symlink    _G_ chgrp        _E_xtension mark   _s_ort             
+_S_ymlink          _A_ find regexp  _F_ind marked      _._ toggle hydra
+_z_ compress       _Q_ repl regexp
+^ ^
 
 T - tag prefix
 "
@@ -982,11 +1019,11 @@ T - tag prefix
   (")" dired-omit-mode)
   ("+" dired-create-directory)
   ("?" dired-summary)
-  ("a" dired-do-find-regexp)
-  ("c" dired-do-copy)        ;; Copy all marked files
-  ("d" dired-do-delete)
-  ("e" dired-mark-extension)
-  ("f" dired-do-find-marked-files)
+  ("A" dired-do-find-regexp)
+  ("C" dired-do-copy)        ;; Copy all marked files
+  ("D" dired-do-delete)
+  ("E" dired-mark-extension)
+  ("F" dired-do-find-marked-files)
   ("G" dired-do-chgrp)
   ("g" revert-buffer)        ;; read all directories again (refresh)
   ("i" dired-maybe-insert-subdir)
@@ -1004,10 +1041,12 @@ T - tag prefix
   ("u" dired-unmark)
   ("v" dired-view-file)      ;; q to exit, s to search, = gets line #
   ("w" dired-kill-subdir)
-  ("y" dired-do-relsymlink)
+  ("Y" dired-do-relsymlink)
   ("z" dired-do-compress)
   ("q" nil)
   ("." nil :color blue))
+
+(define-key dired-mode-map "." 'dired-hydra/body)
 
 (with-eval-after-load 'dired
   (define-key dired-mode-map "." 'hydra-dired/body))
@@ -1019,21 +1058,6 @@ T - tag prefix
   :bind
   ("C-M-] ." . major-mode-hydra)
   :config
-  (pretty-hydra-define navigation-hydra (:quit-key "q")
-    ("Mark motion"
-     (("C-x C-<space>" pop-global-mark "Pop global mark")
-      ("C-x C-x" exchange-point-and-mark "Exchange point and mark"))
-     "Text motion"
-     (("C-M-b" puni-backward-sexp "Backward sexp")
-      ("C-M-f" puni-forward-sexp "Forward sexp")
-      ("C-M-u" backward-up-list "Backward up hierarchy")
-      ("C-M-d" down-list "Forward down hierarchy")
-      ("C-M-p" backward-list "Backward list")
-      ("C-M-n" forward-list "Forward list"))
-     "Text selection"
-     (("C-c \\" puni-mark-sexp-around-point "Mark around sexp")
-    ("M-h" mark-paragraph "Mark paragraph"))))
-  
   (major-mode-hydra-define org-mode nil
     ("TODO"
      (("t" my/to-do-complete "Cycle TODO")
@@ -1907,45 +1931,32 @@ Otherwise, call eat."
   :custom
   (mu4e-use-fancy-chars t)
   (mu4e-bookmarks
-     '(( :name  "Unread messages"
-         :query "flag:unread AND NOT flag:trashed AND NOT \"maildir:/All Mail\""
-         :key ?u)
-       (:name "Today's messages"
-              :query "date:today..now"
-              :key ?t)
-       (:name "Last 7 days"
-              :query "date:7d..now"
-              :hide-unread t
-              :key ?w)
-       (:name "Messages with images"
-              :query "mime:image/*"
-              :key ?p)))
+   '((:name "Unread messages"
+            :query "flag:unread AND NOT flag:trashed AND NOT \"maildir:/All Mail\""
+            :key ?u)
+     (:name "Today's messages"
+            :query "date:today..now"
+            :key ?t)
+     (:name "Last 7 days"
+            :query "date:7d..now"
+            :hide-unread t
+            :key ?w)
+     (:name "Messages with images"
+            :query "mime:image/*"
+            :key ?p)))
   (mail-user-agent 'mu4e-user-agent)
-  (user-mail-address "paulleehuang@proton.me")
   (mu4e-update-interval (* 5 60))
-  (mu4e-get-mail-command "mbsync -a")
-  (mu4e-drafts-folder "/Drafts")
-  (mu4e-sent-folder "/Sent")
-  (mu4e-refile-folder "/Archive")
-  (mu4e-trash-folder "/Trash")
   (mu4e-mu-version "1.12.8")
-  (mu4e-maildir-shortcuts
-   '((:maildir "/inbox"     :key ?i)
-     (:maildir "/Sent"      :key ?s)
-     (:maildir "/Starred"   :key ?S)
-     (:maildir "/Trash"     :key ?t)
-     (:maildir "/Drafts"    :key ?d)
-     (:maildir "/Archive"   :key ?A)
-     (:maildir "/All Mail"  :key ?a)))
   (message-send-mail-function 'smtpmail-send-it)
   (smtpmail-smtp-server "127.0.0.1")
   (smtpmail-smtp-service 1025)
-   
+  (mu4e-get-mail-command "mbsync -a")
   :config
   (setq message-signature
-      "Paul Huang\n[[https://github.com/polhuang][Github]] | [[https://linkedin.com/in/paulleehuang][LinkedIn]]\n")
+        "Paul Huang\n[[https://github.com/polhuang][Github]] | [[https://linkedin.com/in/paulleehuang][LinkedIn]]\n")
   (set-face-attribute 'mu4e-highlight-face nil :inherit 'mu4e-title-face)
-  ;; fancy header marks
+
+  ;; Fancy header marks
   (setq mu4e-headers-draft-mark     '("D" . "💈")
         mu4e-headers-flagged-mark   '("F" . "📍")
         mu4e-headers-new-mark       '("N" . "🔥")
@@ -1960,8 +1971,45 @@ Otherwise, call eat."
         mu4e-headers-list-mark      '("l" . "🔈")
         mu4e-headers-personal-mark  '("p" . "👨")
         mu4e-headers-calendar-mark  '("c" . "📅"))
+
+  (setq mu4e-contexts
+        `(,(make-mu4e-context
+            :name "Work"
+            :enter-func (lambda () (mu4e-message "Switch to the Work context"))
+            :match-func (lambda (msg)
+                          (when msg
+                            (mu4e-message-contact-field-matches msg
+                                                                 :to "phuang@missioncloud.com")))
+            :vars '((user-mail-address . "phuang@missioncloud.com")
+                    (user-full-name    . "Paul Huang")
+                    (mu4e-sent-folder  . "/Gmail/[Gmail].Sent Mail")
+                    (mu4e-drafts-folder . "/Gmail/[Gmail].Drafts")
+                    (mu4e-trash-folder  . "/Gmail/[Gmail].Trash")
+                    (mu4e-refile-folder . "/Gmail/[Gmail].All Mail")
+                    (mu4e-maildir-shortcuts . (("/Gmail/INBOX"      . ?i)
+                                               ("/Gmail/[Gmail].Sent Mail" . ?s)
+                                               ("/Gmail/[Gmail].Trash" . ?t)
+                                               ("/Gmail/[Gmail].All Mail" . ?a)))))
+
+          ,(make-mu4e-context
+            :name "Personal"
+            :enter-func (lambda () (mu4e-message "Switch to the Personal context"))
+            :match-func (lambda (msg)
+                          (when msg
+                            (mu4e-message-contact-field-matches msg
+                                                                 :to "paulleehuang@proton.me")))
+            :vars '((user-mail-address . "paulleehuang@proton.me")
+                    (user-full-name    . "Paul Huang")
+                    (mu4e-sent-folder  . "/Protonmail/Sent")
+                    (mu4e-drafts-folder . "/Protonmail/Drafts")
+                    (mu4e-trash-folder  . "/Protonmail/Trash")
+                    (mu4e-refile-folder . "/Protonmail/All Mail")
+                    (mu4e-maildir-shortcuts . ((:maildir "/Protonmail/inbox" :key ?i :name "Inbox")
+                                               (:maildir "/Protonmail/Sent" :key ?s :name "Sent")
+                                               (:maildir "/Protonmail/Trash" :key ?t :name "Trash")
+                                               (:maildir "/Protonmail/All Mail" :key ?a :name "All Mail")))
   (if (daemonp)
-      (mu4e)))
+      (mu4e)))))))
 
 ;; org-mime
 (use-package org-mime
@@ -2018,7 +2066,7 @@ Otherwise, call eat."
   (dashboard-banner-logo-title "~~ HI POL ~~")
   (dashboard-startup-banner "~/.dotfiles/.emacs.d/dashboard-banner.txt")
   (dashboard-footer-messages '("Time saved by emacs: 5 days 11 hours 47 minutes \nTime spent editing emacs config: 615 days 11 hours 38 minutes"))
-  (dashboard-agenda-prefix-format "%-10:c %-12s")
+  (dashboard-agenda-prefix-format "%-15:c %-16s")
   (dashboard-agenda-time-string-format "%m-%d %H:%M")
   ;; (setq dashboard-agenda-prefix-format " %-10:c %-12s ")
   (dashboard-items '((recents  . 5)
@@ -2059,8 +2107,6 @@ Otherwise, call eat."
 (use-package gptel
   :ensure t
   :commands gptel-end-of-response
-  :bind
-  (("C-c c" . gptel-menu))
   :custom
   (gptel-model "gpt-4o")
   (gptel-default-mode 'org-mode))
@@ -2075,6 +2121,12 @@ Otherwise, call eat."
             (gptel-end-of-response)
             (insert "\n#+END_RESPONSE")
             (insert "\n\n")))
+
+(use-package elysium
+  :ensure t
+  :custom
+  (elysium-window-size 0.33) 
+  (elysium-window-style 'vertical))
 
 ;; install external dependencies enchant, pkgconf, and lang dict
 ;; pacman: enchant, pkgconf, hunspell-en_us
@@ -2103,19 +2155,19 @@ Otherwise, call eat."
   :custom (elcord-idle-message "call me maybe?"))
 
 ;; erc (irc)
-(use-package erc
-  :custom
-  (erc-nick "polhuang")
-  (erc-user-full-name "pol huang")
-  (erc-autojoin-channels-alist '((".*" "#systemcrafters")))
-  (erc-hide-list '("JOIN" "PART" "QUIT"))
-  :functions my/connect-to-erc
-  :config
-  (defun my/connect-to-erc ()
-    (interactive)
-    (erc :server "irc.libera.chat"
-         :port "6667"))
-  (my/connect-to-erc))
+;; (use-package erc
+;;   :custom
+;;   (erc-nick "polhuang")
+;;   (erc-user-full-name "pol huang")
+;;   (erc-autojoin-channels-alist '((".*" "#systemcrafters")))
+;;   (erc-hide-list '("JOIN" "PART" "QUIT"))
+;;   :functions my/connect-to-erc
+;;   :config
+;;   (defun my/connect-to-erc ()
+;;     (interactive)
+;;     (erc :server "irc.libera.chat"
+;;          :port "6667"))
+;;   (my/connect-to-erc))
 
 ;; org-gcal
 (use-package org-gcal
