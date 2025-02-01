@@ -1,5 +1,4 @@
 {
-
     "layer": "top",
     "position": "top",
     "mod": "dock",
@@ -9,7 +8,6 @@
     "passthrough": false,
     "gtk-layer-shell": true,
     "reload_style_on_change": true,
-
         "modules-left": ["hyprland/workspaces"],
 	"modules-center": ["idle_inhibitor", "clock"],
 	"modules-right": [
@@ -41,7 +39,7 @@
 		"rotate": 0,
 		"icon-size": 18,
 		"icon-theme": "MoreWaita",
-        "spacing": 0,
+                "spacing": 0,         
 		"tooltip-format": "{app_id}",
 		"on-click": "activate",
 		"on-click-middle": "close",
@@ -82,7 +80,7 @@
     },
 
     "clock": {
-        "format": "{:%H:%M   󰃭 %d·%m·%y}",
+        "format": "{:%H:%M   󰃭 %m·%d·%y}",
         "rotate": 0,
         "tooltip-format": "<span>{calendar}</span>",
         "calendar": {
@@ -91,8 +89,8 @@
             "on-scroll": 1,
             "on-click-right": "mode",
             "format": {
-                "months": "<span color='#ffead3'><b>{}</b></span>",
-                "weekdays": "<span color='#ffcc66'><b>{}</b></span>",
+                "months": "<span color='#FFA533'><b>{}</b></span>",
+                "weekdays": "<span color='#FFB84C'><b>{}</b></span>",
                 "today": "<span color='#ff6699'><b>{}</b></span>"
             }
         },
@@ -212,9 +210,4 @@
 			"hibernate": "systemctl hibernate"
 		}
     }
-
-
-
-
-
 }
