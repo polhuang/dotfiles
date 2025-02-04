@@ -1,7 +1,6 @@
 ;;;;;;;;;;;;;;;;;;;;
 ;; emacs settings ;;
 ;;;;;;;;;;;;;;;;;;;;
-
 (defvar is-guix nil
   "Variable indicating whether system is managed by guix.")
 
@@ -38,7 +37,7 @@
     (add-to-list 'load-path guix-emacs-dir))
 
   (use-package geiser
-  :ensure nil))
+    :ensure nil))
 
 (setq package-archives '(("melpa" . "https://melpa.org/packages/")
  			 ("elpa" . "https://elpa.gnu.org/packages/")
@@ -103,58 +102,53 @@
 ;;;;;;;;;;;;;;;;;
 
 ;; everforest
-(load "~/.emacs.d/everforest-emacs/everforest-hard-dark-theme.el")
-(load-theme 'everforest-hard-dark t)
-(set-face-attribute 'line-number nil :foreground "#7e968d")
-(set-face-attribute 'line-number-current-line nil :weight 'bold)
-(with-eval-after-load 'org
-  (set-face-attribute 'org-priority nil :weight 'bold)
-  (set-face-attribute 'org-agenda-structure nil :weight 'bold))
+(use-package everforest-hard-dark-theme
+  :load-path "~/.emacs.d/everforest-emacs/"
+  :config
+  (set-face-attribute 'line-number nil :foreground "#7e968d")
+  (set-face-attribute 'line-number-current-line nil :weight 'bold)
+  (with-eval-after-load 'org
+    (set-face-attribute 'org-priority nil :weight 'bold)
+    (set-face-attribute 'org-agenda-structure nil :weight 'bold)))
 
-;; (load "~/projects/cherry-seoul256")
-;; (use-package cherry-seoul256-theme
-;;   :load-path "~/projects/cherry-seoul256"
-;;   :commands cherry-seoul256-create
-;;   :custom
-;;   (cherry-seoul256-background 233)
-;;   ;; :config
-;;    )
-  ;;(load-theme 'cherry-seoul256 t)
+(use-package everforest-hard-light-theme
+  :load-path "~/.emacs.d/everforest-emacs/")
 
-;; theme
-;; (use-package seoul256-theme
-;;   :ensure t
-;;   :init
-;;   :custom
-;;   ;; (seoul256-background 235)
-;;   (seoul256-background 235)
-;;   :config
-;;   (set-face-attribute 'default nil :foreground "#e0def4")
-;;   (set-face-attribute 'font-lock-keyword-face nil :foreground "#ffb9ba" :weight 'bold)
-;;   (set-face-attribute 'font-lock-constant-face nil :weight 'bold)
-;;   (set-face-attribute 'font-lock-builtin-face nil :foreground "#fffed1" :weight 'bold)
-;;   (set-face-attribute 'font-lock-function-name-face nil :foreground "#d1fffe" :weight 'bold)
-;;   (set-face-attribute 'font-lock-variable-name-face nil :weight 'bold)
-;;   (set-face-attribute 'link nil :foreground "#b1f3fb" :underline t)
-;;   (set-face-attribute 'mode-line nil :background "#565656")
-;;   (set-face-attribute 'highlight nil :background "#FFBFBD"))
+(use-package cherry-seoul256-theme
+  :load-path "~/projects/cherry-seoul256/"
+  :custom
+  (cherry-seoul256-background 233))
 
-;; (with-eval-after-load 'org
-;;   (set-face-attribute 'org-level-1 nil :foreground "#ffdfac" :distant-foreground "#171717")
-;;   (set-face-attribute 'org-level-2 nil :distant-foreground "#171717")
-;;   (set-face-attribute 'org-level-4 nil :foreground "#ffbd98")
-;;   (set-face-attribute 'org-block-begin-line nil :foreground "#333233" :distant-foreground "#fff0f5" :background "#ffbfbd")
-;;   (set-face-attribute 'org-block nil :background "#171717")
-;;   ;;(set-face-attribute 'org-todo nil :foreground "#c66d86" :weight 'bold :inherit)
-;;   ;;(set-face-attribute 'org-done nil :foreground "#8fc587")
-;;   (set-face-attribute 'org-headline-done nil :foreground "#caf6bb")
-;;   (set-face-attribute 'org-priority nil :foreground "#d24b50")
-;;   (set-face-attribute 'org-tag nil :foreground "#e67518")
-;;   (set-face-attribute 'org-verbatim nil :foreground "#beb0f1")
-;;   (setq org-todo-keyword-faces
-;;         '(("TODO" . (:foreground "#c66d86" :weight bold))
-;;           ("IN PROGRESS" . (:foreground "#ffce76" :distant-foreground "#171717" :weight bold))
-;;           ("DONE" . (:foreground "#a7f3d0" :weight bold)))))
+(defvar current-theme 'everforest-hard-dark
+  "Stores the currently active theme name.")
+
+(defun my/cycle-theme ()
+  "Cycle between everforest-hard-dark, everforest-hard-light, and cherry-seoul256 themes."
+  (interactive)
+  (cond
+   ((eq current-theme 'everforest-hard-dark)
+    (disable-theme 'everforest-hard-dark)
+    (load-theme 'everforest-hard-light t)
+    (setq current-theme 'everforest-hard-light))
+
+   ((eq current-theme 'everforest-hard-light)
+    (disable-theme 'everforest-hard-light)
+    (load-theme 'cherry-seoul256 t)
+    (setq current-theme 'cherry-seoul256))
+
+   ((eq current-theme 'cherry-seoul256)
+    (disable-theme 'cherry-seoul256)
+    (load-theme 'everforest-hard-dark t)
+    (setq current-theme 'everforest-hard-dark))))
+
+;; Initially load the first theme
+(load-theme current-theme t)
+
+(global-set-key (kbd "C-M-] r t") 'my/cycle-theme)
+(global-set-key (kbd "C-M-] r T") 'my/toggle-frametransparency)
+(global-set-key (kbd "C-M-] r +") 'cherry-seoul256-brighten-background)
+(global-set-key (kbd "C-M-] r -") 'cherry-seoul256-darken-background)
+
 
 ;; ansi colors
 (require 'ansi-color)
@@ -254,13 +248,16 @@ Each element is a cons cell (FONT-NAME . HEIGHT).")
   "Cycle through the fonts in `my/font-options` and set the next one."
   (interactive)
   (let* ((num-fonts (length my/font-options))
-         (new-index (mod (1+ my/current-font-index) num-fonts))
+         (rnew-index (mod (1+ my/current-font-index) num-fonts))
          (font (nth new-index my/font-options))
          (font-name (car font)))
     (setq my/current-font-index new-index)
     (my/set-font font-name)))
 
 (my/set-font "Fira Code") ;; default
+
+(global-set-key (kbd "C-M-] r F") 'my/select-fonts)
+(global-set-key (kbd "C-M-] r f") 'my/cycle-fonts)
 
 ;; fontify-face
 (use-package fontify-face
@@ -511,6 +508,8 @@ Use prefix argument ARG for number of lines, otherwise use default."
 ;; org mode ;;
 ;;;;;;;;;;;;;;
 
+
+
 (use-package org
   :ensure t
   :bind
@@ -535,8 +534,8 @@ Use prefix argument ARG for number of lines, otherwise use default."
                  (window-width . 0.33)
                  (window-height . fit-window-to-buffer)))
   (display-line-numbers-mode 1)
-  
-  :custom
+
+    :custom
   (org-directory "~/org")
   (org-indent-mode-turns-off-org-adapt-indentation nil)
   (org-startup-with-inline-images t)
@@ -573,7 +572,7 @@ Use prefix argument ARG for number of lines, otherwise use default."
             :and (:todo ("TODO" "IN PROGRESS"))
             :order 0)
      (:name "Habits (remaining)"
-            :and (:habit t :scheduled today)
+            :and (:habit t :not(:scheduled future))
             :order 2)
      (:name "Habits (complete)"
             :habit t
@@ -594,7 +593,7 @@ Use prefix argument ARG for number of lines, otherwise use default."
                     :todo ("TODO" "IN PROGRESS")
                     :order 0)
              (:name "Habits (remaining)"
-                    :and (:habit t :scheduled today)
+                    :and (:habit t :not(:scheduled future))
                     :order 2)
              (:name "Habits (complete)"
                     :habit t
@@ -1610,6 +1609,8 @@ T - tag prefix
       (define-key map (kbd k) f))
     map))
 
+(global-set-key (kbd "C-M-] r f c") 'my/cycle-fonts)
+
 (map-keymap
  (lambda (_ cmd)
    (put cmd 'repeat-map 'structural-navigation-map)) structural-navigation-map)
@@ -1627,6 +1628,20 @@ T - tag prefix
 (map-keymap
  (lambda (_ cmd)
    (put cmd 'repeat-map 'org-navigation-map)) org-navigation-map)
+
+(defvar emacs-styling-map
+  (let ((map (make-sparse-keymap)))
+    (pcase-dolist (`(,k . ,f)
+                   '(("f" . my/cycle-fonts)
+                     ("t" . my/cycle-theme)
+                     ("+" . cherry-seoul256-brighten-background)
+                     ("-" . cherry-seoul256-darken-background)))
+      (define-key map (kbd k) f))
+    map))
+
+(map-keymap
+ (lambda (_ cmd)
+   (put cmd 'repeat-map 'emacs-styling-map)) emacs-styling-map)
 
 ;; persistent scratch
 (use-package persistent-scratch
@@ -1950,7 +1965,9 @@ Otherwise, call eat."
   (message-send-mail-function 'smtpmail-send-it)
   (smtpmail-smtp-server "127.0.0.1")
   (smtpmail-smtp-service 1025)
-  (mu4e-get-mail-command "mbsync -a")
+  (mu4e-get-mail-command "mbsync -a & offlineimap")
+  (message-kill-buffer-on-exit t)
+  (mu4e-context-policy 'pick-first)
   :config
   (setq message-signature
         "Paul Huang\n[[https://github.com/polhuang][Github]] | [[https://linkedin.com/in/paulleehuang][LinkedIn]]\n")
@@ -1974,24 +1991,6 @@ Otherwise, call eat."
 
   (setq mu4e-contexts
         `(,(make-mu4e-context
-            :name "Work"
-            :enter-func (lambda () (mu4e-message "Switch to the Work context"))
-            :match-func (lambda (msg)
-                          (when msg
-                            (mu4e-message-contact-field-matches msg
-                                                                 :to "phuang@missioncloud.com")))
-            :vars '((user-mail-address . "phuang@missioncloud.com")
-                    (user-full-name    . "Paul Huang")
-                    (mu4e-sent-folder  . "/Gmail/[Gmail].Sent Mail")
-                    (mu4e-drafts-folder . "/Gmail/[Gmail].Drafts")
-                    (mu4e-trash-folder  . "/Gmail/[Gmail].Trash")
-                    (mu4e-refile-folder . "/Gmail/[Gmail].All Mail")
-                    (mu4e-maildir-shortcuts . (("/Gmail/INBOX"      . ?i)
-                                               ("/Gmail/[Gmail].Sent Mail" . ?s)
-                                               ("/Gmail/[Gmail].Trash" . ?t)
-                                               ("/Gmail/[Gmail].All Mail" . ?a)))))
-
-          ,(make-mu4e-context
             :name "Personal"
             :enter-func (lambda () (mu4e-message "Switch to the Personal context"))
             :match-func (lambda (msg)
@@ -2007,9 +2006,27 @@ Otherwise, call eat."
                     (mu4e-maildir-shortcuts . ((:maildir "/Protonmail/inbox" :key ?i :name "Inbox")
                                                (:maildir "/Protonmail/Sent" :key ?s :name "Sent")
                                                (:maildir "/Protonmail/Trash" :key ?t :name "Trash")
-                                               (:maildir "/Protonmail/All Mail" :key ?a :name "All Mail")))
+                                               (:maildir "/Protonmail/All Mail" :key ?a :name "All Mail")))))
+
+          ,(make-mu4e-context
+            :name "Work"
+            :enter-func (lambda () (mu4e-message "Switch to the Work context"))
+            :match-func (lambda (msg)
+                          (when msg
+                            (mu4e-message-contact-field-matches msg
+                                                                 :to "phuang@missioncloud.com")))
+            :vars '((user-mail-address . "phuang@missioncloud.com")
+                    (user-full-name    . "Paul Huang")
+                    (mu4e-sent-folder  . "/Gmail/[Gmail].Sent Mail")
+                    (mu4e-drafts-folder . "/Gmail/[Gmail].Drafts")
+                    (mu4e-trash-folder  . "/Gmail/[Gmail].Trash")
+                    (mu4e-refile-folder . "/Gmail/[Gmail].All Mail")
+                    (mu4e-maildir-shortcuts . (("/Gmail/INBOX"      . ?i)
+                                               ("/Gmail/[Gmail].Sent Mail" . ?s)
+                                               ("/Gmail/[Gmail].Trash" . ?t)
+                                               ("/Gmail/[Gmail].All Mail" . ?a)))))))
   (if (daemonp)
-      (mu4e)))))))
+      (mu4e)))
 
 ;; org-mime
 (use-package org-mime
@@ -2155,19 +2172,20 @@ Otherwise, call eat."
   :custom (elcord-idle-message "call me maybe?"))
 
 ;; erc (irc)
-;; (use-package erc
-;;   :custom
-;;   (erc-nick "polhuang")
-;;   (erc-user-full-name "pol huang")
-;;   (erc-autojoin-channels-alist '((".*" "#systemcrafters")))
-;;   (erc-hide-list '("JOIN" "PART" "QUIT"))
-;;   :functions my/connect-to-erc
-;;   :config
-;;   (defun my/connect-to-erc ()
-;;     (interactive)
-;;     (erc :server "irc.libera.chat"
-;;          :port "6667"))
-;;   (my/connect-to-erc))
+(use-package erc
+  :custom
+  (erc-nick "polhuang")
+  (erc-user-full-name "polhuang")
+  (erc-autojoin-channels-alist '((".*" "#systemcrafters" "#emacsatx")))
+  (erc-hide-list '("JOIN" "PART" "QUIT"))
+  :functions my/connect-to-erc
+  :config
+  (defun my/connect-to-erc ()
+    (interactive)
+    (erc :server "irc.libera.chat"
+         :port "6667"
+         :password (cadr (auth-source-user-and-password "irc.libera.chat"))))
+  (my/connect-to-erc))
 
 ;; org-gcal
 (use-package org-gcal
@@ -2235,7 +2253,8 @@ Otherwise, call eat."
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(custom-safe-themes
-   '("a53c7ff4570e23d7c5833cd342c461684aa55ddba09b7788d6ae70e7645c12b4"
+   '("d585421c2f1917400daaac0b628ee74e0c2d2960b99680cc75b393601adef535"
+     "a53c7ff4570e23d7c5833cd342c461684aa55ddba09b7788d6ae70e7645c12b4"
      "67f6b0de6f60890db4c799b50c0670545c4234f179f03e757db5d95e99bac332"
      "7142a20d65513972790584a98dcfa2925126383817399438dcf133cb4eea96e3"
      "477715cf84159782e44bcea3c90697e4c64896b5af42d0466b2dd44ece279505"
@@ -2248,10 +2267,35 @@ Otherwise, call eat."
  '(epg-pinentry-mode 'loopback nil nil "Customized with use-package epa")
  '(safe-local-variable-values
    '((eval progn (my/clear-extra-gcal-timestamps) (goto-char (point-min))
-           (org-sort-entries t 115))
+           (org-sort-entries t 115)
+           (org-map-entries
+            (lambda nil
+              (when
+                  (re-search-forward
+                   "\\(Daily\\|Midweek Meditation\\|Office Hours\\|Jan\\)"
+                   (line-end-position) t)
+                (org-cut-special)))
+            nil 'agenda))
      (eval progn (my/clear-extra-gcal-timestamps)
-           (goto-char (point-min)) (org-sort-entries t 111))
-     (eval my/clear-extra-gcal-timestamps)
+           (goto-char (point-min)) (org-sort-entries t 115)
+           (org-map-entries
+            (lambda nil
+              (when
+                  (re-search-forward
+                   "\\(Daily\\|Midweek Meditation\\|Office Hours\\)"
+                   (line-end-position) t)
+                (org-cut-special)))
+            nil 'agenda))
+     (eval progn (my/clear-extra-gcal-timestamps)
+           (goto-char (point-min)) (org-sort-entries t 115)
+           (org-map-entries (lambda nil (org-cut-subtree))
+                            "Daily\\|Midweek Meditation\\|Office Hours\\|Jan"))
+     (eval progn (my/clear-extra-gcal-timestamps)
+           (goto-char (point-min)) (org-sort-entries t 115)
+           (org-map-entries (lambda nil (org-cut-subtree))
+                            "Daily\\|Midweek Meditation\\|Office Hours"))
+     (eval progn (my/clear-extra-gcal-timestamps)
+           (goto-char (point-min)) (org-sort-entries t 115))
      (eval save-excursion (goto-char (point-min))
            (while (re-search-forward "^\\(<\\([^>]+\\)>\\)" nil t)
              (replace-match "SCHEDULED: \\1")))
