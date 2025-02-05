@@ -248,7 +248,7 @@ Each element is a cons cell (FONT-NAME . HEIGHT).")
   "Cycle through the fonts in `my/font-options` and set the next one."
   (interactive)
   (let* ((num-fonts (length my/font-options))
-         (rnew-index (mod (1+ my/current-font-index) num-fonts))
+         (new-index (mod (1+ my/current-font-index) num-fonts))
          (font (nth new-index my/font-options))
          (font-name (car font)))
     (setq my/current-font-index new-index)
@@ -256,7 +256,7 @@ Each element is a cons cell (FONT-NAME . HEIGHT).")
 
 (my/set-font "Fira Code") ;; default
 
-(global-set-key (kbd "C-M-] r F") 'my/select-fonts)
+(global-set-key (kbd "C-M-] r F") 'my/select-font)
 (global-set-key (kbd "C-M-] r f") 'my/cycle-fonts)
 
 ;; fontify-face
@@ -874,7 +874,7 @@ Use prefix argument ARG for number of lines, otherwise use default."
   _p_: pomodoro
   _q_: go away
   _s_: search org files
-  _w_: windows + frames
+  _w_: windows + framse
 "
   ("C" copilot-mode :color blue)
   ("e" eat :color blue)
@@ -1609,8 +1609,6 @@ T - tag prefix
       (define-key map (kbd k) f))
     map))
 
-(global-set-key (kbd "C-M-] r f c") 'my/cycle-fonts)
-
 (map-keymap
  (lambda (_ cmd)
    (put cmd 'repeat-map 'structural-navigation-map)) structural-navigation-map)
@@ -1651,7 +1649,7 @@ T - tag prefix
 
 (add-hook 'server-after-make-frame-hook
           (lambda ()
-            (when (equal (buffer-name) "*scratch*")
+            (when (equal (buffer-name) "*scratch*art")
               (revert-buffer))))
 
 ;; which-key
