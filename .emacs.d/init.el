@@ -2022,9 +2022,7 @@ Otherwise, call eat."
                     (mu4e-maildir-shortcuts . (("/Gmail/INBOX"      . ?i)
                                                ("/Gmail/[Gmail].Sent Mail" . ?s)
                                                ("/Gmail/[Gmail].Trash" . ?t)
-                                               ("/Gmail/[Gmail].All Mail" . ?a)))))))
-  (if (daemonp)
-      (mu4e)))
+                                               ("/Gmail/[Gmail].All Mail" . ?a))))))))
 
 ;; org-mime
 (use-package org-mime
