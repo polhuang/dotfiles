@@ -103,10 +103,8 @@
                    pinentry
                    pinentry-emacs
                    ripgrep
-                   
                    rofi-wayland
                    sh-z
-                   
                    starship-bin
                    swaynotificationcenter
                    waybar
