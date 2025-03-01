@@ -4,8 +4,8 @@
 
 (use-modules (gnu home)
              (gnu packages)
-             (gnu packages emacs)
              (gnu packages emacs-xyz)
+             (gnu packages fcitx5)
              (gnu packages librewolf)
              (gnu packages shellutils)
              (gnu packages terminals)
@@ -13,13 +13,21 @@
              (guix gexp)
              (gnu home services)
              (gnu home services shells)
-             (polterguix packages cli))
+             (polterguix packages cli)
+             (polterguix packages emacs))
 
 (home-environment
-  (packages (list
+ (packages (list
              emacs-next-pgtk-xwidgets
              emacs-guix
+             fcitx5
+             fcitx5-configtool
+             fcitx5-gtk
+             fcitx5-material-color-theme
+             fcitx5-qt
+             fcitx5-rime
              kitty ;; locale errors (tab-completion problem with unicode characters) when kitty isn't installed with guix package manager
+             libime
              librewolf
              zsh-completions
              zsh-autosuggestions

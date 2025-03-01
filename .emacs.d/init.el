@@ -1,7 +1,6 @@
 ;;;;;;;;;;;;;;;;;;;;
 ;; emacs settings ;;
 ;;;;;;;;;;;;;;;;;;;;
-
 (defvar is-guix nil
   "Variable indicating whether system is managed by guix.")
 
@@ -38,7 +37,7 @@
     (add-to-list 'load-path guix-emacs-dir))
 
   (use-package geiser
-  :ensure nil))
+    :ensure nil))
 
 (setq package-archives '(("melpa" . "https://melpa.org/packages/")
  			 ("elpa" . "https://elpa.gnu.org/packages/")
@@ -103,56 +102,53 @@
 ;;;;;;;;;;;;;;;;;
 
 ;; everforest
-(load "~/.emacs.d/everforest-emacs/everforest-hard-dark-theme.el")
-(load-theme 'everforest-hard-dark t)
-(set-face-attribute 'line-number nil :foreground "#7e968d")
-(set-face-attribute 'line-number-current-line nil :weight 'bold)
-(set-face-attribute 'org-priority nil :weight 'bold)
+(use-package everforest-hard-dark-theme
+  :load-path "~/.emacs.d/everforest-emacs/"
+  :config
+  (set-face-attribute 'line-number nil :foreground "#7e968d")
+  (set-face-attribute 'line-number-current-line nil :weight 'bold)
+  (with-eval-after-load 'org
+    (set-face-attribute 'org-priority nil :weight 'bold)
+    (set-face-attribute 'org-agenda-structure nil :weight 'bold)))
 
-;; (load "~/projects/cherry-seoul256")
-;; (use-package cherry-seoul256-theme
-;;   :load-path "~/projects/cherry-seoul256"
-;;   :commands cherry-seoul256-create
-;;   :custom
-;;   (cherry-seoul256-background 233)
-;;   ;; :config
-;;    )
-  ;;(load-theme 'cherry-seoul256 t)
+(use-package everforest-hard-light-theme
+  :load-path "~/.emacs.d/everforest-emacs/")
 
-;; theme
-;; (use-package seoul256-theme
-;;   :ensure t
-;;   :init
-;;   :custom
-;;   ;; (seoul256-background 235)
-;;   (seoul256-background 235)
-;;   :config
-;;   (set-face-attribute 'default nil :foreground "#e0def4")
-;;   (set-face-attribute 'font-lock-keyword-face nil :foreground "#ffb9ba" :weight 'bold)
-;;   (set-face-attribute 'font-lock-constant-face nil :weight 'bold)
-;;   (set-face-attribute 'font-lock-builtin-face nil :foreground "#fffed1" :weight 'bold)
-;;   (set-face-attribute 'font-lock-function-name-face nil :foreground "#d1fffe" :weight 'bold)
-;;   (set-face-attribute 'font-lock-variable-name-face nil :weight 'bold)
-;;   (set-face-attribute 'link nil :foreground "#b1f3fb" :underline t)
-;;   (set-face-attribute 'mode-line nil :background "#565656")
-;;   (set-face-attribute 'highlight nil :background "#FFBFBD"))
+(use-package cherry-seoul256-theme
+  :load-path "~/projects/cherry-seoul256/"
+  :custom
+  (cherry-seoul256-background 233))
 
-;; (with-eval-after-load 'org
-;;   (set-face-attribute 'org-level-1 nil :foreground "#ffdfac" :distant-foreground "#171717")
-;;   (set-face-attribute 'org-level-2 nil :distant-foreground "#171717")
-;;   (set-face-attribute 'org-level-4 nil :foreground "#ffbd98")
-;;   (set-face-attribute 'org-block-begin-line nil :foreground "#333233" :distant-foreground "#fff0f5" :background "#ffbfbd")
-;;   (set-face-attribute 'org-block nil :background "#171717")
-;;   ;;(set-face-attribute 'org-todo nil :foreground "#c66d86" :weight 'bold :inherit)
-;;   ;;(set-face-attribute 'org-done nil :foreground "#8fc587")
-;;   (set-face-attribute 'org-headline-done nil :foreground "#caf6bb")
-;;   (set-face-attribute 'org-priority nil :foreground "#d24b50")
-;;   (set-face-attribute 'org-tag nil :foreground "#e67518")
-;;   (set-face-attribute 'org-verbatim nil :foreground "#beb0f1")
-;;   (setq org-todo-keyword-faces
-;;         '(("TODO" . (:foreground "#c66d86" :weight bold))
-;;           ("IN PROGRESS" . (:foreground "#ffce76" :distant-foreground "#171717" :weight bold))
-;;           ("DONE" . (:foreground "#a7f3d0" :weight bold)))))
+(defvar current-theme 'everforest-hard-dark
+  "Stores the currently active theme name.")
+
+(defun my/cycle-theme ()
+  "Cycle between everforest-hard-dark, everforest-hard-light, and cherry-seoul256 themes."
+  (interactive)
+  (cond
+   ((eq current-theme 'everforest-hard-dark)
+    (disable-theme 'everforest-hard-dark)
+    (load-theme 'everforest-hard-light t)
+    (setq current-theme 'everforest-hard-light))
+
+   ((eq current-theme 'everforest-hard-light)
+    (disable-theme 'everforest-hard-light)
+    (load-theme 'cherry-seoul256 t)
+    (setq current-theme 'cherry-seoul256))
+
+   ((eq current-theme 'cherry-seoul256)
+    (disable-theme 'cherry-seoul256)
+    (load-theme 'everforest-hard-dark t)
+    (setq current-theme 'everforest-hard-dark))))
+
+;; Initially load the first theme
+(load-theme current-theme t)
+
+(global-set-key (kbd "C-M-] r t") 'my/cycle-theme)
+(global-set-key (kbd "C-M-] r T") 'my/toggle-frametransparency)
+(global-set-key (kbd "C-M-] r +") 'cherry-seoul256-brighten-background)
+(global-set-key (kbd "C-M-] r -") 'cherry-seoul256-darken-background)
+
 
 ;; ansi colors
 (require 'ansi-color)
@@ -259,6 +255,9 @@ Each element is a cons cell (FONT-NAME . HEIGHT).")
     (my/set-font font-name)))
 
 (my/set-font "Fira Code") ;; default
+
+(global-set-key (kbd "C-M-] r F") 'my/select-font)
+(global-set-key (kbd "C-M-] r f") 'my/cycle-fonts)
 
 ;; fontify-face
 (use-package fontify-face
@@ -509,6 +508,8 @@ Use prefix argument ARG for number of lines, otherwise use default."
 ;; org mode ;;
 ;;;;;;;;;;;;;;
 
+
+
 (use-package org
   :ensure t
   :bind
@@ -533,21 +534,56 @@ Use prefix argument ARG for number of lines, otherwise use default."
                  (window-width . 0.33)
                  (window-height . fit-window-to-buffer)))
   (display-line-numbers-mode 1)
-  :custom
+
+    :custom
   (org-directory "~/org")
-  (org-agenda-files '("~/org/tasks.org" "~/org/schedule.org" "~/org/projects.org" "~/org/habits.org"))
-  (org-clock-idle-time 10)
-  (org-clock-persist t)
-  (org-habit-graph-column 60)
-  (org-habit-preceding-days 28)
-  (org-habit-following-days 0)
   (org-indent-mode-turns-off-org-adapt-indentation nil)
   (org-startup-with-inline-images t)
-  (org-ellipsis " ▾")
-  (org-clock-persist 'history)
   (org-startup-with-latex-preview t)
   (org-preview-latex-default-process 'dvipng)
-  (org-habit-show-all-today t) ; need this in order for completed habits to show up in org-agenda daily view
+
+  (org-agenda-start-with-archives-mode t)
+  (org-agenda-files '("~/org/tasks.org" "~/org/work-tasks.org" "~/org/projects.org" "~/org/work-projects.org" "~/org/habits.org" "~/org/schedule.org"))
+  (org-agenda-format-date (lambda (date)
+                            (require 'cal-iso)
+                            (let* ((dayname (calendar-day-name date))
+	                           (day (cadr date))
+	                           (day-of-week (calendar-day-of-week date))
+	                           (month (car date))
+	                           (monthname (calendar-month-name month))
+	                           (year (nth 2 date))
+	                           (iso-week (org-days-to-iso-week
+		                              (calendar-absolute-from-gregorian date)))
+	                           ;; (weekyear (cond ((and (= month 1) (>= iso-week 52))
+	                           ;;        	  (1- year))
+	                           ;;        	 ((and (= month 12) (<= iso-week 1))
+	                           ;;        	  (1+ year))
+	                           ;;        	 (t year)))
+	                           (weekstring (if (= day-of-week 1)
+			                           (format " W%02d" iso-week)
+		                                 "")))
+                              (concat "\n"
+                                      (make-string (- (window-width) 5) ?-)
+                                      "\n"
+                                      (format "%-10s %2d %s %4d%s"
+	                                      dayname day monthname year weekstring)))))
+  (org-super-agenda-groups
+   '((:name "Tasks"
+            :and (:todo ("TODO" "IN PROGRESS"))
+            :order 0)
+     (:name "Habits (remaining)"
+            :and (:habit t :not(:scheduled future))
+            :order 2)
+     (:name "Habits (complete)"
+            :habit t
+            :order 3)
+     (:name "Schedule" ; remove closed tasks in schedule.org; time of close is irrelevant
+            :order 1
+            :and (:time-grid t :not (:and (:category "schedule" :log closed))))
+     (:discard (:anything))
+             ;; After the last group, the agenda will display items that didn't
+             ;; match any of these groups, with the default order position of 99
+             ))
   (org-agenda-custom-commands 
       '(("d" "Daily view (grouped)" agenda ""
          ((org-agenda-span 'day)
@@ -557,7 +593,7 @@ Use prefix argument ARG for number of lines, otherwise use default."
                     :todo ("TODO" "IN PROGRESS")
                     :order 0)
              (:name "Habits (remaining)"
-                    :and (:habit t :scheduled today)
+                    :and (:habit t :not(:scheduled future))
                     :order 2)
              (:name "Habits (complete)"
                     :habit t
@@ -565,21 +601,29 @@ Use prefix argument ARG for number of lines, otherwise use default."
              (:name "Schedule"
                     :order 1
                     :time-grid t)
-         (:priority<= "B"
-                      ;; Show this section after "Today" and "Important", because
-                      ;; their order is unspecified, defaulting to 0. Sections
-                      ;; are displayed lowest-number-first.
-                      :order 1)
+             
          ;; After the last group, the agenda will display items that didn't
          ;; match any of these groups, with the default order position of 99
          ))))))
-  (org-agenda-sorting-strategy '(time-up))
+  (org-agenda-sorting-strategy '(time-up priority-down))
+  (org-agenda-start-with-log-mode t)
+
+
+  (org-clock-idle-time 10)
+  (org-clock-persist t)  (org-ellipsis " ▾")
+  (org-clock-persist 'history)
+
+  (org-habit-show-all-today t) ; need this in order for completed habits to show up in org-agenda daily view
+  (org-habit-show-habits t)
+  (org-habit-graph-column 60)
+  (org-habit-preceding-days 28)
+  (org-habit-following-days 0)
+  
   (org-todo-keyword-faces
         '(("IN PROGRESS" . (:foreground "#F1C40F" :distant-foreground "e6dfb8" :weight bold))
           ("UPCOMING" . (:foreground "#cddbf9" :weight bold))
           ("HABIT" . (:foreground "#f6bbe7" :weight bold))
           ("TABLED" . (:foreground "#ffd700" :distant-foreground "#171717" :weight bold))))
-  (org-agenda-start-with-log-mode t)
   (org-log-done 'time)
   (electric-indent-mode 1)
   (org-log-into-drawer t)
@@ -594,7 +638,7 @@ Use prefix argument ARG for number of lines, otherwise use default."
 	   "* %? [[%:link][%:description]] \nCaptured On: %U")
           ("s")
           ("t" "Task" entry
-           (file+headline ,(concat org-directory "/tasks.org") "Daily inbox")
+           (file ,(concat org-directory "/tasks.org"))
            "* TODO %?\nSCHEDULED: <%(org-read-date nil nil)>
 :PROPERTIES:
 :notify: nil
@@ -614,6 +658,7 @@ Use prefix argument ARG for number of lines, otherwise use default."
   (org-confirm-babel-evaluate nil)
   (org-src-tab-acts-natively t)
   (org-babel-python-command "python3")
+  
   :config
   (global-set-key (kbd "C-'") 'org-cycle-agenda-files)
   (plist-put org-format-latex-options :scale 1.5)
@@ -782,6 +827,8 @@ Use prefix argument ARG for number of lines, otherwise use default."
   ;; remind me to clock in/out
   (use-package org-clock-reminder
     :ensure t
+    :commands org-clock-reminder-mode
+    :init (org-clock-reminder-mode)
     :custom
     (org-clock-reminder-formatters
      '((?c . (org-duration-from-minutes (floor (org-time-convert-to-integer
@@ -793,17 +840,16 @@ Use prefix argument ARG for number of lines, otherwise use default."
     (org-clock-reminder-inactive-title "Big Brother says:")
     (org-clock-reminder-active-title "Big Brother says:")
     (org-clock-reminder-inactive-text "%t: You're not clocked in, bro")
-    (org-clock-reminder-active-text "%t: You've been working for %c on w%h.")
+    (org-clock-reminder-active-text "%t: You've been working for %c on %h.")
     (org-clock-reminder-interval (cons 10 30))
     (org-clock-reminder-inactive-notifications-p nil)
     :config
-    ;; replace function to configure urgency
+    ;; replace function to configure urgency, timeout
     (defun org-clock-reminder-notify (title message)
       (let ((icon-path (org-clock-reminder--icon)))
         (notifications-notify :title title
                               :body message
-                              :timeout 540000
-                              :urgency 'critical)))
+                              :timeout 54000)))
 
     ;; define duration based on time since latest clock-in, not total clocked time
     ;; add current
@@ -819,24 +865,22 @@ Use prefix argument ARG for number of lines, otherwise use default."
 ;; hydra-colossa
 (defhydra hydra-colossa (:color amaranth :hint nil)
   "
-  _c_: copilot
-  _d_: codeium
   _e_: eat
   _E_: erc
+  _g_: gptel
   _k_: save and kill emacs
   _m_: mu4e
   _n_: new scratchpad
   _p_: pomodoro
   _q_: go away
   _s_: search org files
-  _t_: tasks
-  _w_: windows + frames
+  _w_: windows + framse
 "
-  ("c" hydra-cheat/body :color blue)
   ("C" copilot-mode :color blue)
-  ("d" my/codeium :color blue)
   ("e" eat :color blue)
   ("E" erc-switch-to-buffer :color blue)
+  ("g" gptel-send :color blue)
+  ("G" gptel-menu :color blue)
   ("k" save-buffers-kill-emacs :color blue)
   ("m" mu4e :color blue)
   ("n" scratchpad-new :color blue)
@@ -844,7 +888,6 @@ Use prefix argument ARG for number of lines, otherwise use default."
   ("q" nil :color blue)
   ("r" restart-emacs :color blue)
   ("s" my/org-search :color blue)
-  ("t" consult-org-agenda :color blue)
   ("w" hydra-windows/body :color blue)
   ("." nil :color blue)
   ("C-M-G" nil :color blue))
@@ -958,16 +1001,16 @@ Use prefix argument ARG for number of lines, otherwise use default."
 (require 'dired)
 (require 'dired-x)
 (require 'dired-aux)
-(defhydra hydra-dired (:hint nil :color pink)
+(defhydra dired-hydra (:hint nil)
   "
 _+_ mkdir          _v_iew           _m_ark             _(_ details        _i_nsert-subdir    wdired
-_c_opy             _O_ view other   _U_nmark all       _)_ omit-mode                         C-x C-q : edit
-_d_elete           _o_pen other     _u_nmark           _l_ redisplay      _w_ kill-subdir    C-c C-c : commit
-_R_ename           _M_ chmod        _t_oggle           _g_ revert buf     _e_ ediff          C-c ESC : abort
-_y_ rel symlink    _G_ chgrp        _e_xtension mark   _s_ort             _S_ymlink          ^ ^              _f_ind marked      _._ toggle hydra   \\ flyspell
-                   ^ ^              ^ ^                ^ ^                _?_ summary
-_z_ compress-file  _a_ find regexp
-                   _Q_ repl regexp
+_C_opy             _O_ view other   _U_nmark all       _)_ omit-mode      _w_ kill-subdir    C-x C-q: edit
+_D_elete           _o_pen other     _u_nmark           _l_ redisplay      _?_ summary        C-c C-c: commit
+_R_ename           _M_ chmod        _t_oggle           _g_ revert buf     ^ ^                C-c C-k: abort
+_Y_ rel symlink    _G_ chgrp        _E_xtension mark   _s_ort             
+_S_ymlink          _A_ find regexp  _F_ind marked      _._ toggle hydra
+_z_ compress       _Q_ repl regexp
+^ ^
 
 T - tag prefix
 "
@@ -975,11 +1018,11 @@ T - tag prefix
   (")" dired-omit-mode)
   ("+" dired-create-directory)
   ("?" dired-summary)
-  ("a" dired-do-find-regexp)
-  ("c" dired-do-copy)        ;; Copy all marked files
-  ("d" dired-do-delete)
-  ("e" dired-mark-extension)
-  ("f" dired-do-find-marked-files)
+  ("A" dired-do-find-regexp)
+  ("C" dired-do-copy)        ;; Copy all marked files
+  ("D" dired-do-delete)
+  ("E" dired-mark-extension)
+  ("F" dired-do-find-marked-files)
   ("G" dired-do-chgrp)
   ("g" revert-buffer)        ;; read all directories again (refresh)
   ("i" dired-maybe-insert-subdir)
@@ -997,10 +1040,12 @@ T - tag prefix
   ("u" dired-unmark)
   ("v" dired-view-file)      ;; q to exit, s to search, = gets line #
   ("w" dired-kill-subdir)
-  ("y" dired-do-relsymlink)
+  ("Y" dired-do-relsymlink)
   ("z" dired-do-compress)
   ("q" nil)
   ("." nil :color blue))
+
+(define-key dired-mode-map "." 'dired-hydra/body)
 
 (with-eval-after-load 'dired
   (define-key dired-mode-map "." 'hydra-dired/body))
@@ -1012,21 +1057,6 @@ T - tag prefix
   :bind
   ("C-M-] ." . major-mode-hydra)
   :config
-  (pretty-hydra-define navigation-hydra (:quit-key "q")
-    ("Mark motion"
-     (("C-x C-<space>" pop-global-mark "Pop global mark")
-      ("C-x C-x" exchange-point-and-mark "Exchange point and mark"))
-     "Text motion"
-     (("C-M-b" puni-backward-sexp "Backward sexp")
-      ("C-M-f" puni-forward-sexp "Forward sexp")
-      ("C-M-u" backward-up-list "Backward up hierarchy")
-      ("C-M-d" down-list "Forward down hierarchy")
-      ("C-M-p" backward-list "Backward list")
-      ("C-M-n" forward-list "Forward list"))
-     "Text selection"
-     (("C-c \\" puni-mark-sexp-around-point "Mark around sexp")
-    ("M-h" mark-paragraph "Mark paragraph"))))
-  
   (major-mode-hydra-define org-mode nil
     ("TODO"
      (("t" my/to-do-complete "Cycle TODO")
@@ -1147,7 +1177,9 @@ T - tag prefix
     (make-directory (file-name-directory gpg-file) t)
     (write-region "" nil gpg-file))
   (load gpg-file))
+
 (use-package pinentry :ensure t)
+
 (use-package epa
   :ensure nil
   :custom
@@ -1400,11 +1432,10 @@ T - tag prefix
   (add-to-list 'corfu-margin-formatters #'nerd-icons-corfu-formatter)
   :custom
   (corfu-auto t)                    ;; Enable auto completion
-  ;; (corfu-preselect 'valid)z      ;; Don't select first candidate
   (corfu-history-mode)
   ;; (corfu-separator ?\s)          ;; Orderless field separator
   ;; (corfu-quit-at-boundary nil)   ;; Never quit at completion boundary
-  (corfu-quit-no-match 'separator)           ;; Never quit, even if there is no match
+  (corfu-quit-no-match 'separator)  ;; Never quit, even if there is no match
   ;; (corfu-on-exact-match nil)     ;; Configure handling of exact matches
   ;; (corfu-scroll-margin 5)        ;; Use scroll margin
 
@@ -1459,7 +1490,6 @@ T - tag prefix
   ;; completion functions takes precedence over the global list.
   (add-to-list 'completion-at-point-functions #'cape-dabbrev)
   (add-to-list 'completion-at-point-functions #'cape-file)
-  (add-to-list 'completion-at-point-functions #'cape-elisp-block)
   (add-to-list 'completion-at-point-functions #'cape-history)
   (add-to-list 'completion-at-point-functions #'cape-keyword)
   (add-to-list 'completion-at-point-functions #'cape-tex)
@@ -1467,9 +1497,11 @@ T - tag prefix
   ;;(add-to-list 'completion-at-point-functions #'cape-rfc1345)
   (add-to-list 'completion-at-point-functions #'cape-abbrev)
   (add-to-list 'completion-at-point-functions #'cape-dict)
-  (add-to-list 'completion-at-point-functions #'cape-elisp-symbol)
   ;;(add-to-list 'completion-at-point-functions #'cape-line)`
-  )
+
+  (add-hook 'emacs-lisp-mode-hook (lambda ()
+                                    (add-to-list (make-local-variable 'completion-at-point-functions) 'cape-elisp-block)
+                                    (add-to-list (make-local-variable 'completion-at-point-functions) 'cape-elisp-symbol))))
 
 ;; prescient
 (use-package prescient
@@ -1595,6 +1627,20 @@ T - tag prefix
  (lambda (_ cmd)
    (put cmd 'repeat-map 'org-navigation-map)) org-navigation-map)
 
+(defvar emacs-styling-map
+  (let ((map (make-sparse-keymap)))
+    (pcase-dolist (`(,k . ,f)
+                   '(("f" . my/cycle-fonts)
+                     ("t" . my/cycle-theme)
+                     ("+" . cherry-seoul256-brighten-background)
+                     ("-" . cherry-seoul256-darken-background)))
+      (define-key map (kbd k) f))
+    map))
+
+(map-keymap
+ (lambda (_ cmd)
+   (put cmd 'repeat-map 'emacs-styling-map)) emacs-styling-map)
+
 ;; persistent scratch
 (use-package persistent-scratch
   :ensure t
@@ -1603,7 +1649,7 @@ T - tag prefix
 
 (add-hook 'server-after-make-frame-hook
           (lambda ()
-            (when (equal (buffer-name) "*scratch*")
+            (when (equal (buffer-name) "*scratch*art")
               (revert-buffer))))
 
 ;; which-key
@@ -1898,62 +1944,34 @@ Otherwise, call eat."
   :custom
   (mu4e-use-fancy-chars t)
   (mu4e-bookmarks
-     '(( :name  "Unread messages"
-         :query "flag:unread AND NOT flag:trashed AND NOT \"maildir:/All Mail\""
-         :key ?u)
-       (:name "Today's messages"
-              :query "date:today..now"
-              :key ?t)
-       (:name "Last 7 days"
-              :query "date:7d..now"
-              :hide-unread t
-              :key ?w)
-       (:name "Messages with images"
-              :query "mime:image/*"
-              :key ?p)))
+   '((:name "Unread messages"
+            :query "flag:unread AND NOT flag:trashed AND NOT \"maildir:/All Mail\""
+            :key ?u)
+     (:name "Today's messages"
+            :query "date:today..now"
+            :key ?t)
+     (:name "Last 7 days"
+            :query "date:7d..now"
+            :hide-unread t
+            :key ?w)
+     (:name "Messages with images"
+            :query "mime:image/*"
+            :key ?p)))
   (mail-user-agent 'mu4e-user-agent)
-  (user-mail-address "paulleehuang@proton.me")
   (mu4e-update-interval (* 5 60))
-  (mu4e-get-mail-command "mbsync -a")
-  (mu4e-drafts-folder "/Drafts")
-  (mu4e-sent-folder "/Sent")
-  (mu4e-refile-folder "/Archive")
-  (mu4e-trash-folder "/Trash")
   (mu4e-mu-version "1.12.8")
-  (mu4e-maildir-shortcuts
-   '((:maildir "/inbox"     :key ?i)
-     (:maildir "/Sent"      :key ?s)
-     (:maildir "/Starred"   :key ?S)
-     (:maildir "/Trash"     :key ?t)
-     (:maildir "/Drafts"    :key ?d)
-     (:maildir "/Archive"   :key ?A)
-     (:maildir "/All Mail"  :key ?a)))
   (message-send-mail-function 'smtpmail-send-it)
   (smtpmail-smtp-server "127.0.0.1")
   (smtpmail-smtp-service 1025)
-   
+  (mu4e-get-mail-command "mbsync -a & offlineimap")
+  (message-kill-buffer-on-exit t)
+  (mu4e-context-policy 'pick-first)
   :config
+  (setq message-signature
+        "Paul Huang\n[[https://github.com/polhuang][Github]] | [[https://linkedin.com/in/paulleehuang][LinkedIn]]\n")
   (set-face-attribute 'mu4e-highlight-face nil :inherit 'mu4e-title-face)
-  ;; signature
-  ;;   (setq message-signature "<#multipart type=alternative>
-  ;; <#part type=text/plain>
-  ;; [[https://linkedin.com/in/paulleehuang][LinkedIn]] | [[https://github.com/polhuang][Github]]
-  
-  ;; Sent using [[https://google.com][mu4e]]
-  ;; <#/part>
-  
-  ;; <#part type=text/html>
-  ;; <p>
-  ;; <a href=\"https://linkedin.com/in/paulleehuang\">LinkedIn</a> | <a href=\"https://github.com/polhuang\">Github</a>
-  ;; </p>
-  
-  ;; <p>
-  ;; Sent from <a href=\"https://www.djcbsoftware.nl/code/mu/\">mu</a>
-  ;; </p>
-  ;; <#/part>
-  ;; <#/multipart>
-  ;; ")
-  ;; fancy header marks
+
+  ;; Fancy header marks
   (setq mu4e-headers-draft-mark     '("D" . "💈")
         mu4e-headers-flagged-mark   '("F" . "📍")
         mu4e-headers-new-mark       '("N" . "🔥")
@@ -1968,12 +1986,54 @@ Otherwise, call eat."
         mu4e-headers-list-mark      '("l" . "🔈")
         mu4e-headers-personal-mark  '("p" . "👨")
         mu4e-headers-calendar-mark  '("c" . "📅"))
-  (if (daemonp)
-      (mu4e)))
+
+  (setq mu4e-contexts
+        `(,(make-mu4e-context
+            :name "Personal"
+            :enter-func (lambda () (mu4e-message "Switch to the Personal context"))
+            :match-func (lambda (msg)
+                          (when msg
+                            (mu4e-message-contact-field-matches msg
+                                                                 :to "paulleehuang@proton.me")))
+            :vars '((user-mail-address . "paulleehuang@proton.me")
+                    (user-full-name    . "Paul Huang")
+                    (mu4e-sent-folder  . "/Protonmail/Sent")
+                    (mu4e-drafts-folder . "/Protonmail/Drafts")
+                    (mu4e-trash-folder  . "/Protonmail/Trash")
+                    (mu4e-refile-folder . "/Protonmail/All Mail")
+                    (mu4e-maildir-shortcuts . ((:maildir "/Protonmail/inbox" :key ?i :name "Inbox")
+                                               (:maildir "/Protonmail/Sent" :key ?s :name "Sent")
+                                               (:maildir "/Protonmail/Trash" :key ?t :name "Trash")
+                                               (:maildir "/Protonmail/All Mail" :key ?a :name "All Mail")))))
+
+          ,(make-mu4e-context
+            :name "Work"
+            :enter-func (lambda () (mu4e-message "Switch to the Work context"))
+            :match-func (lambda (msg)
+                          (when msg
+                            (mu4e-message-contact-field-matches msg
+                                                                 :to "phuang@missioncloud.com")))
+            :vars '((user-mail-address . "phuang@missioncloud.com")
+                    (user-full-name    . "Paul Huang")
+                    (mu4e-sent-folder  . "/Gmail/[Gmail].Sent Mail")
+                    (mu4e-drafts-folder . "/Gmail/[Gmail].Drafts")
+                    (mu4e-trash-folder  . "/Gmail/[Gmail].Trash")
+                    (mu4e-refile-folder . "/Gmail/[Gmail].All Mail")
+                    (mu4e-maildir-shortcuts . (("/Gmail/INBOX"      . ?i)
+                                               ("/Gmail/[Gmail].Sent Mail" . ?s)
+                                               ("/Gmail/[Gmail].Trash" . ?t)
+                                               ("/Gmail/[Gmail].All Mail" . ?a))))))))
 
 ;; org-mime
 (use-package org-mime
-  :ensure t)
+  :ensure t
+  :custom
+  (setq org-mime-mail-signature-separator "a string preventing separating signature from email body")
+  :config
+  (setq org-mime-export-options '(:section-numbers nil
+				:with-author nil
+				:with-toc nil
+				:preserve-breaks t)))
 
 ;;;;;;;;;;;;;;;;;;;
 ;; miscellaneous ;;
@@ -2019,7 +2079,7 @@ Otherwise, call eat."
   (dashboard-banner-logo-title "~~ HI POL ~~")
   (dashboard-startup-banner "~/.dotfiles/.emacs.d/dashboard-banner.txt")
   (dashboard-footer-messages '("Time saved by emacs: 5 days 11 hours 47 minutes \nTime spent editing emacs config: 615 days 11 hours 38 minutes"))
-  (dashboard-agenda-prefix-format "%-10:c %-12s")
+  (dashboard-agenda-prefix-format "%-15:c %-16s")
   (dashboard-agenda-time-string-format "%m-%d %H:%M")
   ;; (setq dashboard-agenda-prefix-format " %-10:c %-12s ")
   (dashboard-items '((recents  . 5)
@@ -2060,8 +2120,6 @@ Otherwise, call eat."
 (use-package gptel
   :ensure t
   :commands gptel-end-of-response
-  :bind
-  (("C-c c" . gptel-menu))
   :custom
   (gptel-model "gpt-4o")
   (gptel-default-mode 'org-mode))
@@ -2077,13 +2135,16 @@ Otherwise, call eat."
             (insert "\n#+END_RESPONSE")
             (insert "\n\n")))
 
-;; spell-checking
-(require 'ispell)
-(setq ispell-local-dictionary "/usr/share/hunspell/en_US-large.dic")
-(setq ispell-alternate-dictionary "/usr/share/hunspell/en_US.dic")
+(use-package elysium
+  :ensure t
+  :custom
+  (elysium-window-size 0.33) 
+  (elysium-window-style 'vertical))
 
 ;; install external dependencies enchant, pkgconf, and lang dict
 ;; pacman: enchant, pkgconf, hunspell-en_us
+;; personal dictionary is located at =~/.config/enchant/en_US.dic=
+
 (use-package jinx
   :ensure nil
   :hook (emacs-startup . global-jinx-mode)
@@ -2110,15 +2171,16 @@ Otherwise, call eat."
 (use-package erc
   :custom
   (erc-nick "polhuang")
-  (erc-user-full-name "pol huang")
-  (erc-autojoin-channels-alist '((".*" "#systemcrafters")))
+  (erc-user-full-name "polhuang")
+  (erc-autojoin-channels-alist '((".*" "#systemcrafters" "#emacsatx")))
   (erc-hide-list '("JOIN" "PART" "QUIT"))
   :functions my/connect-to-erc
   :config
   (defun my/connect-to-erc ()
     (interactive)
     (erc :server "irc.libera.chat"
-         :port "6667"))
+         :port "6667"
+         :password (cadr (auth-source-user-and-password "irc.libera.chat"))))
   (my/connect-to-erc))
 
 ;; org-gcal
@@ -2187,7 +2249,8 @@ Otherwise, call eat."
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(custom-safe-themes
-   '("a53c7ff4570e23d7c5833cd342c461684aa55ddba09b7788d6ae70e7645c12b4"
+   '("d585421c2f1917400daaac0b628ee74e0c2d2960b99680cc75b393601adef535"
+     "a53c7ff4570e23d7c5833cd342c461684aa55ddba09b7788d6ae70e7645c12b4"
      "67f6b0de6f60890db4c799b50c0670545c4234f179f03e757db5d95e99bac332"
      "7142a20d65513972790584a98dcfa2925126383817399438dcf133cb4eea96e3"
      "477715cf84159782e44bcea3c90697e4c64896b5af42d0466b2dd44ece279505"
@@ -2200,10 +2263,35 @@ Otherwise, call eat."
  '(epg-pinentry-mode 'loopback nil nil "Customized with use-package epa")
  '(safe-local-variable-values
    '((eval progn (my/clear-extra-gcal-timestamps) (goto-char (point-min))
-           (org-sort-entries t 115))
+           (org-sort-entries t 115)
+           (org-map-entries
+            (lambda nil
+              (when
+                  (re-search-forward
+                   "\\(Daily\\|Midweek Meditation\\|Office Hours\\|Jan\\)"
+                   (line-end-position) t)
+                (org-cut-special)))
+            nil 'agenda))
      (eval progn (my/clear-extra-gcal-timestamps)
-           (goto-char (point-min)) (org-sort-entries t 111))
-     (eval my/clear-extra-gcal-timestamps)
+           (goto-char (point-min)) (org-sort-entries t 115)
+           (org-map-entries
+            (lambda nil
+              (when
+                  (re-search-forward
+                   "\\(Daily\\|Midweek Meditation\\|Office Hours\\)"
+                   (line-end-position) t)
+                (org-cut-special)))
+            nil 'agenda))
+     (eval progn (my/clear-extra-gcal-timestamps)
+           (goto-char (point-min)) (org-sort-entries t 115)
+           (org-map-entries (lambda nil (org-cut-subtree))
+                            "Daily\\|Midweek Meditation\\|Office Hours\\|Jan"))
+     (eval progn (my/clear-extra-gcal-timestamps)
+           (goto-char (point-min)) (org-sort-entries t 115)
+           (org-map-entries (lambda nil (org-cut-subtree))
+                            "Daily\\|Midweek Meditation\\|Office Hours"))
+     (eval progn (my/clear-extra-gcal-timestamps)
+           (goto-char (point-min)) (org-sort-entries t 115))
      (eval save-excursion (goto-char (point-min))
            (while (re-search-forward "^\\(<\\([^>]+\\)>\\)" nil t)
              (replace-match "SCHEDULED: \\1")))
