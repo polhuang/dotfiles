@@ -54,12 +54,12 @@
    (mapped-devices (list (mapped-device
                           (source (uuid
                                    "c4b2e6c6-8a59-4821-82a9-ec6612ae225f"))
-                          (target "system-root")
+                          (target "cryptakhetaten")
                           (type luks-device-mapping)))) 
    ;; placeholder file system
    (file-systems (cons* (file-system
                          (mount-point "/")
-                         (device "/dev/mapper/system-root")
+                         (device "/dev/mapper/cryptakhetaten")
                          (type "btrfs")
                          (dependencies mapped-devices))
                         (file-system
