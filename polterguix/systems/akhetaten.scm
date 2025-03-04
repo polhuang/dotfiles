@@ -59,7 +59,7 @@
    ;; placeholder file system
    (file-systems (cons* (file-system
                          (mount-point "/")
-                         (device "/dev/mapper/cryptakhetaten")
+                         (device "/dev/mapper/system-root")
                          (type "btrfs")
                          (dependencies mapped-devices))
                         (file-system
