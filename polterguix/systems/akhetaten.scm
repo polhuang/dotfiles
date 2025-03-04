@@ -53,19 +53,18 @@
 
    (mapped-devices (list (mapped-device
                           (source (uuid
-                                   "29df3858-a0bb-46c1-8d52-64a11734a789"))
-                          (target "crypt-akhetaten")
+                                   "c4b2e6c6-8a59-4821-82a9-ec6612ae225f"))
+                          (target "system-root")
                           (type luks-device-mapping)))) 
    ;; placeholder file system
    (file-systems (cons* (file-system
                          (mount-point "/")
-                         (device "/dev/mapper/crypt-akhetaten")
+                         (device "/dev/mapper/cryptakhetaten")
                          (type "btrfs")
                          (dependencies mapped-devices))
                         (file-system
+                         (device "/dev/nvme0n1p1")
                          (mount-point "/boot/efi")
-                         (device (uuid "6CCB-3E30"
-                                       'fat32))
                          (type "vfat"))
                         %base-file-systems))))
 
