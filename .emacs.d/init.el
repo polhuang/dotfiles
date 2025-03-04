@@ -35,9 +35,8 @@
 (when is-guix
   (let ((guix-emacs-dir "/home/pol/.guix-profile/share/emacs/site-lisp"))
     (add-to-list 'load-path guix-emacs-dir))
-
   (use-package geiser
-    :ensure nil))
+    :ensure t))
 
 (setq package-archives '(("melpa" . "https://melpa.org/packages/")
  			 ("elpa" . "https://elpa.gnu.org/packages/")
@@ -102,52 +101,54 @@
 ;;;;;;;;;;;;;;;;;
 
 ;; everforest
-(use-package everforest-hard-dark-theme
-  :load-path "~/.emacs.d/everforest-emacs/"
-  :config
-  (set-face-attribute 'line-number nil :foreground "#7e968d")
-  (set-face-attribute 'line-number-current-line nil :weight 'bold)
-  (with-eval-after-load 'org
-    (set-face-attribute 'org-priority nil :weight 'bold)
-    (set-face-attribute 'org-agenda-structure nil :weight 'bold)))
+;; (use-package everforest-hard-dark-theme
+;;   :load-path "~/.emacs.d/everforest-emacs/"
+;;   :config
+;;   (set-face-attribute 'line-number nil :foreground "#7e968d")
+;;   (set-face-attribute 'line-number-current-line nil :weight 'bold)
+;;   (with-eval-after-load 'org
+;;     (set-face-attribute 'org-priority nil :weight 'bold)
+;;     (set-face-attribute 'org-agenda-structure nil :weight 'bold)))
 
-(use-package everforest-hard-light-theme
-  :load-path "~/.emacs.d/everforest-emacs/")
+;; (use-package everforest-hard-light-theme
+;;   :load-path "~/.emacs.d/everforest-emacs/")
 
 (use-package cherry-seoul256-theme
   :load-path "~/projects/cherry-seoul256/"
   :custom
-  (cherry-seoul256-background 233))
+  (cherry-seoul256-background 233)
+  :config
+  (load-theme 'cherry-seoul256 t))
 
-(defvar current-theme 'everforest-hard-dark
-  "Stores the currently active theme name.")
+;; (defvar current-theme 'everforest-hard-dark
+;;   "Stores the currently active theme name.")
 
-(defun my/cycle-theme ()
-  "Cycle between everforest-hard-dark, everforest-hard-light, and cherry-seoul256 themes."
-  (interactive)
-  (cond
-   ((eq current-theme 'everforest-hard-dark)
-    (disable-theme 'everforest-hard-dark)
-    (load-theme 'everforest-hard-light t)
-    (setq current-theme 'everforest-hard-light))
+;; (defun my/cycle-theme ()
+;;   "Cycle between everforest-hard-dark, everforest-hard-light, and cherry-seoul256 themes."
+;;   (interactive)
+;;   (cond
+;;    ((eq current-theme 'everforest-hard-dark)
+;;     (disable-theme 'everforest-hard-dark)
+;;     (load-theme 'everforest-hard-light t)
+;;     (setq current-theme 'everforest-hard-light))
 
-   ((eq current-theme 'everforest-hard-light)
-    (disable-theme 'everforest-hard-light)
-    (load-theme 'cherry-seoul256 t)
-    (setq current-theme 'cherry-seoul256))
+;;    ((eq current-theme 'everforest-hard-light)
+;;     (disable-theme 'everforest-hard-light)
+;;     (load-theme 'cherry-seoul256 t)
+;;     (setq current-theme 'cherry-seoul256))
 
-   ((eq current-theme 'cherry-seoul256)
-    (disable-theme 'cherry-seoul256)
-    (load-theme 'everforest-hard-dark t)
-    (setq current-theme 'everforest-hard-dark))))
+;;    ((eq current-theme 'cherry-seoul256)
+;;     (disable-theme 'cherry-seoul256)
+;;     (load-theme 'everforest-hard-dark t)
+;;     (setq current-theme 'everforest-hard-dark))))
 
-;; Initially load the first theme
-(load-theme current-theme t)
+;; ;; Initially load the first theme
+;; (load-theme current-theme t)
 
-(global-set-key (kbd "C-M-] r t") 'my/cycle-theme)
-(global-set-key (kbd "C-M-] r T") 'my/toggle-frametransparency)
-(global-set-key (kbd "C-M-] r +") 'cherry-seoul256-brighten-background)
-(global-set-key (kbd "C-M-] r -") 'cherry-seoul256-darken-background)
+;; (global-set-key (kbd "C-M-] r t") 'my/cycle-theme)
+;; (global-set-key (kbd "C-M-] r T") 'my/toggle-frametransparency)
+;; (global-set-key (kbd "C-M-] r +") 'cherry-seoul256-brighten-background)
+;; (global-set-key (kbd "C-M-] r -") 'cherry-seoul256-darken-background)
 
 
 ;; ansi colors
@@ -543,7 +544,7 @@ Use prefix argument ARG for number of lines, otherwise use default."
   (org-preview-latex-default-process 'dvipng)
 
   (org-agenda-start-with-archives-mode t)
-  (org-agenda-files '("~/org/tasks.org" "~/org/work-tasks.org" "~/org/projects.org" "~/org/work-projects.org" "~/org/habits.org" "~/org/schedule.org"))
+  (org-agenda-files '("~/org/tasks.org" "~/org/projects.org" "~/org/schedule.org"))
   (org-agenda-format-date (lambda (date)
                             (require 'cal-iso)
                             (let* ((dayname (calendar-day-name date))
@@ -1933,6 +1934,10 @@ Otherwise, call eat."
 ;;   :custom
 ;;   (setq inferior-lisp-program "sbcl"))
 
+;; csv
+(use-package csv-mode
+  :ensure t)
+
 ;;;;;;;;;;;
 ;; email ;;
 ;;;;;;;;;;;
@@ -2145,11 +2150,11 @@ Otherwise, call eat."
 ;; pacman: enchant, pkgconf, hunspell-en_us
 ;; personal dictionary is located at =~/.config/enchant/en_US.dic=
 
-(use-package jinx
-  :ensure nil
-  :hook (emacs-startup . global-jinx-mode)
-  :bind (("M-$" . jinx-correct)
-         ("C-M-$" . jinx-languages)))
+;; (use-package jinx
+;;   :ensure nil
+;;   :hook (emacs-startup . global-jinx-mode)
+;;   :bind (("M-$" . jinx-correct)
+;;          ("C-M-$" . jinx-languages)))
 
 ;; parrot
 (use-package parrot
@@ -2231,10 +2236,6 @@ Otherwise, call eat."
 (global-set-key (kbd "C-M-z") 'scratchpad-toggle)
 (setq scratchpad-save-directory "~/org/scratchpad")
 
-(load "~/projects/tick.el/tick.el")
-(setq ticktick-client-id "uxXCDqEv3nV3C2M1hn")
-(setq ticktick-client-secret "6eh+gE#66+3lKHJv56d)EU8&eru_k$*8")
-
 (use-package org-jira
   :ensure t
   :custom
@@ -2249,7 +2250,8 @@ Otherwise, call eat."
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(custom-safe-themes
-   '("d585421c2f1917400daaac0b628ee74e0c2d2960b99680cc75b393601adef535"
+   '("ed70dedb2c45f8b698c1f7ab04b6a0d8678f6d49cd977e01b35f8546dcbb4aa8"
+     "d585421c2f1917400daaac0b628ee74e0c2d2960b99680cc75b393601adef535"
      "a53c7ff4570e23d7c5833cd342c461684aa55ddba09b7788d6ae70e7645c12b4"
      "67f6b0de6f60890db4c799b50c0670545c4234f179f03e757db5d95e99bac332"
      "7142a20d65513972790584a98dcfa2925126383817399438dcf133cb4eea96e3"

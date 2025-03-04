@@ -35,8 +35,6 @@
   
   #:use-module (nongnu packages linux)
   #:use-module (nongnu system linux-initrd)
-  #:use-module (polterguix packages hyprland)
-  #:use-module (rosenthal packages wm)
 
   
 )
