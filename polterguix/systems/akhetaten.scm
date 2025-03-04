@@ -53,7 +53,7 @@
 
    (mapped-devices (list (mapped-device
                           (source (uuid
-                                   "c4b2e6c6-8a59-4821-82a9-ec6612ae225f"))
+                                   "8d307136-ddb5-4083-92{5-a107e9ff9955"))
                           (target "cryptakhetaten")
                           (type luks-device-mapping)))) 
    ;; placeholder file system
