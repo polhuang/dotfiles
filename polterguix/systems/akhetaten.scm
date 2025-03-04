@@ -89,8 +89,6 @@
 		   font-gnu-freefont
                    fzf
                    hunspell
-                   hypridle
-                   hyprpaper
                    kitty
 		   librewolf
                    mu

@@ -101,7 +101,6 @@
                     brightnessctl
                     emacs-no-x-toolkit
                     emacs-desktop-environment
-                    hyprland
                     exfat-utils
                     font-awesome
                     fuse-exfat
