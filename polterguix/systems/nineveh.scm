@@ -4,6 +4,7 @@
 
 (use-modules (gnu home)
              (gnu packages)
+             (gnu packages emacs)
              (gnu packages emacs-xyz)
              (gnu packages fcitx5)
              (gnu packages librewolf)
@@ -14,11 +15,12 @@
              (gnu home services)
              (gnu home services shells)
              (polterguix packages cli)
-             (polterguix packages emacs))
+             ;; (polterguix packages emacs)
+             )
 
 (home-environment
  (packages (list
-             emacs-next-pgtk-xwidgets
+             emacs-next-pgtk
              emacs-guix
              fcitx5
              fcitx5-configtool
