@@ -213,7 +213,8 @@
 
 ;; fonts
 (defvar my/font-options
-  '(("Source Code Pro" . 125)
+  '(("Aporetic Sans Mono" . 125)
+    ("Source Code Pro" . 125)
     ("DejaVu Sans Mono" . 125)
     ("Fira Code" . 125)
     ("IBM Plex Mono" . 125)
@@ -875,7 +876,7 @@ Use prefix argument ARG for number of lines, otherwise use default."
   _p_: pomodoro
   _q_: go away
   _s_: search org files
-  _w_: windows + framse
+  _w_: windows + frames
 "
   ("C" copilot-mode :color blue)
   ("e" eat :color blue)
