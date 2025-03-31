@@ -7,6 +7,7 @@
              (gnu packages emacs)
              (gnu packages emacs-xyz)
              (gnu packages fcitx5)
+             (gnu packages fonts)
              (gnu packages librewolf)
              (gnu packages shellutils)
              (gnu packages terminals)
@@ -28,6 +29,7 @@
              fcitx5-material-color-theme
              fcitx5-qt
              fcitx5-rime
+             font-aporetic
              kitty ;; locale errors (tab-completion problem with unicode characters) when kitty isn't installed with guix package manager
              libime
              librewolf
