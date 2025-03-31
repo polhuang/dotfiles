@@ -1401,6 +1401,14 @@ T - tag prefix
   (setq xref-show-xrefs-function #'consult-xref
 	xref-show-definitions-function #'consult-xref)
 
+  :custom
+  (consult-buffer-sources '(consult--source-buffer
+                            consult--source-recent-file
+                            consult--source-file-register
+                            consult--source-bookmark
+                            consult--source-project-buffer-hidden
+                            consult--source-project-recent-file-hidden
+                            consult--source-project-root-hidden))
   :config
   (consult-customize
    consult-theme :preview-key '(:debounce 0.1 any)

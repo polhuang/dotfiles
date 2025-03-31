@@ -31,6 +31,7 @@ define-module (polterguix systems core-system)
   #:use-module (gnu packages version-control)
   #:use-module (gnu packages video)
   #:use-module (gnu packages vim)
+  #:use-module (gnu packages wm)
   #:use-module (gnu packages xdisorg)
   
   #:use-module (nongnu packages linux)
@@ -104,6 +105,7 @@ define-module (polterguix systems core-system)
                     font-awesome
                     fuse-exfat
                     git
+                    hyprland
                     libva-utils
                     ntfs-3g
                     solaar
@@ -184,11 +186,11 @@ define-module (polterguix systems core-system)
                       (service cups-service-type)
                       (service gnome-desktop-service-type)
                       (service gnome-keyring-service-type)  
+                      (service nix-service-type)
                       (service ntp-service-type)
                       (service pulseaudio-service-type)
                       (service tor-service-type)
                       (service x11-socket-directory-service-type)
-                      (service nix-service-type)
                       
                       (simple-service 'add-nonguix-substitutes
                                       guix-service-type
@@ -202,3 +204,4 @@ define-module (polterguix systems core-system)
                                                 %default-authorized-guix-keys)))))
                      
                      %base-services))))
+
