@@ -119,10 +119,10 @@
                             (mixed-text-file "zsh-completions"
                                              "fpath=($HOME/.guix-home/share/zsh/site-functions $fpath)")
                             (local-file
-                             "/home/pol/polterguix/files/.zshrc" "zshrc")
+                             "/home/pol/.dotfiles/polterguix/files/.zshrc" "zshrc")
                             ))
                     (zprofile (list (local-file
-                                     "/home/pol/polterguix/files/.zprofile"
+                                     "/home/pol/.dotfiles/polterguix/files/.zprofile"
                                      "zprofile")))))
           (service home-openssh-service-type
                    (home-openssh-configuration
