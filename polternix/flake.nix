@@ -7,17 +7,21 @@
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
   };
 
-  outputs = { self, nixpkgs, home-manager, ... }: {
-    homeConfigurations.pol = home-manager.lib.homeManagerConfiguration {
-      pkgs = import nixpkgs {
-        system = "x86_64-linux";
-        config.allowUnfree = true;
+  outputs = { self, nixpkgs, home-manager, ... }:
+    let
+      system = "x86_64-linux";
+      username = "polhuang";
+      homeDirectory = "/home/$polhuang";
+    in {
+      homeConfigurations.${username} = home-manager.lib.homeManagerConfiguration {
+        pkgs = import nixpkgs {
+          inherit system;
+          config.allowUnfree = true;
+        };
+
+        modules = [
+          ./home/default.nix     
+        ];
       };
-
-      username = "pol";
-      homeDirectory = "/home/pol"; # Replace this too
-
-      configuration = import ./home/default.nix;
     };
-  };
 }
