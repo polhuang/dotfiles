@@ -137,6 +137,7 @@
                     (zprofile (list (local-file
                                      "../files/.zprofile"
                                      "zprofile")))))
+           
           (service home-openssh-service-type   ;; move identity-files to polterguix/
                    (home-openssh-configuration
                     (hosts
@@ -145,7 +146,7 @@
                                          (user "pol")
                                          (identity-file "/home/pol/.ssh/babylon")
                                          (port 39902))
-                           (openssh-host (name "github.com")
+                           (openssh-host (name "github")
                                          (host-name "github.com")
                                          (user "git")
                                          (identity-file "/home/pol/.ssh/github_25519"))))))
@@ -163,6 +164,8 @@
 (if (equal? (getenv "GUIX_TARGET") "home")
     home
     system)
+
+
 
 
 
