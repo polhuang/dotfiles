@@ -1820,40 +1820,22 @@ Otherwise, call eat."
   :ensure t
   :hook (after-init . global-flycheck-mode))
 
-;; treesit
-(require 'treesit)
-(setq treesit-language-source-alist
-      '((bash "https://github.com/tree-sitter/tree-sitter-bash")
-        (c "https://github.com/tree-sitter/tree-sitter-c")
-        (css "https://github.com/tree-sitter/tree-sitter-css")
-        (elisp "https://github.com/Wilfred/tree-sitter-elisp")
-        (html "https://github.com/tree-sitter/tree-sitter-html")
-        (javascript "https://github.com/tree-sitter/tree-sitter-javascript" "master" "src")
-        (json "https://gtihub.com/tree-sitter/tree-sitter-json")
-        (lua "https://github.com/MunifTanjim/tree-sitter-lua")
-        (markdown "https://github.com/ikatyang/tree-sitter-markdown")
-        (python "https://github.com/tree-sitter/tree-sitter-python")
-        (rust "https://github.com/tree-sitter/tree-sitter-rust")
-        (toml "https://github.com/tree-sitter/tree-sitter-toml")
-        (tsx "https://github.com/tree-sitter/tree-sitter-typescript" "master" "tsx/src")
-        (typescript "https://github.com/tree-sitter/tree-sitter-typescript" "master" "typescript/src")
-        (yaml "https://github.com/ikatyang/tree-sitter-yaml")))
+;; (setq major-mode-remap-alist
+;;       '((yaml-mode . yaml-ts-mode)
+;;         (bash-mode . bash-ts-mode)
+;;         (c-mode . c-ts-mode)
+;;         (javascript-mode . tsx-ts-mode)
+;;         (js-mode . tsx-ts-mode)
+;;         (js2-mode . tsx-ts-mode)
+;;         (js-jsx-mode . tsx-ts-mode)
+;;         (rjsx-mode . tsx-ts-mode)
+;;         ;; (rust-mode . rust-ts-mode)
+;;         (typescript-mode . tsx-ts-mode)
+;;         (json-mode . json-ts-mode)
+;;         (shell-mode . bash-ts-mode)
+;;         (css-mode . css-ts-mode)
+;;         (python-mode . python-ts-mode)))
 
-(setq major-mode-remap-alist
-      '((yaml-mode . yaml-ts-mode)
-        (bash-mode . bash-ts-mode)
-        (c-mode . c-ts-mode)
-        (javascript-mode . tsx-ts-mode)
-        (js-mode . tsx-ts-mode)
-        (js2-mode . tsx-ts-mode)
-        (js-jsx-mode . tsx-ts-mode)
-        (rjsx-mode . tsx-ts-mode)
-        (rust-mode . rust-ts-mode)
-        (typescript-mode . tsx-ts-mode)
-        (json-mode . json-ts-mode)
-        (shell-mode . bash-ts-mode)
-        (css-mode . css-ts-mode)
-        (python-mode . python-ts-mode)))
 
 ;; treesit-auto
 (use-package treesit-auto
@@ -1900,6 +1882,11 @@ Otherwise, call eat."
   :ensure t
   :hook (rust-mode . cargo-minor-mode))
 
+;; nix
+(use-package nix-ts-mode
+  :ensure t
+  :mode "\\.nix\\'")
+
 ;;;;;;;;;;;
 ;; latex ;;
 ;;;;;;;;;;;
@@ -1924,18 +1911,18 @@ Otherwise, call eat."
   :ensure t)
 
 ;; venv support
-;; (use-package virtualenvwrapper
-;;   :ensure t
-;;   :config
-;;   (venv-initialize-interactive-shells)
-;;   (venv-initialize-eshell)
-;;   (setq venv-location "~/.venv/")
+(use-package virtualenvwrapper
+  :ensure t
+  :config
+  (venv-initialize-interactive-shells)
+  (venv-initialize-eshell)
+  (setq venv-location "~/.venv/")
 
-;;   ;; make this into a function?
-;;   ;; (venv-with-virtualenv "org-babel" (org-babel-do-load-languages 
-;;   ;;                                    'org-babel-load-languages
-;;   ;;                                    ' ((jupyter . t))))
-;;   )
+  ;; make this into a function?
+  ;; (venv-with-virtualenv "org-babel" (org-babel-do-load-languages 
+  ;;                                    'org-babel-load-languages
+  ;;                                    ' ((jupyter . t))))
+  )
 
 ;; jupyter
 (use-package jupyter
