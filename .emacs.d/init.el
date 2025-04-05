@@ -324,10 +324,13 @@ Each element is a cons cell (FONT-NAME . HEIGHT).")
 ;; modeline ;;
 ;;;;;;;;;;;;;;
 
-(use-package doom-modeline
-  :ensure t
-  :init
-  (doom-modeline-mode t))
+(if is-guix
+  (use-package doom-modeline
+    :ensure nil
+    :hook (after-init . doom-modeline-mode))
+  (use-package doom-modeline
+    :ensure t
+    :hook (after-init . doom-modeline-mode)))
 
 ;; clean up modeline text
 (defvar mode-line-cleaner-alist
