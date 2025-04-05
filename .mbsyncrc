@@ -9,8 +9,8 @@ SSLVersion TLSv1.2
 CertificateFile ~/.config/protonmail/cert.pem    
 
 MaildirStore proton-local
-Path ~/mail/
-Inbox ~/mail/inbox
+Path ~/mail/Protonmail/
+Inbox ~/mail/Protonmail/inbox/
 SubFolders Verbatim
 
 IMAPStore proton-remote

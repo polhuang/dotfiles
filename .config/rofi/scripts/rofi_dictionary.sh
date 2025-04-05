@@ -3,7 +3,7 @@
 set -u
 set -e
 
-readonly NOTES_FILE=~/org/cheatsheet
+readonly NOTES_FILE=~/org/dictionary
 
 if [[ ! -a "${NOTES_FILE}" ]]; then
     echo "empty" >> "${NOTES_FILE}"

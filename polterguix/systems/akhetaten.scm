@@ -4,6 +4,7 @@
   ;;  #:use-module (gnu packages)
   ;;  #:use-module (gnu packages autotools)
   #:use-module (gnu packages admin)
+  #:use-module (gnu packages base)
   #:use-module (gnu packages emacs)
   #:use-module (gnu packages emacs-xyz)
   ;;  #:use-module (gnu packages librewolf)
@@ -11,12 +12,15 @@
   ;;  #:use-module (gnu packages base)
   ;;  #:use-module (gnu packages pkg-config)
   #:use-module (gnu packages ghostscript)
+  #:use-module (gnu packages gcc)
   #:use-module (gnu packages gnupg)
   #:use-module (gnu packages hunspell)
+  #:use-module (gnu packages libreoffice)
   #:use-module (gnu packages librewolf)
   #:use-module (gnu packages mail)
   #:use-module (gnu packages package-management)
   #:use-module (gnu packages password-utils)
+  #:use-module (gnu packages rust)
   #:use-module (gnu packages rust-apps)
   #:use-module (gnu packages shellutils)
   #:use-module (gnu packages terminals)
@@ -25,10 +29,11 @@
   #:use-module (gnu packages wm)
   #:use-module (gnu packages web-browsers)
   #:use-module (gnu packages xdisorg)
+  #:use-module (nongnu packages linux)
   #:use-module (nongnu packages mozilla)
   #:use-module (polterguix packages cli)
   #:use-module (polterguix packages desktop)
-  #:use-module (polterguix packages hyprland)
+  #:use-module (polterguix packages fonts-extra)
   ;;  #:use-module (gnu services)
   ;;  #:use-module (gnu services networking)
    
@@ -49,23 +54,35 @@
 (define system
   (operating-system
    (inherit core-operating-system)
-   (host-name "akhetaten")
+   (host-name "akhetaten"
+              )
+
+   ;; (firmware (list linux-firmware radeon-firmware))
 
    (mapped-devices (list (mapped-device
                           (source (uuid
-                                   "29df3858-a0bb-46c1-8d52-64a11734a789"))
-                          (target "crypt-akhetaten")
-                          (type luks-device-mapping)))) 
+                                   "6d1b69cb-10b9-43a0-8eee-6a186c73bb5b"))
+                          (target "cryptakhetaten")
+                          (type luks-device-mapping))))
+
+   (swap-devices (list (swap-space (target "/swap/swapfile")
+                                   (dependencies mapped-devices))))
+
+   (kernel-arguments
+    (cons* "resume=/dev/mapper/cryptakhetaten"
+           "resume_offset=4385429"
+           %default-kernel-arguments))
+   
    ;; placeholder file system
    (file-systems (cons* (file-system
                          (mount-point "/")
-                         (device "/dev/mapper/crypt-akhetaten")
+                         (device "/dev/mapper/cryptakhetaten")
                          (type "btrfs")
                          (dependencies mapped-devices))
                         (file-system
-                         (mount-point "/boot/efi")
-                         (device (uuid "6CCB-3E30"
+                         (device (uuid "2322-F702"
                                        'fat32))
+                         (mount-point "/boot/efi")
                          (type "vfat"))
                         %base-file-systems))))
 
@@ -73,40 +90,46 @@
 (define home
   (home-environment
    (packages (list asciiquarium
+                   binutils
                    btop
-                   emacs-next-pgtk-xwidgets
+                   cliphist
+                   emacs-next-pgtk
                    emacs-guix
                    emacs-jinx
                    firefox
                    font-fira-code
+                   font-google-material-design-icons
                    font-google-noto
                    font-google-noto-emoji
-                   font-google-noto-sans-cjk 
+                   font-google-noto-sans-cjk
+                   font-jetbrains-mono
+                   font-jetbrains-mono-nerd
 		   flatpak
 		   font-dejavu
 		   font-fira-code
 		   font-ghostscript
 		   font-gnu-freefont
                    fzf
+                   gcc
+                   glibc
                    hunspell
-                   hypridle
                    hyprpaper
                    kitty
+                   libreoffice
 		   librewolf
                    mu
                    neofetch
                    neovim
-                   nix
                    obs
                    qutebrowser
 		   password-store
                    pinentry
                    pinentry-emacs
                    ripgrep
-                   
                    rofi-wayland
+                   rust
+                   rust-analyzer
                    sh-z
-                   
                    starship-bin
                    swaynotificationcenter
                    waybar
@@ -125,12 +148,13 @@
                             (mixed-text-file "zsh-completions"
                                              "fpath=($HOME/.guix-home/share/zsh/site-functions $fpath)")
                             (local-file
-                             "/home/pol/polterguix/files/.zshrc" "zshrc")
+                             "../files/.zshrc" "zshrc")
                             ))
                     (zprofile (list (local-file
-                                     "/home/pol/polterguix/files/.zprofile"
+                                     "../files/.zprofile"
                                      "zprofile")))))
-          (service home-openssh-service-type
+           
+          (service home-openssh-service-type   ;; move identity-files to polterguix/
                    (home-openssh-configuration
                     (hosts
                      (list (openssh-host (name "babylon")
@@ -138,15 +162,27 @@
                                          (user "pol")
                                          (identity-file "/home/pol/.ssh/babylon")
                                          (port 39902))
-                           (openssh-host (name "github.com")
+                           (openssh-host (name "github")
                                          (host-name "github.com")
                                          (user "git")
-                                         (identity-file "/home/pol/.ssh/github"))))))
+                                         (identity-file "/home/pol/.ssh/github_ed25519"))))
+                    (add-keys-to-agent "confirm")))
           (simple-service 'dotfiles
                           home-xdg-configuration-files-service-type
                           `(("hypr/hyprland.conf"  ,(local-file "../files/hypr/hyprland-akhetaten.conf"))
-                            ("hypr/hyprland-base.conf"  ,(local-file "../files/hypr/hyprland-base.conf"))))))))
+                            ("hypr/hyprland-base.conf"  ,(local-file "../files/hypr/hyprland-base.conf"))))
+
+          (simple-service 'dotfiles
+                          home-xdg-configuration-files-service-type
+                          `(("waybar/style.css"  ,(local-file "../files/waybar/style-akhetaten.css"))
+                            ("waybar/theme.css"  ,(local-file "../files/waybar/theme.css"))
+                            ("waybar/config"  ,(local-file "../files/waybar/config"))))))))
 
 (if (equal? (getenv "GUIX_TARGET") "home")
     home
     system)
+
+
+
+
+
