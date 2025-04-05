@@ -148,7 +148,7 @@
                            (openssh-host (name "github.com")
                                          (host-name "github.com")
                                          (user "git")
-                                         (identity-file "/home/pol/.ssh/github"))))))
+                                         (identity-file "/home/pol/.ssh/github_25519"))))))
           (simple-service 'dotfiles
                           home-xdg-configuration-files-service-type
                           `(("hypr/hyprland.conf"  ,(local-file "../files/hypr/hyprland-akhetaten.conf"))
