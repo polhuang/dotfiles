@@ -98,6 +98,7 @@
                     git
                     hyprland
                     libva-utils
+                    nix
                     ntfs-3g
                     stow
                     vim
