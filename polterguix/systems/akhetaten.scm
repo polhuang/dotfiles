@@ -4,6 +4,7 @@
   ;;  #:use-module (gnu packages)
   ;;  #:use-module (gnu packages autotools)
   #:use-module (gnu packages admin)
+  #:use-module (gnu packages base)
   #:use-module (gnu packages emacs)
   #:use-module (gnu packages emacs-xyz)
   ;;  #:use-module (gnu packages librewolf)
@@ -11,12 +12,15 @@
   ;;  #:use-module (gnu packages base)
   ;;  #:use-module (gnu packages pkg-config)
   #:use-module (gnu packages ghostscript)
+  #:use-module (gnu packages gcc)
   #:use-module (gnu packages gnupg)
   #:use-module (gnu packages hunspell)
+  #:use-module (gnu packages libreoffice)
   #:use-module (gnu packages librewolf)
   #:use-module (gnu packages mail)
   #:use-module (gnu packages package-management)
   #:use-module (gnu packages password-utils)
+  #:use-module (gnu packages rust)
   #:use-module (gnu packages rust-apps)
   #:use-module (gnu packages shellutils)
   #:use-module (gnu packages terminals)
@@ -29,6 +33,7 @@
   #:use-module (nongnu packages mozilla)
   #:use-module (polterguix packages cli)
   #:use-module (polterguix packages desktop)
+  #:use-module (polterguix packages fonts-extra)
   ;;  #:use-module (gnu services)
   ;;  #:use-module (gnu services networking)
    
@@ -85,23 +90,32 @@
 (define home
   (home-environment
    (packages (list asciiquarium
+                   binutils
                    btop
+                   cliphist
                    emacs-next-pgtk
                    emacs-guix
                    emacs-jinx
                    firefox
                    font-fira-code
+                   font-google-material-design-icons
                    font-google-noto
                    font-google-noto-emoji
-                   font-google-noto-sans-cjk 
+                   font-google-noto-sans-cjk
+                   font-jetbrains-mono
+                   font-jetbrains-mono-nerd
 		   flatpak
 		   font-dejavu
 		   font-fira-code
 		   font-ghostscript
 		   font-gnu-freefont
                    fzf
+                   gcc
+                   glibc
                    hunspell
+                   hyprpaper
                    kitty
+                   libreoffice
 		   librewolf
                    mu
                    neofetch
@@ -113,6 +127,8 @@
                    pinentry-emacs
                    ripgrep
                    rofi-wayland
+                   rust
+                   rust-analyzer
                    sh-z
                    starship-bin
                    swaynotificationcenter
@@ -149,7 +165,8 @@
                            (openssh-host (name "github")
                                          (host-name "github.com")
                                          (user "git")
-                                         (identity-file "/home/pol/.ssh/github_ed25519"))))))
+                                         (identity-file "/home/pol/.ssh/github_ed25519"))))
+                    (add-keys-to-agent "confirm")))
           (simple-service 'dotfiles
                           home-xdg-configuration-files-service-type
                           `(("hypr/hyprland.conf"  ,(local-file "../files/hypr/hyprland-akhetaten.conf"))
