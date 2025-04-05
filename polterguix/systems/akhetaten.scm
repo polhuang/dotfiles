@@ -92,7 +92,6 @@
                    mu
                    neofetch
                    neovim
-                   nix
                    obs
                    qutebrowser
 		   password-store
