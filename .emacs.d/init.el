@@ -2175,20 +2175,20 @@ Otherwise, call eat."
   :custom (elcord-idle-message "call me maybe?"))
 
 ;; erc (irc)
-;; (use-package erc
-;;   :custom
-;;   (erc-nick "polhuang")
-;;   (erc-user-full-name "polhuang")
-;;   (erc-autojoin-channels-alist '((".*" "#systemcrafters" "#emacsatx")))
-;;   (erc-hide-list '("JOIN" "PART" "QUIT"))
-;;   :functions my/connect-to-erc
-;;   :config
-;;   (defun my/connect-to-erc ()
-;;     (interactive)
-;;     (erc :server "irc.libera.chat"
-;;          :port "6667"
-;;          :password (cadr (auth-source-user-and-password "irc.libera.chat"))))
-;;   (my/connect-to-erc))
+(use-package erc
+  :custom
+  (erc-nick "polhuang")
+  (erc-user-full-name "polhuang")
+  (erc-autojoin-channels-alist '((".*" "#systemcrafters" "#emacsatx")))
+  (erc-hide-list '("JOIN" "PART" "QUIT"))
+  :functions my/connect-to-erc
+  :config
+  (defun my/connect-to-erc ()
+    (interactive)
+    (erc :server "irc.libera.chat"
+         :port "6667"
+         :password (cadr (auth-source-user-and-password "irc.libera.chat"))))
+  (my/connect-to-erc))
 
 ;; org-gcal
 (use-package org-gcal
