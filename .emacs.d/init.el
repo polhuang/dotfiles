@@ -671,8 +671,8 @@ Use prefix argument ARG for number of lines, otherwise use default."
   (plist-put org-format-latex-options :scale 1.5)
   (set-face-attribute 'org-ellipsis nil :underline nil)
   (org-clock-persistence-insinuate)
-  (set-face-attribute 'org-column nil :background nil)
-  (set-face-attribute 'org-column-title nil :background nil)
+  (set-face-attribute 'org-column nil :background 'unspecified)
+  (set-face-attribute 'org-column-title nil :background 'unspecified)
   (org-babel-do-load-languages
      'org-babel-load-languages
      '((lisp . t)
@@ -788,7 +788,6 @@ Use prefix argument ARG for number of lines, otherwise use default."
     :custom
     (org-notify-timestamp-types '(:deadline :scheduled))
     :config
-    (message "hello")
     (defun my/alarm-long (&rest _)
       "Wrapper function for alarm to fit :actions list below"
       (my/alarm "long"))
@@ -1666,7 +1665,7 @@ T - tag prefix
 
 (add-hook 'server-after-make-frame-hook
           (lambda ()
-            (when (equal (buffer-name) "*scratch*art")
+            (when (equal (buffer-name) "*scratch*")
               (revert-buffer))))
 
 ;; which-key
@@ -2176,36 +2175,34 @@ Otherwise, call eat."
   :custom (elcord-idle-message "call me maybe?"))
 
 ;; erc (irc)
-(use-package erc
-  :custom
-  (erc-nick "polhuang")
-  (erc-user-full-name "polhuang")
-  (erc-autojoin-channels-alist '((".*" "#systemcrafters" "#emacsatx")))
-  (erc-hide-list '("JOIN" "PART" "QUIT"))
-  :functions my/connect-to-erc
-  :config
-  (defun my/connect-to-erc ()
-    (interactive)
-    (erc :server "irc.libera.chat"
-         :port "6667"
-         :password (cadr (auth-source-user-and-password "irc.libera.chat"))))
-  (my/connect-to-erc))
+;; (use-package erc
+;;   :custom
+;;   (erc-nick "polhuang")
+;;   (erc-user-full-name "polhuang")
+;;   (erc-autojoin-channels-alist '((".*" "#systemcrafters" "#emacsatx")))
+;;   (erc-hide-list '("JOIN" "PART" "QUIT"))
+;;   :functions my/connect-to-erc
+;;   :config
+;;   (defun my/connect-to-erc ()
+;;     (interactive)
+;;     (erc :server "irc.libera.chat"
+;;          :port "6667"
+;;          :password (cadr (auth-source-user-and-password "irc.libera.chat"))))
+;;   (my/connect-to-erc))
 
 ;; org-gcal
 (use-package org-gcal
-  :commands (org-gcal--sync-unlock org-todo)
+  :after org
+  :commands (org-todo org-sort-entries org-gcal-sync org-gcal--sync-unlock)
   :init
   (add-hook 'org-gcal-after-update-entry-functions 'my/org-gcal-format)
   (load (expand-file-name "private/gcal-credentials.el" user-emacs-directory))
-  :custom
-  (org-gcal-up-days 0)
-  (org-gcal-down-days 30)
-  :config
   ;; set delay time in seconds (30 seconds in this case) before running (due to emacs-daemon startup time).
-  ;; run at least every 12 housr
-  (defvar my/org-gcal-sync-delay 15)
-  (run-with-timer my/org-gcal-sync-delay 43200 'org-gcal-sync)
-
+  ;; run once an hour
+  (run-with-timer 30 3600
+                  (lambda ()
+                    (org-gcal-sync)
+                    (message "GCal synced at %s" (format-time-string "%Y-%m-%d %H:%M:%S"))))
   (defun my/org-gcal-format (_calendar-id event _update-mode)
       "Format org-gcal events in the schedule.org buffer."
       (if (eq _update-mode 'newly-fetched)
@@ -2223,7 +2220,10 @@ Otherwise, call eat."
                   (org-todo "TODO")
                 (org-todo "UPCOMING"))
               (org-schedule nil (format "<%s>" stime))))
-        (org-sort-entries nil ?o))))
+        (org-sort-entries nil ?o)))
+  :custom
+  (org-gcal-up-days 0)
+  (org-gcal-down-days 30))
 
 ;; this function is used as a local variable in schedule.org to remove the
 ;; timestamps org-gcal puts into the org-gcal drawer after sync
