@@ -515,17 +515,18 @@ Use prefix argument ARG for number of lines, otherwise use default."
 ;; org mode ;;
 ;;;;;;;;;;;;;;
 
-
-
 (use-package org
   :ensure t
+  :commands org-capture-finalize
   :bind
   (("C-c n C-i" . org-id-get-create)
    ("C-c a" . org-agenda)
    ("C-c o s" . org-save-all-org-buffers)
    ("C-M-] c" . org-capture)
    :map org-mode-map
-   ("C-c \\" . puni-mark-sexp-around-point))
+   ("C-c \\" . puni-mark-sexp-around-point)
+   ("C-c c" . my/org-capture-and-kill)
+   )
   :hook
   (org-mode . org-indent-mode)
   (org-mode . turn-on-org-cdlatex)
