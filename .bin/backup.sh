@@ -1,28 +1,36 @@
 #!/usr/bin/env sh
 
-# Set variables
 USERNAME=$(whoami)
 HOSTNAME=$(hostname)
-RESTIC_REPOSITORY="rclone:protondrive:backups/nineveh"
+RESTIC_REPOSITORY="rclone:proton:backups/$HOSTNAME"
 RESTIC_PASSWORD="$(pass show restic)"
-LOG_FILE="/home/$USERNAME/backup.log"  # Update this to your desired log file path
+LOG_FILE="/home/$USERNAME/backup.log"
 
-# Export necessary variables for Restic
+# Exclude patterns
+EXCLUDED_PATTERNS="
+    --exclude '.cache/**' 
+    --exclude '.local/share/Trash/**' 
+    --exclude '.thumbnails/**' 
+    --exclude '*.iso' 
+    --exclude '*.tmp'
+"
+
 export RESTIC_REPOSITORY
 export RESTIC_PASSWORD
 
-# Start the backup
-echo "$(date): Starting backup" | tee -a "$LOG_FILE"
+echo "$(date): Starting Google Drive sync" | tee -a "$LOG_FILE"
 
-restic -r "$RESTIC_REPOSITORY" backup \
+# Sync using rclone with excluded patterns
+rclone sync -vv --progress /home/$USERNAME/Documents gdrive:/Backups/$USERNAME/Documents $EXCLUDED_PATTERNS | tee -a "$LOG_FILE"
+rclone sync -vv --progress /home/$USERNAME/Documents proton:/backups/$USERNAME/Documents $EXCLUDED_PATTERNS | tee -a "$LOG_FILE"
+rclone sync -vv --progress /home/$USERNAME/Downloads proton:/backups/$HOSTNAME/Downloads $EXCLUDED_PATTERNS | tee -a "$LOG_FILE"
+
+echo "$(date): Starting Restic backup" | tee -a "$LOG_FILE"
+
+# Backup to Proton Drive using restic with excludes
+restic -r "$RESTIC_REPOSITORY" backup -vv \
     /home/"$USERNAME" \
     /etc \
-    /usr/local/bin \
-    --exclude="/home/$USERNAME/.cache" \
-    --exclude="/home/$USERNAME/.local/share/Trash" \
-    --exclude="/home/$USERNAME/Downloads" \
-    --exclude="/home/$USERNAME/.thumbnails" \
-    --exclude="*.iso" \
-    --exclude="*.tmp" | tee -a "$LOG_FILE"                            
+    $EXCLUDED_PATTERNS | tee -a "$LOG_FILE"
 
 echo "$(date): Backup completed" | tee -a "$LOG_FILE"
