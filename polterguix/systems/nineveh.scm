@@ -34,7 +34,7 @@
              fcitx5-material-color-theme
              fcitx5-qt 
              fcitx5-rime
-             firefox
+             firefox ;; Use "guix build firefox --substitute-urls='https://ci.guix.gnu.org https://bordeaux.guix.gnu.org https://substitutes.nonguix.org'" to build from substitute
              font-aporetic
              guile-next
              ibus  ;; required for fcitx for some reason
