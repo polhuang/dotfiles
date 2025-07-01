@@ -13,6 +13,7 @@
              (gnu packages guile)
              (gnu packages ibus)
              (gnu packages librewolf)
+             (gnu packages mail)
              (gnu packages qt)
              (gnu packages shells)
              (gnu packages shellutils)
@@ -23,8 +24,7 @@
              (gnu home services shells)
              (guix gexp)
              (nongnu packages mozilla)
-             (polterguix packages cli)
-             )
+             (polterguix packages cli))
 
 (home-environment
  (packages (list
@@ -46,6 +46,7 @@
              kitty ;; locale errors (tab-completion problem with unicode characters) when kitty isn't installed with guix package manager
              ;; libime
              librewolf
+             mu
              network-manager
              network-manager-applet
              papirus-icon-theme
