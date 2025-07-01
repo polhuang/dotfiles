@@ -4,6 +4,9 @@
   #:use-module (gnu home services)
   #:use-module (gnu home services shells)
   #:use-module (gnu home services 
+  #:use-module (gnu home services gnupg)
+  ;;  #:use-module (gnu packages)
+  ;;  #:use-module (gnu packages autotools)
   #:use-module (gnu packages admin)
   #:use-module (gnu packages base)
   #:use-module (gnu packages emacs)
@@ -78,6 +81,7 @@
                    font-google-noto
                    font-google-noto-emoji
                    font-google-noto-sans-cjk
+                   font-google-noto-serif-cjk
                    font-jetbrains-mono
                    font-jetbrains-mono-nerd
 		   flatpak
@@ -130,7 +134,13 @@
                     (zprofile (list (local-file
                                      "../files/.zprofile"
                                      "zprofile")))))
-           
+          (service home-gpg-agent-service-type
+                   (home-gpg-agent-configuration
+                    (pinentry-program
+                     (file-append (spec->pkg "pinentry-emacs") "/bin/pinentry-emacs"))
+                    (ssh-support? #t)
+                    (extra-content "allow-loopback-pinentry")))
+          
           (service home-openssh-service-type   ;; move identity-files to polterguix/
                    (home-openssh-configuration
                     (hosts
