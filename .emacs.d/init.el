@@ -2312,7 +2312,7 @@ in HEADINGS-TO-DELETE."
   (setq jiralib-url "https://polhuang.atlassian.net")
   (setq org-jira-working-dir "~/jira"))
 
-(load "~/projects/ticktick/ticktick.el")
+(load "~/projects/ticktick.el/ticktick.el")
 
 (use-package ticktick
   :load-path "~/projects/ticktick.el/ticktick.el"
