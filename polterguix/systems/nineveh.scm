@@ -83,6 +83,12 @@
                           `(("hypr/hyprland.conf"  ,(local-file "../files/hypr/hyprland-nineveh.conf"))
                             ("hypr/hyprland-base.conf"  ,(local-file "../files/hypr/hyprland-base.conf"))))
 
+         (simple-service 'dotfiles
+                          home-xdg-configuration-files-service-type
+                          `(("waybar/style.css"  ,(local-file "../files/waybar/style-nineveh.css"))
+                            ("waybar/theme.css"  ,(local-file "../files/waybar/theme.css"))
+                            ("waybar/config"  ,(local-file "../files/waybar/config"))))
+
          ;; for nineveh only, run "guix build firefox --substitute-urls='https://ci.guix.gnu.org https://bordeaux.guix.gnu.org https://substitutes.nonguix.org'" to guix home reconfigure... not sure if the below does anything
          (simple-service 'guix-substitute-env-vars-service
 		home-environment-variables-service-type
