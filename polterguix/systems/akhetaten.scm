@@ -34,7 +34,6 @@
   #:use-module (polterguix packages cli)
   #:use-module (polterguix packages desktop)
   #:use-module (polterguix packages fonts-extra)
-  ;;  #:use-module (gnu services)
   ;;  #:use-module (gnu services networking)
    
   ;;  #:use-module (gnu services ssh)
@@ -61,32 +60,25 @@
 
    (mapped-devices (list (mapped-device
                           (source (uuid
-                                   "6d1b69cb-10b9-43a0-8eee-6a186c73bb5b"))
+                                   "ce94eff8-f142-403f-96e0-208784bb7892"))
                           (target "cryptakhetaten")
                           (type luks-device-mapping))))
 
    (swap-devices (list (swap-space (target "/swap/swapfile")
                                    (dependencies mapped-devices))))
-
-   (kernel-arguments
-    (cons* "resume=/dev/mapper/cryptakhetaten"
-           "resume_offset=4385429"
-           %default-kernel-arguments))
    
    ;; placeholder file system
    (file-systems (cons* (file-system
                          (mount-point "/")
                          (device "/dev/mapper/cryptakhetaten")
-                         (type "btrfs")
+                         (type "ext4")
                          (dependencies mapped-devices))
-                        (file-system
-                         (device (uuid "2322-F702"
-                                       'fat32))
+                       (file-system
                          (mount-point "/boot/efi")
-                         (type "vfat"))
-                        %base-file-systems))))
-
-
+                         (device (uuid "A1B9-69BE"
+                                       'fat32))
+                         (type "vfat")) %base-file-systems))))
+   
 (define home
   (home-environment
    (packages (list asciiquarium
@@ -133,6 +125,7 @@
                    starship-bin
                    swaynotificationcenter
                    waybar
+                   wl-clipboard
                    zsh-autosuggestions
                    zsh-completions
                    zsh-syntax-highlighting
