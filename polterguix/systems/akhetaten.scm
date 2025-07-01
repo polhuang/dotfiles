@@ -158,8 +158,8 @@
 
           (service home-fcitx5-servicetype
                    (home-fcitx5-configuration
-                    (themes (specs->pkgs "fcitx5-material-color-theme"))
-                    (input-method-editors (specs->pkgs "fcitx5-rime"))))
+                    (themes (map specification->package '("fcitx5-material-color-theme")))
+                    (input-method-editors (map specification->package '("fcitx5-chinese-addons" "fcitx-rime")))))
 
           (simple-service 'dotfiles
                           home-xdg-configuration-files-service-type
