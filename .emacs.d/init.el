@@ -1956,7 +1956,7 @@ Otherwise, call eat."
 ;; mu4e
 (use-package  mu4e
   :ensure nil
-  :load-path "/usr/share/emacs/site-lisp/mu4e/"
+  :load-path "~/.guix-home/profile/share/emacs/site-lisp/mu4e"
   :custom
   (mu4e-use-fancy-chars t)
   (mu4e-bookmarks
