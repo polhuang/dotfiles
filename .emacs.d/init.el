@@ -120,7 +120,7 @@
 ;;   :load-path "~/.emacs.d/everforest-emacs/")
 
 (use-package cherry-seoul256-theme
-  :load-path "~/projects/cherry-seoul256/"
+  :straight (cherry-seoul256 :type git :host github :repo "polhuang/cherry-seoul256")
   :custom
   (cherry-seoul256-background 233)
   :config
