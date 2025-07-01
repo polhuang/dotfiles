@@ -36,6 +36,7 @@
   #:use-module (polterguix packages desktop)
   #:use-module (polterguix packages fonts-extra)
   #:use-module (polterguix systems core-system)
+  #:use-module (rosenthal services desktop)
   #:use-module (rosenthal services networking))
 
 (define system
@@ -43,7 +44,7 @@
    (inherit core-operating-system)
    (host-name "akhetaten")
 
-   ;; (firmware (list linux-firmware radeon-firmware))
+   (firmware (list linux-firmware amdgpu-firmware))
 
    (mapped-devices (list (mapped-device
                           (source (uuid
@@ -90,8 +91,6 @@
 		   font-ghostscript
 		   font-gnu-freefont
                    fzf
-                   gcc
-                   glibc
                    hunspell
                    hyprpaper
                    kitty
@@ -103,8 +102,6 @@
                    obs
                    qutebrowser
 		   password-store
-                   pinentry
-                   pinentry-emacs
                    ripgrep
                    rofi-wayland
                    rust
@@ -158,6 +155,11 @@
                           home-xdg-configuration-files-service-type
                           `(("hypr/hyprland.conf"  ,(local-file "../files/hypr/hyprland-akhetaten.conf"))
                             ("hypr/hyprland-base.conf"  ,(local-file "../files/hypr/hyprland-base.conf"))))
+
+          (service home-fcitx5-servicetype
+                   (home-fcitx5-configuration
+                    (themes (specs->pkgs "fcitx5-material-color-theme"))
+                    (input-method-editors (specs->pkgs "fcitx5-rime"))))
 
           (simple-service 'dotfiles
                           home-xdg-configuration-files-service-type
