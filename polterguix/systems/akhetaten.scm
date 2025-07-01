@@ -34,7 +34,6 @@
   #:use-module (polterguix packages cli)
   #:use-module (polterguix packages desktop)
   #:use-module (polterguix packages fonts-extra)
-  ;;  #:use-module (gnu services)
   ;;  #:use-module (gnu services networking)
    
   ;;  #:use-module (gnu services ssh)
@@ -67,11 +66,6 @@
 
    (swap-devices (list (swap-space (target "/swap/swapfile")
                                    (dependencies mapped-devices))))
-
-   (kernel-arguments
-    (cons* "resume=/dev/mapper/cryptakhetaten"
-           "resume_offset=4385429"
-           %default-kernel-arguments))
    
    ;; placeholder file system
    (file-systems (cons* (file-system
@@ -84,8 +78,7 @@
                          (device (uuid "A1B9-69BE"
                                        'fat32))
                          (type "vfat")) %base-file-systems))))
-
-
+   
 (define home
   (home-environment
    (packages (list asciiquarium
@@ -132,6 +125,7 @@
                    starship-bin
                    swaynotificationcenter
                    waybar
+                   wl-clipboard
                    zsh-autosuggestions
                    zsh-completions
                    zsh-syntax-highlighting
