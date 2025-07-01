@@ -61,7 +61,7 @@
 
    (mapped-devices (list (mapped-device
                           (source (uuid
-                                   "6d1b69cb-10b9-43a0-8eee-6a186c73bb5b"))
+                                   "ce94eff8-f142-403f-96e0-208784bb7892"))
                           (target "cryptakhetaten")
                           (type luks-device-mapping))))
 
@@ -77,14 +77,13 @@
    (file-systems (cons* (file-system
                          (mount-point "/")
                          (device "/dev/mapper/cryptakhetaten")
-                         (type "btrfs")
+                         (type "ext4")
                          (dependencies mapped-devices))
-                        (file-system
-                         (device (uuid "2322-F702"
-                                       'fat32))
+                       (file-system
                          (mount-point "/boot/efi")
-                         (type "vfat"))
-                        %base-file-systems))))
+                         (device (uuid "A1B9-69BE"
+                                       'fat32))
+                         (type "vfat")) %base-file-systems))))
 
 
 (define home
