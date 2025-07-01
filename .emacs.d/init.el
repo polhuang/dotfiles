@@ -2086,7 +2086,7 @@ Otherwise, call eat."
 (use-package zone
   :commands zone-when-idle
   :config
-  (zone-when-idle 600))
+  (zone-when-idle 300))
 
 ;; dashboard
 (use-package dashboard
