@@ -2315,7 +2315,7 @@ in HEADINGS-TO-DELETE."
 (load "~/projects/ticktick/ticktick.el")
 
 (use-package ticktick
-  :load-path "~/projects/ticktick/ticktick.el"
+  :load-path "~/projects/ticktick.el/ticktick.el"
   :custom
   (ticktick-client-id "uxXCDqEv3nV3C2M1hn")
   (ticktick-client-secret "6eh+gE#66+3lKHJv56d)EU8&eru_k$*8")
