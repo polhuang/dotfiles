@@ -143,7 +143,7 @@
                    (home-gpg-agent-configuration
                     (pinentry-program
                      (file-append (spec->pkg "pinentry-emacs") "/bin/pinentry-emacs"))
-                    (ssh-support? #t)
+                    (ssh-support? #f)
                     (extra-content "allow-loopback-pinentry")))
           
           (service home-openssh-service-type   ;; move identity-files to polterguix/
