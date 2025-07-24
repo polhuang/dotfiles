@@ -2,8 +2,11 @@
   #:use-module (gnu)
   #:use-module (gnu home)
   #:use-module (gnu home services)
+  #:use-module (gnu home services desktop)
+  #:use-module (gnu home services gnupg)
   #:use-module (gnu home services shells)
-  #:use-module (gnu home services 
+  #:use-module (gnu home services sound)
+  #:use-module (gnu home services ssh)
   #:use-module (gnu packages admin)
   #:use-module (gnu packages base)
   #:use-module (gnu packages emacs)
@@ -16,6 +19,7 @@
   #:use-module (gnu packages libreoffice)
   #:use-module (gnu packages librewolf)
   #:use-module (gnu packages mail)
+  #:use-module (gnu packages networking)
   #:use-module (gnu packages package-management)
   #:use-module (gnu packages password-utils)
   #:use-module (gnu packages rust)
@@ -27,20 +31,23 @@
   #:use-module (gnu packages wm)
   #:use-module (gnu packages web-browsers)
   #:use-module (gnu packages xdisorg)
+  #:use-module (gnu system)
   #:use-module (nongnu packages linux)
   #:use-module (nongnu packages mozilla)
   #:use-module (polterguix packages cli)
   #:use-module (polterguix packages desktop)
   #:use-module (polterguix packages fonts-extra)
   #:use-module (polterguix systems core-system)
-  #:use-module (rosenthal services networking))
+  #:use-module (rosenthal services desktop)
+  #:use-module (rosenthal services networking)
+  #:use-module (rosenthal utils packages))
 
 (define system
   (operating-system
    (inherit core-operating-system)
    (host-name "akhetaten")
 
-   ;; (firmware (list linux-firmware radeon-firmware))
+   (firmware (list linux-firmware amdgpu-firmware))
 
    (mapped-devices (list (mapped-device
                           (source (uuid
@@ -61,23 +68,29 @@
                          (mount-point "/boot/efi")
                          (device (uuid "A1B9-69BE"
                                        'fat32))
-                         (type "vfat")) %base-file-systems))))
+                         (type "vfat")) %base-file-systems))
+   
+
+   ))
    
 (define home
   (home-environment
    (packages (list asciiquarium
                    binutils
+                   blueman
                    btop
                    cliphist
                    emacs-next-pgtk
                    emacs-guix
                    emacs-jinx
                    firefox
+                   font-awesome
                    font-fira-code
                    font-google-material-design-icons
                    font-google-noto
                    font-google-noto-emoji
                    font-google-noto-sans-cjk
+                   font-google-noto-serif-cjk
                    font-jetbrains-mono
                    font-jetbrains-mono-nerd
 		   flatpak
@@ -86,8 +99,6 @@
 		   font-ghostscript
 		   font-gnu-freefont
                    fzf
-                   gcc
-                   glibc
                    hunspell
                    hyprpaper
                    kitty
@@ -99,8 +110,6 @@
                    obs
                    qutebrowser
 		   password-store
-                   pinentry
-                   pinentry-emacs
                    ripgrep
                    rofi-wayland
                    rust
@@ -130,7 +139,13 @@
                     (zprofile (list (local-file
                                      "../files/.zprofile"
                                      "zprofile")))))
-           
+          (service home-gpg-agent-service-type
+                   (home-gpg-agent-configuration
+                    (pinentry-program
+                     (file-append (spec->pkg "pinentry-emacs") "/bin/pinentry-emacs"))
+                    (ssh-support? #f)
+                    (extra-content "allow-loopback-pinentry")))
+          
           (service home-openssh-service-type   ;; move identity-files to polterguix/
                    (home-openssh-configuration
                     (hosts
@@ -148,6 +163,14 @@
                           home-xdg-configuration-files-service-type
                           `(("hypr/hyprland.conf"  ,(local-file "../files/hypr/hyprland-akhetaten.conf"))
                             ("hypr/hyprland-base.conf"  ,(local-file "../files/hypr/hyprland-base.conf"))))
+
+          (service home-dbus-service-type)
+          (service home-pipewire-service-type)
+          (service home-network-manager-applet-service-type)
+          (service home-fcitx5-service-type
+                   (home-fcitx5-configuration
+                    (themes (map specification->package '("fcitx5-material-color-theme")))
+                    (input-method-editors (map specification->package '("fcitx5-chinese-addons" "fcitx5-rime")))))
 
           (simple-service 'dotfiles
                           home-xdg-configuration-files-service-type
