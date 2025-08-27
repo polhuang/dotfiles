@@ -474,6 +474,9 @@ Use prefix argument ARG for number of lines, otherwise use default."
 (set-register ?S (cons 'file "~/projects/cherry-seoul256/cherry-seoul256-theme.el"))
 (set-register ?t (cons 'file "~/org/tasks.org"))
 (set-register ?z (cons 'file "~/.dotfiles/.zshrc"))
+(set-register ?g (cons 'file (concat "~/.dotfiles/polterguix/systems/"
+                                     (system-name)
+                                     ".scm")))
 
 ;; use ibuffer
 (global-set-key (kbd "C-x C-b") 'ibuffer)
