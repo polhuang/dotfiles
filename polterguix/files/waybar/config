@@ -9,7 +9,7 @@
     "gtk-layer-shell": true,
     "reload_style_on_change": true,
         "modules-left": ["hyprland/workspaces"],
-	"modules-center": ["idle_inhibitor", "clock"],
+	"modules-center": [],
 	"modules-right": [
           "wlr/taskbar",
           "tray",
@@ -69,7 +69,6 @@
         "escape": true,
         "tooltip": true
     },
-
     "idle_inhibitor": {
         "format": "{icon}",
         "rotate": 0,
