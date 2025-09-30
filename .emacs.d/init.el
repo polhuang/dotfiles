@@ -2245,9 +2245,6 @@ Otherwise, call eat."
 
 (load "~/projects/scratchpad/scratchpad.el")
 (load "~/projects/org-linear/org-linear.el")
-(load "~/projects/asciiquarium.el/asciiquarium.el")
-(load "~/projects/asciiquarium.el/asciiquarium-data.el")
-(require 'org-linear)
 (load "~/.emacs.d/private/org-linear-credentials.el")
 (scratchpad-enable)
 (global-set-key (kbd "C-M-z") 'scratchpad-toggle)
