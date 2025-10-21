@@ -35,7 +35,6 @@
             ;; ddcci-driver-linux ;; only if =ddcutil detect= reports no displays found
             emacs-next-pgtk
             emacs-guix
-            eza
             fcitx5
             fcitx5-configtool
             fcitx5-gtk

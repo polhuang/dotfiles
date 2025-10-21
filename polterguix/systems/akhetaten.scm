@@ -48,7 +48,6 @@
    (host-name "akhetaten")
 
    (firmware (list linux-firmware amdgpu-firmware))
-
    (mapped-devices (list (mapped-device
                           (source (uuid
                                    "ce94eff8-f142-403f-96e0-208784bb7892"))
