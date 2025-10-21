@@ -115,6 +115,12 @@
        (service elogind-service-type)
        (service udev-service-type)
 
+       ;; firmware updates
+       (service fwupd-service-type)
+
+       ;; time-sync
+       (service ntp-service-type)
+
        ;; laptop QoL
        (service upower-service-type)
        (service fstrim-service-type)
@@ -161,18 +167,10 @@
 
        (service gnome-desktop-service-type)
 
-       ;; trackpoint tuning
+       ;; x-org 
        (set-xorg-configuration
-        (xorg-configuration
-         (keyboard-layout keyboard-layout)
-         (extra-config
-          '((Section "InputClass"
-              Identifier "Trackpoint"
-              MatchProduct "TPPS/2 IBM TrackPoint"
-              Option "AccelProfile" "flat"
-              Option "Sensitivity" "200"
-              Option "Speed" "1.0"
-              EndSection)))))
+        (xorg-configuration (keyboard-layout keyboard-layout)))
+
 
        (simple-service 'add-nonguix-substitutes
                        guix-service-type
