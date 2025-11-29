@@ -687,7 +687,8 @@ Each element is a cons cell (FONT-NAME . HEIGHT).")
   :ensure nil)
 
 (use-package org-roam
-  :ensure t
+  :load-path ("~/.emacs.d/org-roam-2.3.1/" "~/.emacs.d/org-roam-2.3.1/extensions/")
+  :ensure nil
   :after org
   :bind (("C-c n l" . org-roam-buffer-toggle)
 	 ("C-c n f" . org-roam-node-find)
@@ -2006,7 +2007,31 @@ Otherwise, call eat."
                                              (:maildir "/Gmail/[Gmail]/Sent Mail" :key ?s :name "Sent")
                                              (:maildir "/Gmail/[Gmail]/Drafts" :key ?d :name "Drafts")
                                              (:maildir "/Gmail/[Gmail]/All Mail" :key ?a :name "All Mail")
-                                             (:maildir "/Gmail/[Gmail]/Trash" :key ?t :name "Trash")))))))
+                                             (:maildir "/Gmail/[Gmail]/Trash" :key ?t :name "Trash")))))
+        
+        ,(make-mu4e-context
+          :name "work"
+          :enter-func (lambda () (mu4e-message "Switch to Work context"))
+          :match-func (lambda (msg)
+                        (when msg
+                          (string-prefix-p "/Work" (mu4e-message-field msg :maildir))))
+          :vars '((user-mail-address . "paul.huang@vercel.com")
+                  (user-full-name    . "Paul Huang")
+                  (mu4e-sent-folder  . "/Work/[Gmail]/Sent Mail")
+                  (mu4e-drafts-folder . "/Work/[Gmail]/Drafts")
+                  (mu4e-trash-folder  . "/Work/[Gmail]/Trash")
+                  (mu4e-refile-folder . "/Work/[Gmail]/All Mail")
+                  (smtpmail-smtp-server . "smtp.gmail.com")
+                  (smtpmail-smtp-service . 587)
+                  (smtpmail-stream-type . starttls)
+                  (smtpmail-smtp-user . "paul.huang@vercel.com")
+                  (mu4e-maildir-shortcuts . ((:maildir "/Work/INBOX" :key ?i :name "Work - Inbox")
+                                             (:maildir "/Work/[Gmail]/Sent Mail" :key ?s :name "Sent")
+                                             (:maildir "/Work/[Gmail]/Drafts" :key ?d :name "Drafts")
+                                             (:maildir "/Work/[Gmail]/All Mail" :key ?a :name "All Mail")
+                                             (:maildir "/Work/[Gmail]/Trash" :key ?t :name "Trash")))))
+
+        ))
   )
 
 (use-package org-msg
