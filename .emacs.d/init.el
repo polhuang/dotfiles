@@ -1919,17 +1919,17 @@ Otherwise, call eat."
   (mu4e-use-fancy-chars t)
   (mu4e-bookmarks
    '((:name "Unread messages"
-            :query "flag:unread AND NOT flag:trashed AND NOT \"maildir:/All Mail\""
+            :query "flag:unread AND NOT flag:trashed AND NOT \"maildir:/Gmail/[Gmail]/All Mail\" AND NOT \"maildir:/Protonmail/All Mail\" AND NOT maildir:/Gmail/[Gmail]/Spam AND NOT maildir:/Gmail/[Gmail]/Trash"
             :key ?u)
      (:name "Today's messages"
-            :query "date:today..now"
+            :query "date:today..now AND NOT \"maildir:/Gmail/[Gmail]/All Mail\" AND NOT \"maildir:/Protonmail/All Mail\" AND NOT maildir:/Gmail/[Gmail]/Spam AND NOT maildir:/Gmail/[Gmail]/Trash"
             :key ?t)
      (:name "Last 7 days"
-            :query "date:7d..now"
+            :query "date:7d..now AND NOT \"maildir:/Gmail/[Gmail]/All Mail\" AND NOT \"maildir:/Protonmail/All Mail\" AND NOT maildir:/Gmail/[Gmail]/Spam AND NOT maildir:/Gmail/[Gmail]/Trash"
             :hide-unread t
             :key ?w)
      (:name "Messages with images"
-            :query "mime:image/*"
+            :query "mime:image/* AND NOT \"maildir:/Gmail/[Gmail]/All Mail\" AND NOT \"maildir:/Protonmail/All Mail\" AND NOT maildir:/Gmail/[Gmail]/Spam AND NOT maildir:/Gmail/[Gmail]/Trash"
             :key ?p)))
   (mail-user-agent 'mu4e-user-agent)
   (mu4e-user-mail-address-list
@@ -1937,7 +1937,7 @@ Otherwise, call eat."
         "paulleehuang@protonmail.com"
         "plh135464@protonmail.com"))
   (mu4e-update-interval (* 5 60))
-  (mu4e-mu-version "1.12.8")
+  (mu4e-mu-version "1.12.13")
   (message-send-mail-function 'smtpmail-send-it)
   (smtpmail-smtp-server "127.0.0.1")
   (smtpmail-smtp-service 1025)
@@ -1981,7 +1981,7 @@ Otherwise, call eat."
                   (smtpmail-smtp-service . 1025)
                   (smtpmail-stream-type . starttls)
                   (smtpmail-smtp-user . "paulleehuang@protonmail.com")
-                  (mu4e-maildir-shortcuts . ((:maildir "/Protonmail/inbox" :key ?i :name "Inbox")
+                  (mu4e-maildir-shortcuts . ((:maildir "/Protonmail/inbox" :key ?i :name "Proton - Inbox")
                                              (:maildir "/Protonmail/Sent" :key ?s :name "Sent")
                                              (:maildir "/Protonmail/Trash" :key ?t :name "Trash")
                                              (:maildir "/Protonmail/All Mail" :key ?a :name "All Mail")))))
@@ -1997,14 +1997,15 @@ Otherwise, call eat."
                   (mu4e-sent-folder  . "/Gmail/[Gmail]/Sent Mail")
                   (mu4e-drafts-folder . "/Gmail/[Gmail]/Drafts")
                   (mu4e-trash-folder  . "/Gmail/[Gmail]/Trash")
-                  (mu4e-refile-folder . "/Gmail/INBOX")
+                  (mu4e-refile-folder . "/Gmail/[Gmail]/All Mail")
                   (smtpmail-smtp-server . "smtp.gmail.com")
                   (smtpmail-smtp-service . 587)
                   (smtpmail-stream-type . starttls)
                   (smtpmail-smtp-user . "paulleehuang@gmail.com")
-                  (mu4e-maildir-shortcuts . ((:maildir "/Gmail/INBOX" :key ?i :name "Inbox")
+                  (mu4e-maildir-shortcuts . ((:maildir "/Gmail/INBOX" :key ?i :name "Gmail - Inbox")
                                              (:maildir "/Gmail/[Gmail]/Sent Mail" :key ?s :name "Sent")
                                              (:maildir "/Gmail/[Gmail]/Drafts" :key ?d :name "Drafts")
+                                             (:maildir "/Gmail/[Gmail]/All Mail" :key ?a :name "All Mail")
                                              (:maildir "/Gmail/[Gmail]/Trash" :key ?t :name "Trash")))))))
   )
 
