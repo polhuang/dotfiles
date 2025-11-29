@@ -51,3 +51,30 @@ CopyArrivalDate yes
 Create Both
 Expunge Both
 SyncState *
+
+# Work
+IMAPAccount work
+Host imap.gmail.com
+Port 993
+User paul.huang@vercel.com
+PassCmd "pass email/gmail-work"
+SSLType IMAPS
+AuthMechs LOGIN
+
+IMAPStore work-remote
+Account work
+
+MaildirStore work-local
+SubFolders Verbatim
+Path ~/mail/Work/
+Inbox ~/mail/Work/INBOX
+
+Channel work
+Far :work-remote:
+Near :work-local:
+Patterns *
+CopyArrivalDate yes
+Create Both
+Expunge Both
+SyncState *
+
