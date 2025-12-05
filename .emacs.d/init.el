@@ -2154,7 +2154,7 @@ Otherwise, call eat."
   :ensure t
   :commands gptel-end-of-response
   :custom
-  (gptel-model "gpt-4o")
+  (gptel-model "gpt-5")
   (gptel-default-mode 'org-mode)
   :config
   (require 'gptel-integrations))
@@ -2169,6 +2169,14 @@ Otherwise, call eat."
             (gptel-end-of-response)
             (insert "\n#+END_RESPONSE")
             (insert "\n\n")))
+
+(use-package gptel-agent
+  :vc ( :url "https://github.com/karthink/gptel-agent"
+        :rev :newest)
+  :config (gptel-agent-update))         ;Read files from agents directories
+
+
+
 
 ;; install external dependencies enchant, pkgconf, and lang dict
 ;; pacman: enchant, pkgconf, hunspell-en_us
