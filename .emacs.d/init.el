@@ -1561,6 +1561,24 @@ T - tag prefix
 	 ("C-S-<return>" . crux-smart-open-line-above)
 	 ("C-<return>" . crux-smart-open-line)))
 
+;; tempel
+(use-package tempel
+  :init
+
+  ;; setup completion at point
+  (defun tempel-setup-capf ()
+    (setq-local corfu-auto-trigger "@"
+                completion-at-point-functions
+                (cons (cape-capf-trigger #'tempel-complete ?@)
+                      completion-at-point-functions)))
+
+  (add-hook 'conf-mode-hook 'tempel-setup-capf)
+  (add-hook 'prog-mode-hook 'tempel-setup-capf)
+  (add-hook 'text-mode-hook 'tempel-setup-capf)
+  :custom
+  (tempel-path "/home/pol/.emacs.d/templates"))
+
+
 ;;;;;;;;;;;;;;;
 ;; utilities ;;
 ;;;;;;;;;;;;;;;
