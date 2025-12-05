@@ -177,6 +177,11 @@
       initial-scratch-message nil)
 (fset #'display-startup-echo-area-message #'ignore)
 
+;; frame + window management
+(use-package activities
+  :init
+  (activities-mode))
+
 ;; transparency
 (add-to-list 'default-frame-alist '(alpha-background . 65))
 
