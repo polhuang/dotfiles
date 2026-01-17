@@ -50,10 +50,6 @@
                          ("elpa" . "https://elpa.gnu.org/packages/")
   			 ("nongnu" . "https://elpa.nongnu.org/nongnu/")))
 
-;; enable packages from quelpa
-;; (use-package quelpa
-;;   :ensure t)
-
 ;; refresh package lists
  (unless package-archive-contents
    (package-refresh-contents))
@@ -157,9 +153,6 @@
     (set-face-attribute face nil :foreground fg :background 'unspecified)))
 
 
-;; (use-package autothemer
-;;   :ensure t)
-
 (with-eval-after-load 'marginalia
   (set-face-attribute 'marginalia-documentation nil :inherit 'doom-mode-line :slant 'italic))
 
@@ -260,12 +253,6 @@ Each element is a cons cell (FONT-NAME . HEIGHT).")
 ;; fontify-face
 (use-package fontify-face
   :ensure t)
-
-;; define non-breaking space (not sure why i wrote this)
-;; (defface my/non-breaking-space
-;;   '((t :inherit default))
-;;   "My non-breaking space face.")
-;; (font-lock-add-keywords 'org-mode '(("\u00a0" . 'my/non-breaking-space)))
 
 ;; rainbow mode
 (use-package rainbow-mode
@@ -791,7 +778,9 @@ Each element is a cons cell (FONT-NAME . HEIGHT).")
                   '(:time "30m" :duration 1200 :actions -notify)))
 
 ;; add snooze functionality to org-notify
-(load "~/projects/org-notify-snooze/org-notify-snooze.el")
+(use-package org-notify-snooze
+  :if (file-exists-p "~/projects/org-notify-snooze/org-notify-snooze.el")
+  :load-path "~/projects/org-notify-snooze")
 
 ;; org-pomodoro
 (defun my/pomodoro-finished-alert ()
@@ -2255,12 +2244,12 @@ Otherwise, call eat."
   (add-hook 'org-gcal-after-update-entry-functions 'my/org-gcal-format)
   (load (expand-file-name "private/gcal-credentials.el" user-emacs-directory))
   
-  ;; set delay time in seconds (30 seconds in this case) before running (due to emacs-daemon startup time).
-  ;; run once an hour
-  (run-with-timer 30 3600
-                  (lambda ()
-                    (org-gcal-sync)
-                    (message "GCal synced at %s" (format-time-string "%Y-%m-%d %H:%M:%S"))))
+  ;; sync when idle for 5 minutes, then repeat every hour
+  ;; avoids blocking startup if network is slow
+  (run-with-idle-timer 300 3600
+                       (lambda ()
+                         (org-gcal-sync)
+                         (message "gcal synced at %s" (format-time-string "%Y-%m-%d %H:%M:%S"))))
 
   ;; this function is used as a local variable in schedule.org to remove the
   ;; timestamps org-gcal puts into the org-gcal drawer after sync
@@ -2304,16 +2293,18 @@ Add :notify: event on import."
 
   )
 
-;; (use-package scratchpad
-;;   :vc (:url "https://github.com/polhuang/scratchpad.el" :rev :newest)
-;;   :config)
+(use-package scratchpad
+  :if (file-exists-p "~/projects/scratchpad/scratchpad.el")
+  :load-path "~/projects/scratchpad"
+  :config
+  (scratchpad-enable)
+  (global-set-key (kbd "C-M-z") 'scratchpad-toggle)
+  (setq scratchpad-save-directory "~/org/scratchpad"))
 
-(load "~/projects/scratchpad/scratchpad.el")
-(load "~/projects/org-linear/org-linear.el")
+(use-package org-linear
+  :if (file-exists-p "~/projects/org-linear/org-linear.el")
+  :load-path "~/projects/org-linear")
 ;; (load "~/.emacs.d/private/org-linear-credentials.el")
-(scratchpad-enable)
-(global-set-key (kbd "C-M-z") 'scratchpad-toggle)
-(setq scratchpad-save-directory "~/org/scratchpad")
 
 (use-package ticktick
   :if (file-exists-p "~/projects/ticktick.el/ticktick.el")
@@ -2327,8 +2318,11 @@ Add :notify: event on import."
       (setq ticktick-client-id (car auth-info))
       (setq ticktick-client-secret (cadr auth-info)))))
 
-(load "~/projects/org-roam-obsidian-sync/org-roam-obsidian-sync.el")
-(setq org-roam-obsidian-sync-on-change 1)
+(use-package org-roam-obsidian-sync
+  :if (file-exists-p "~/projects/org-roam-obsidian-sync/org-roam-obsidian-sync.el")
+  :load-path "~/projects/org-roam-obsidian-sync"
+  :config
+  (setq org-roam-obsidian-sync-on-change 1))
 
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
