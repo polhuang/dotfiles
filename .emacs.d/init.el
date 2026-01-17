@@ -2315,23 +2315,17 @@ Add :notify: event on import."
 (global-set-key (kbd "C-M-z") 'scratchpad-toggle)
 (setq scratchpad-save-directory "~/org/scratchpad")
 
-(use-package org-jira
-  :ensure t
-  :custom
-  (jiralib-update-issue-fields-exclude-list '(priority components))
-  :config
-  (setq jiralib-url "https://polhuang.atlassian.net")
-  (setq org-jira-working-dir "~/jira"))
-
-(load "~/projects/ticktick.el/ticktick.el")
-
 (use-package ticktick
-  :load-path "~/projects/ticktick.el/ticktick.el"
+  :if (file-exists-p "~/projects/ticktick.el/ticktick.el")
+  :load-path "~/projects/ticktick.el"
   :custom
-  (ticktick-client-id "uxXCDqEv3nV3C2M1hn")
-  ;; (ticktick-client-secret "6eh+gE#66+3lKHJv56d)EU8&eru_k$*8")
   (ticktick-sync-file "~/org/ticktick.org")
-  (ticktick-autosync nil))
+  (ticktick-autosync nil)
+  :config
+  (let ((auth-info (auth-source-user-and-password "ticktick.com")))
+    (when auth-info
+      (setq ticktick-client-id (car auth-info))
+      (setq ticktick-client-secret (cadr auth-info)))))
 
 (load "~/projects/org-roam-obsidian-sync/org-roam-obsidian-sync.el")
 (setq org-roam-obsidian-sync-on-change 1)
