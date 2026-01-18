@@ -2268,6 +2268,8 @@ Otherwise, call eat."
   :custom
   (org-gcal-up-days 0)
   (org-gcal-down-days 30)
+  ;; prevent org-id from scanning archive files (org-gcal uses org-id to find entries)
+  (org-id-extra-files 'org-agenda-files)
   :init
   ;; format gcal property hook
   (add-hook 'org-gcal-after-update-entry-functions 'my/org-gcal-format)
@@ -2399,3 +2401,4 @@ Add :notify: event on import."
 
 ;; byte-compile-warnings: (not docstrings)
 ;; End:
+org-id-extra-files
