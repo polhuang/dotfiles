@@ -1,3 +1,5 @@
+;;; -*- lexical-binding: t -*-
+
 ;;;;;;;;;;;;;;;;;;;;
 ;; emacs settings ;;
 ;;;;;;;;;;;;;;;;;;;;
@@ -6,6 +8,8 @@
 
 (defvar is-mac nil
   "Variable indicating whether system is managed by guix.")
+
+(defvar mac-command-modifier) 
 
 (when is-mac
   (setq mac-command-modifier 'meta))
@@ -511,7 +515,7 @@ Each element is a cons cell (FONT-NAME . HEIGHT).")
   (defvar my/delete-frame-after-capture 0 "Whether to delete the last frame after the current capture")
 
   ;; delete pop-up capture frames after finalize/kill/refile. at popup, set `my/delete-frame-after-capture' to 1
-  (defun my/delete-frame-if-necessary (&rest r)
+  (defun my/delete-frame-if-necessary (&rest _r)
     (cond
      ((= my/delete-frame-after-capture 0) nil)
      ((> my/delete-frame-after-capture 1)
@@ -673,6 +677,8 @@ Each element is a cons cell (FONT-NAME . HEIGHT).")
     (modify-syntax-entry ?< "." org-mode-syntax-table)
     (modify-syntax-entry ?> "." org-mode-syntax-table))
 
+  (defvar org-electric-pairs '((?$ . ?$)))  ; custom electric pairs for org-mode
+
   (defun my/org-add-electric-pairs ()
     (setq-local electric-pair-pairs (append electric-pair-pairs org-electric-pairs))
     (setq-local electric-pair-text-pairs electric-pair-pairs))
@@ -833,11 +839,12 @@ Each element is a cons cell (FONT-NAME . HEIGHT).")
   (org-clock-reminder-interval (cons 10 30))
   (org-clock-reminder-inactive-notifications-p nil)
   :config
-  ;; replace function to configure urgency, timeout
+  ;; replace function to configure urgency, timeout, icon
   (defun org-clock-reminder-notify (title message)
     (let ((icon-path (org-clock-reminder--icon)))
       (notifications-notify :title title
                             :body message
+                            :app-icon icon-path
                             :timeout 54000)))
 
   ;; define duration based on time since latest clock-in, not total clocked time
@@ -850,6 +857,10 @@ Each element is a cons cell (FONT-NAME . HEIGHT).")
 
 (use-package hydra
   :ensure t)
+
+;; load hydra at compile time so byte-compiler understands defhydra macro
+(eval-when-compile
+  (require 'hydra nil t))
 
 ;; hydra-colossa
 (defhydra hydra-colossa (:color amaranth :hint nil)
@@ -1218,7 +1229,6 @@ T - tag prefix
 
 ;; electric pair
 (electric-pair-mode 1)
-(defvar org-electric-pairs '((?$ . ?$))) ; add custom pairs
 
 (use-package puni
   :defer t
@@ -2244,12 +2254,11 @@ Otherwise, call eat."
   (add-hook 'org-gcal-after-update-entry-functions 'my/org-gcal-format)
   (load (expand-file-name "private/gcal-credentials.el" user-emacs-directory))
   
-  ;; sync when idle for 5 minutes, then repeat every hour
-  ;; avoids blocking startup if network is slow
-  (run-with-idle-timer 300 3600
-                       (lambda ()
-                         (org-gcal-sync)
-                         (message "gcal synced at %s" (format-time-string "%Y-%m-%d %H:%M:%S"))))
+  ;; sync 30 seconds after startup, then repeat every hour
+  (run-with-timer 30 3600
+                  (lambda ()
+                    (org-gcal-sync)
+                    (message "gcal synced at %s" (format-time-string "%Y-%m-%d %H:%M:%S"))))
 
   ;; this function is used as a local variable in schedule.org to remove the
   ;; timestamps org-gcal puts into the org-gcal drawer after sync
