@@ -1,3 +1,5 @@
+;;; -*- lexical-binding: t -*-
+
 (setq mac-command-modifier 'meta)
 (setq mac-option-modifier 'none)
 (add-to-list 'default-frame-alist '(undecorated-round . t))
@@ -7,7 +9,15 @@
 (defvar is-guix nil
   "Variable indicating whether system is managed by guix.")
 
-(setq is-guix (not (string-equal (system-name) "nineveh")))
+(defvar is-mac nil
+  "Variable indicating whether system is managed by guix.")
+
+(defvar mac-command-modifier) 
+
+(when is-mac
+  (setq mac-command-modifier 'meta))
+
+(setq is-mac (not (string-equal (system-name) "persepolis.local")))
 
 ;; set high gc at startup, then restore to sane defaults after init
 (setq gc-cons-threshold (* 50 1000 1000)
@@ -47,10 +57,6 @@
 (setq package-archives '(("melpa" . "https://melpa.org/packages/")
                          ("elpa" . "https://elpa.gnu.org/packages/")
   			 ("nongnu" . "https://elpa.nongnu.org/nongnu/")))
-
-;; enable packages from quelpa
-;; (use-package quelpa
-;;   :ensure t)
 
 ;; refresh package lists
  (unless package-archive-contents
@@ -155,9 +161,6 @@
     (set-face-attribute face nil :foreground fg :background 'unspecified)))
 
 
-;; (use-package autothemer
-;;   :ensure t)
-
 (with-eval-after-load 'marginalia
   (set-face-attribute 'marginalia-documentation nil :inherit 'doom-mode-line :slant 'italic))
 
@@ -183,6 +186,11 @@
       initial-major-mode 'fundamental-mode
       initial-scratch-message nil)
 (fset #'display-startup-echo-area-message #'ignore)
+
+;; frame + window management
+(use-package activities
+  :init
+  (activities-mode))
 
 ;; transparency
 (add-to-list 'default-frame-alist '(alpha-background . 65))
@@ -268,12 +276,6 @@ Each element is a cons cell (FONT-NAME . HEIGHT).")
 ;; fontify-face
 (use-package fontify-face
   :ensure t)
-
-;; define non-breaking space (not sure why i wrote this)
-;; (defface my/non-breaking-space
-;;   '((t :inherit default))
-;;   "My non-breaking space face.")
-;; (font-lock-add-keywords 'org-mode '(("\u00a0" . 'my/non-breaking-space)))
 
 ;; rainbow mode
 (use-package rainbow-mode
@@ -514,7 +516,7 @@ Each element is a cons cell (FONT-NAME . HEIGHT).")
    )
   :hook
   (org-mode . org-indent-mode)
-  (org-mode . turn-on-org-cdlatex)
+  ;; (org-mode . turn-on-org-cdlatex)
   (org-mode . my/org-syntax-table-modify)
   (org-mode . my/org-add-electric-pairs)
   (org-agenda-mode . (lambda () (setq-local nobreak-char-display nil)))
@@ -528,11 +530,11 @@ Each element is a cons cell (FONT-NAME . HEIGHT).")
                  (window-height . fit-window-to-buffer)))
   (display-line-numbers-mode 1)
 
-  ;; Kill the frame if one was created for the capture
+  ;; kill the frame if one was created for the capture
   (defvar my/delete-frame-after-capture 0 "Whether to delete the last frame after the current capture")
 
   ;; delete pop-up capture frames after finalize/kill/refile. at popup, set `my/delete-frame-after-capture' to 1
-  (defun my/delete-frame-if-necessary (&rest r)
+  (defun my/delete-frame-if-necessary (&rest _r)
     (cond
      ((= my/delete-frame-after-capture 0) nil)
      ((> my/delete-frame-after-capture 1)
@@ -590,7 +592,8 @@ Each element is a cons cell (FONT-NAME . HEIGHT).")
              ))
   (org-agenda-custom-commands 
       '(("d" "Daily view (grouped)" agenda ""
-         ((org-agenda-span 'day)
+         ((org-agenda-span '1)
+          (org-deadline-warning-days 0)
           (org-habit-show-habits t)
           (org-super-agenda-groups
            '((:name "Tasks"
@@ -622,7 +625,8 @@ Each element is a cons cell (FONT-NAME . HEIGHT).")
   (org-habit-graph-column 60)
   (org-habit-preceding-days 28)
   (org-habit-following-days 0)
-  
+
+  (org-todo-keywords '((sequence "TODO" "IN PROGRESS" "DONE")))
   (org-todo-keyword-faces
         '(("IN PROGRESS" . (:foreground "#F1C40F" :distant-foreground "e6dfb8" :weight bold))
           ("UPCOMING" . (:foreground "#cddbf9" :weight bold))
@@ -692,6 +696,8 @@ Each element is a cons cell (FONT-NAME . HEIGHT).")
     (modify-syntax-entry ?< "." org-mode-syntax-table)
     (modify-syntax-entry ?> "." org-mode-syntax-table))
 
+  (defvar org-electric-pairs '((?$ . ?$)))  ; custom electric pairs for org-mode
+
   (defun my/org-add-electric-pairs ()
     (setq-local electric-pair-pairs (append electric-pair-pairs org-electric-pairs))
     (setq-local electric-pair-text-pairs electric-pair-pairs))
@@ -701,9 +707,6 @@ Each element is a cons cell (FONT-NAME . HEIGHT).")
     (interactive)
     (org-capture-finalize)
     (delete-frame)))
-
-(use-package org-protocol
-  :ensure nil)
 
 (use-package org-roam
   :load-path ("~/.emacs.d/org-roam-2.3.1/" "~/.emacs.d/org-roam-2.3.1/extensions/")
@@ -732,21 +735,19 @@ Each element is a cons cell (FONT-NAME . HEIGHT).")
    (list #'org-roam-backlinks-section
 	 #'org-roam-reflinks-section))
   (org-roam-dailies-capture-templates
-   '(("d" "default" entry "* %<%I:%M %p> \n%?"
-      :if-new (file+head "%<%Y-%m-%d>.org" "#+title: %<%Y-%m-%d>\n"))))
-  :config
+   '(("d" "default" entry "* %<%I:%M %p> \n:PROPERTIES:\n:MOOD: %?\n:END:"
+      :if-new (file+head "%<%Y-%m-%d>.org" "#+title: %<%Y-%m-%d>"))))
+  :init
   (require 'org-roam-dailies)
+  :config
+  (require 'org-roam-protocol)
   (org-roam-db-autosync-mode)
-  
   (defun org-roam-node-insert-immediate (arg &rest args)
     (interactive "P")
     (let ((args (cons arg args))
 	  (org-roam-capture-templates (list (append (car org-roam-capture-templates)
 						    '(:immediate-finish t)))))
       (apply #'org-roam-node-insert args)))
-
-  ;; update org roam ids
-  (org-roam-update-org-id-locations)
 
   (advice-add #'corfu-insert
               :after (lambda ()
@@ -802,7 +803,9 @@ Each element is a cons cell (FONT-NAME . HEIGHT).")
                   '(:time "30m" :duration 1200 :actions -notify)))
 
 ;; add snooze functionality to org-notify
-(load "~/projects/org-notify-snooze/org-notify-snooze.el")
+(use-package org-notify-snooze
+  :if (file-exists-p "~/projects/org-notify-snooze/org-notify-snooze.el")
+  :load-path "~/projects/org-notify-snooze")
 
 ;; org-pomodoro
 (defun my/pomodoro-finished-alert ()
@@ -855,11 +858,12 @@ Each element is a cons cell (FONT-NAME . HEIGHT).")
   (org-clock-reminder-interval (cons 10 30))
   (org-clock-reminder-inactive-notifications-p nil)
   :config
-  ;; replace function to configure urgency, timeout
+  ;; replace function to configure urgency, timeout, icon
   (defun org-clock-reminder-notify (title message)
     (let ((icon-path (org-clock-reminder--icon)))
       (notifications-notify :title title
                             :body message
+                            :app-icon icon-path
                             :timeout 54000)))
 
   ;; define duration based on time since latest clock-in, not total clocked time
@@ -872,6 +876,10 @@ Each element is a cons cell (FONT-NAME . HEIGHT).")
 
 (use-package hydra
   :ensure t)
+
+;; load hydra at compile time so byte-compiler understands defhydra macro
+(eval-when-compile
+  (require 'hydra nil t))
 
 ;; hydra-colossa
 (defhydra hydra-colossa (:color amaranth :hint nil)
@@ -1240,7 +1248,6 @@ T - tag prefix
 
 ;; electric pair
 (electric-pair-mode 1)
-(defvar org-electric-pairs '((?$ . ?$))) ; add custom pairs
 
 (use-package puni
   :defer t
@@ -1577,6 +1584,24 @@ T - tag prefix
 	 ("C-S-<return>" . crux-smart-open-line-above)
 	 ("C-<return>" . crux-smart-open-line)))
 
+;; tempel
+(use-package tempel
+  :init
+
+  ;; setup completion at point
+  (defun tempel-setup-capf ()
+    (setq-local corfu-auto-trigger "@"
+                completion-at-point-functions
+                (cons (cape-capf-trigger #'tempel-complete ?@)
+                      completion-at-point-functions)))
+
+  (add-hook 'conf-mode-hook 'tempel-setup-capf)
+  (add-hook 'prog-mode-hook 'tempel-setup-capf)
+  (add-hook 'text-mode-hook 'tempel-setup-capf)
+  :custom
+  (tempel-path "/home/pol/.emacs.d/templates"))
+
+
 ;;;;;;;;;;;;;;;
 ;; utilities ;;
 ;;;;;;;;;;;;;;;
@@ -1796,6 +1821,7 @@ Otherwise, call eat."
   :commands lsp-ui-mode)
 
 (use-package lsp-tailwindcss
+  :ensure t
   :after lsp-mode
   :custom
   (lsp-tailwindcss-add-on-mode t)
@@ -2115,9 +2141,10 @@ Otherwise, call eat."
 
 ;; zone-mode
 (use-package zone
+  :ensure nil
   :commands zone-when-idle
-  :config
-  (zone-when-idle 60))
+  :init
+  (zone-when-idle 90))
 
 ;; dashboard
 (use-package dashboard
@@ -2169,7 +2196,7 @@ Otherwise, call eat."
   :ensure t
   :commands gptel-end-of-response
   :custom
-  (gptel-model "gpt-4o")
+  (gptel-model 'gpt-5.1)
   (gptel-default-mode 'org-mode)
   :config
   (require 'gptel-integrations))
@@ -2184,6 +2211,11 @@ Otherwise, call eat."
             (gptel-end-of-response)
             (insert "\n#+END_RESPONSE")
             (insert "\n\n")))
+
+(use-package gptel-agent
+  :vc (:url "https://github.com/karthink/gptel-agent"
+        :rev :newest)
+  :config (gptel-agent-update))
 
 ;; install external dependencies enchant, pkgconf, and lang dict
 ;; pacman: enchant, pkgconf, hunspell-en_us
@@ -2216,7 +2248,7 @@ Otherwise, call eat."
   :custom
   (erc-nick "polhuang")
   (erc-user-full-name "polhuang")
-  (erc-autojoin-channels-alist '(("#systemcrafters" "#emacsatx")))
+  (erc-autojoin-channels-alist '((Libera.Chat "#systemcrafters" "#emacsatx")))
   (erc-hide-list '("JOIN" "PART" "QUIT"))
   :functions my/connect-to-erc
   :config
@@ -2226,6 +2258,7 @@ Otherwise, call eat."
          :port "6667"
          :password (cadr (auth-source-user-and-password "irc.libera.chat")))))
 
+(my/connect-to-erc)
 
 ;; org-gcal
 (use-package org-gcal
@@ -2240,12 +2273,11 @@ Otherwise, call eat."
   (add-hook 'org-gcal-after-update-entry-functions 'my/org-gcal-format)
   (load (expand-file-name "private/gcal-credentials.el" user-emacs-directory))
   
-  ;; set delay time in seconds (30 seconds in this case) before running (due to emacs-daemon startup time).
-  ;; run once an hour
+  ;; sync 30 seconds after startup, then repeat every hour
   (run-with-timer 30 3600
                   (lambda ()
                     (org-gcal-sync)
-                    (message "GCal synced at %s" (format-time-string "%Y-%m-%d %H:%M:%S"))))
+                    (message "gcal synced at %s" (format-time-string "%Y-%m-%d %H:%M:%S"))))
 
   ;; this function is used as a local variable in schedule.org to remove the
   ;; timestamps org-gcal puts into the org-gcal drawer after sync
@@ -2289,34 +2321,36 @@ Add :notify: event on import."
 
   )
 
-;; (use-package scratchpad
-;;   :vc (:url "https://github.com/polhuang/scratchpad.el" :rev :newest)
-;;   :config)
-
-(load "~/projects/scratchpad/scratchpad.el")
-(load "~/projects/org-linear/org-linear.el")
-;; (load "~/.emacs.d/private/org-linear-credentials.el")
-(scratchpad-enable)
-(global-set-key (kbd "C-M-z") 'scratchpad-toggle)
-(setq scratchpad-save-directory "~/org/scratchpad")
-
-(use-package org-jira
-  :ensure t
-  :custom
-  (jiralib-update-issue-fields-exclude-list '(priority components))
+(use-package scratchpad
+  :if (file-exists-p "~/projects/scratchpad/scratchpad.el")
+  :load-path "~/projects/scratchpad"
   :config
-  (setq jiralib-url "https://polhuang.atlassian.net")
-  (setq org-jira-working-dir "~/jira"))
+  (scratchpad-enable)
+  (global-set-key (kbd "C-M-z") 'scratchpad-toggle)
+  (setq scratchpad-save-directory "~/org/scratchpad"))
 
-(load "~/projects/ticktick.el/ticktick.el")
+(use-package org-linear
+  :if (file-exists-p "~/projects/org-linear/org-linear.el")
+  :load-path "~/projects/org-linear")
+;; (load "~/.emacs.d/private/org-linear-credentials.el")
 
 (use-package ticktick
-  :load-path "~/projects/ticktick.el/ticktick.el"
+  :if (file-exists-p "~/projects/ticktick.el/ticktick.el")
+  :load-path "~/projects/ticktick.el"
   :custom
-  (ticktick-client-id "uxXCDqEv3nV3C2M1hn")
-  ;; (ticktick-client-secret "6eh+gE#66+3lKHJv56d)EU8&eru_k$*8")
   (ticktick-sync-file "~/org/ticktick.org")
-  (ticktick-autosync nil))
+  (ticktick-autosync nil)
+  :config
+  (let ((auth-info (auth-source-user-and-password "ticktick.com")))
+    (when auth-info
+      (setq ticktick-client-id (car auth-info))
+      (setq ticktick-client-secret (cadr auth-info)))))
+
+(use-package org-roam-obsidian-sync
+  :if (file-exists-p "~/projects/org-roam-obsidian-sync/org-roam-obsidian-sync.el")
+  :load-path "~/projects/org-roam-obsidian-sync"
+  :config
+  (setq org-roam-obsidian-sync-on-change 1))
 
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
