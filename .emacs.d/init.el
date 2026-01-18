@@ -1,5 +1,8 @@
+(setq mac-command-modifier 'meta)
+(setq mac-option-modifier 'none)
+(add-to-list 'default-frame-alist '(undecorated-round . t))
 ;;;;;;;;;;;;;;;;;;;;
-;; emacs settings ;;
+;; emacs settings ;;¡™
 ;;;;;;;;;;;;;;;;;;;;
 (defvar is-guix nil
   "Variable indicating whether system is managed by guix.")
@@ -27,7 +30,8 @@
   (let ((file (expand-file-name (if (equal length "long")
                                     "sounds/bell_multiple.wav"
                                   "sounds/bell.wav")
-                                user-emacs-directory)))
+                                user-emacs-d
+                                irectory)))
     (start-process-shell-command "org" nil (concat "aplay " file))))
 
 ;;;;;;;;;;;;;;;;;;;;;;
@@ -158,12 +162,15 @@
   (set-face-attribute 'marginalia-documentation nil :inherit 'doom-mode-line :slant 'italic))
 
 ;; misc ui settings
-(menu-bar-mode -1)
+(when (fboundp 'scroll-bar-mode) (scroll-bar-mode -1))
+(when (fboundp 'tool-bar-mode)   (tool-bar-mode -1))
+(when (fboundp 'menu-bar-mode)   (menu-bar-mode -1))
+(when (fboundp 'fringe-mode)     (fringe-mode 0))
+
+(system-name)
+
 (global-hl-line-mode t)
-(scroll-bar-mode -1)
-(tool-bar-mode -1)
 (tooltip-mode -1)
-(set-fringe-mode 10)
 (global-visual-line-mode 1)
 (column-number-mode)
 (global-prettify-symbols-mode 1)
@@ -193,6 +200,18 @@
         (progn
           (set-frame-parameter nil 'alpha-background 100)
           (cherry-seoul256-create 'cherry-seoul256 235))))))
+
+(defun my/t\oggle-frametransparency ()
+    "Toggle frame transparency and adjust cherry-seoul256 background."
+    (interactive)
+    (let ((current-alpha (frame-parameter nil 'alpha-background)))
+      (if (or (not current-alpha) (= current-alpha 100))
+          (progn
+            (set-frame-parameter nil 'alpha-background 60)
+            (cherry-seoul256-create 'cherry-seoul256 233))
+        (progn
+          (set-frame-parameter nil 'alpha-background 100)
+          (cherry-seoul256-create 'cherry-seoul256 235)))))
 
 ;; fonts
 (defvar my/font-options
@@ -1777,7 +1796,7 @@ Otherwise, call eat."
   :commands lsp-ui-mode)
 
 (use-package lsp-tailwindcss
-  :ensure t
+  :after lsp-mode
   :custom
   (lsp-tailwindcss-add-on-mode t)
   (lsp-tailwindcss-major-modes '(typescript-ts-mode js-ts-mode tsx-ts-mode typescript-ts-mode web-mode)))
@@ -1808,9 +1827,8 @@ Otherwise, call eat."
 (use-package treesit-auto
   :commands (treesit-auto-add-to-auto-mode-alist global-treesit-auto-mode)
   :ensure t
-  :init
-  (treesit-auto-add-to-auto-mode-alist 'all)
   :custom
+  (treesit-auto-add-to-auto-mode-alist 'all)
   (treesit-auto-install 'prompt)
   :config
   (global-treesit-auto-mode))
@@ -1915,7 +1933,7 @@ Otherwise, call eat."
 ;; mu4e
 (use-package  mu4e
   :ensure nil
-  :load-path "~/.guix-home/profile/share/emacs/site-lisp/mu4e"
+  :load-path "/opt/homebrew/share/emacs/site-lisp/mu/mu4e/"
   :custom
   (mu4e-use-fancy-chars t)
   (mu4e-bookmarks
