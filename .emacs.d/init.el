@@ -263,9 +263,6 @@ Each element is a cons cell (FONT-NAME . HEIGHT).")
 
 (my/set-font "Fira Code") ;; default
 
-(global-set-key (kbd "C-M-] r F") 'my/select-font)
-(global-set-key (kbd "C-M-] r f") 'my/cycle-fonts)
-
 ;; fontify-face
 (use-package fontify-face
   :ensure t)
@@ -2261,55 +2258,97 @@ Otherwise, call eat."
   (org-gcal-down-days 30)
   ;; prevent org-id from scanning archive files (org-gcal uses org-id to find entries)
   (org-id-extra-files 'org-agenda-files)
-  :init
-  ;; format gcal property hook
-  (add-hook 'org-gcal-after-update-entry-functions 'my/org-gcal-format)
-  (load (expand-file-name "private/gcal-credentials.el" user-emacs-directory))
-  
-  ;; sync 30 seconds after startup, then repeat every hour
-  (run-with-timer 30 3600
-                  (lambda ()
-                    (org-gcal-sync)
-                    (message "gcal synced at %s" (format-time-string "%Y-%m-%d %H:%M:%S"))))
 
-  ;; this function is used as a local variable in schedule.org to remove the
-  ;; timestamps org-gcal puts into the org-gcal drawer after sync
+  :init
+  ;; load credentials
+  (load (expand-file-name "private/gcal-credentials.el" user-emacs-directory))
+
+  :config
   (defun my/clear-extra-gcal-timestamps ()
-    "Remove all lines in the current buffer that start with the character '<'."
+    "Remove all lines in the current buffer that start with '<'.
+This clears timestamps org-gcal puts into the org-gcal drawer after sync."
     (interactive)
     (goto-char (point-min))
     (while (re-search-forward "^<.*$" nil t)
       (replace-match "")))
 
-  :config
+  (defun my/delete-unwanted-gcal-entries ()
+    "Delete calendar entries with specific titles after org-gcal sync."
+    (interactive)
+    (let ((unwanted-titles '("Body Doubling: Working Session"
+                            "▵ Global Startups Sales All Hands ▵"
+                            "▲ Team Meditation with Jeremy"
+                            "Demo Doys"
+                            "Crossbeam Office Hours [Sales Team]: Accelerate Partner Pipeline & Deals"
+                            "DD: Weekly Office Hours (Optional)"))
+          (schedule-file (expand-file-name "~/org/agenda/schedule.org")))
+      (when (file-exists-p schedule-file)
+        (with-current-buffer (find-file-noselect schedule-file)
+          (save-excursion
+            (goto-char (point-min))
+            (dolist (title unwanted-titles)
+              (goto-char (point-min))
+              (while (re-search-forward (concat "^\\* \\(UPCOMING\\|TODO\\|DONE\\) " (regexp-quote title) "$") nil t)
+                (org-back-to-heading t)
+                (delete-region (point) (progn (org-end-of-subtree t t) (point))))))
+          (save-buffer))))
+    (message "Deleted unwanted calendar entries"))
+
+  (defun my/cleanup-schedule-after-sync ()
+    "Clean up schedule.org: clear extra timestamps, sort entries, delete unwanted entries."
+    (interactive)
+    (let ((schedule-file (expand-file-name "~/org/agenda/schedule.org")))
+      (when (file-exists-p schedule-file)
+        (with-current-buffer (find-file-noselect schedule-file)
+          (save-excursion
+            (my/clear-extra-gcal-timestamps)
+            (goto-char (point-min))
+            (org-sort-entries t ?s))
+          (save-buffer))))
+    (my/delete-unwanted-gcal-entries))
+
   (defun my/org-gcal-format (calendar-id event update-mode)
     "Format org-gcal events in the schedule.org buffer.
 Add :notify: event on import."
-  (if (eq update-mode 'newly-fetched)
-      (progn
-        ;; Timed events
-        (when-let* ((stime (plist-get (plist-get event :start) :dateTime))
-                    (etime (plist-get (plist-get event :end) :dateTime))
-                    (start-time (date-to-time stime))
-                    (end-time (date-to-time etime))
-                    (formatted-stime (format-time-string "%Y-%m-%d %a %H:%M" start-time))
-                    (formatted-etime (format-time-string "%H:%M" end-time)))
-          (org-todo "UPCOMING")
-          (org-schedule nil (format "<%s-%s>" formatted-stime formatted-etime)))
+    (if (eq update-mode 'newly-fetched)
+        (progn
+          ;; Timed events
+          (when-let* ((stime (plist-get (plist-get event :start) :dateTime))
+                      (etime (plist-get (plist-get event :end) :dateTime))
+                      (start-time (date-to-time stime))
+                      (end-time (date-to-time etime))
+                      (formatted-stime (format-time-string "%Y-%m-%d %a %H:%M" start-time))
+                      (formatted-etime (format-time-string "%H:%M" end-time)))
+            (org-todo "UPCOMING")
+            (org-schedule nil (format "<%s-%s>" formatted-stime formatted-etime)))
 
-        ;; All-day events
-        (when-let* ((stime (plist-get (plist-get event :start) :date)))
-          (if (string= calendar-id "997d9ee06bb6de8790f30e0fe0e8a52e60a15bf1301173490f0e92247a2eb4ad@group.calendar.google.com") ;; this is for TickTick tasks - import as tasks instead of as events
-              (org-todo "TODO")
-            (org-todo "UPCOMING"))
-          (org-schedule nil (format "<%s>" stime)))
+          ;; All-day events
+          (when-let* ((stime (plist-get (plist-get event :start) :date)))
+            (if (string= calendar-id "997d9ee06bb6de8790f30e0fe0e8a52e60a15bf1301173490f0e92247a2eb4ad@group.calendar.google.com") ;; TickTick tasks - import as tasks
+                (org-todo "TODO")
+              (org-todo "UPCOMING"))
+            (org-schedule nil (format "<%s>" stime)))
 
-        ;; Add :notify: event once on import
-        (let ((cur (or (org-entry-get (point) "notify") "")))
-          (unless (string= cur "event")
-            (org-entry-put (point) "notify" "event"))))
-    ;; On updates: just keep your sort behavior
-    (org-sort-entries nil ?o))))
+          ;; Add :notify: event once on import
+          (let ((cur (or (org-entry-get (point) "notify") "")))
+            (unless (string= cur "event")
+              (org-entry-put (point) "notify" "event"))))
+      ;; On updates: keep sort behavior
+      (org-sort-entries nil ?o)))
+
+  ;; Hook to format entries as they're imported
+  (add-hook 'org-gcal-after-update-entry-functions 'my/org-gcal-format)
+
+  ;; Advice to run cleanup after any org-gcal-sync call (waits 5 seconds for sync to complete)
+  (advice-add 'org-gcal-sync :after
+              (lambda (&rest _)
+                (run-with-timer 5 nil 'my/cleanup-schedule-after-sync)))
+
+  ;; Auto-sync: 30 seconds after startup, then repeat every hour
+  (run-with-timer 30 3600
+                  (lambda ()
+                    (org-gcal-sync)
+                    (message "gcal synced at %s" (format-time-string "%Y-%m-%d %H:%M:%S")))))
 
 (use-package scratchpad
   :if (file-exists-p "~/projects/scratchpad/scratchpad.el")
@@ -2389,4 +2428,3 @@ Add :notify: event on import."
 
 ;; byte-compile-warnings: (not docstrings)
 ;; End:
-org-id-extra-files
