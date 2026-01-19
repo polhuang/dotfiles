@@ -614,7 +614,7 @@ Each element is a cons cell (FONT-NAME . HEIGHT).")
   (org-habit-preceding-days 28)
   (org-habit-following-days 0)
 
-  (org-todo-keywords '((sequence "TODO" "IN PROGRESS" "DONE")))
+  (org-todo-keywords '((sequence "TODO" "IN PROGRESS" "DONE" "HABIT" "ACTIVITY")))
   (org-todo-keyword-faces
         '(("IN PROGRESS" . (:foreground "#F1C40F" :distant-foreground "e6dfb8" :weight bold))
           ("UPCOMING" . (:foreground "#cddbf9" :weight bold))
@@ -697,8 +697,7 @@ Each element is a cons cell (FONT-NAME . HEIGHT).")
     (delete-frame)))
 
 (use-package org-roam
-  :load-path ("~/.emacs.d/org-roam-2.3.1/" "~/.emacs.d/org-roam-2.3.1/extensions/")
-  :ensure nil
+  :ensure t
   :after org
   :bind (("C-c n l" . org-roam-buffer-toggle)
 	 ("C-c n f" . org-roam-node-find)
@@ -751,6 +750,12 @@ Each element is a cons cell (FONT-NAME . HEIGHT).")
   (org-roam-ui-follow t)
   (org-roam-ui-update-on-save t)
   (org-roam-ui-open-on-start t))
+
+(use-package org-roam-dailies-tasklog
+  :straight (:host github :repo "polhuang/org-roam-dailies-tasklog")
+  :after org-roam
+  :config
+  (org-roam-dailies-tasklog-mode 1))
 
 (use-package org-super-agenda ;; if there's a problem with loading the package, it could be because of dash conflicts - needs to be installed internally, not externally
   :ensure t
@@ -2408,15 +2413,6 @@ Add :notify: event on import."
      (scratchpad :url "https://github.com/polhuang/scratchpad.el")
      (claude-code-ide :url
                       "https://github.com/manzaltu/claude-code-ide.el")))
- '(safe-local-variable-values
-   '((eval progn (my/clear-extra-gcal-timestamps) (goto-char (point-min))
-           (org-sort-entries t 115))
-     (eval save-excursion (goto-char (point-min))
-           (while (re-search-forward "^\\(<\\([^>]+\\)>\\)" nil t)
-             (replace-match "SCHEDULED: \\1")))
-     (eval org-columns) (eval outline-next-heading)
-
-     (eval goto-char (point-min))))
  '(warning-suppress-types '((comp))))
 
 (custom-set-faces
